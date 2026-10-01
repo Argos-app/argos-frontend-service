@@ -1,1 +1,10 @@
-@import "tailwindcss"
+@import "tailwindcss";
+
+@theme {
+  --color-brand-ink: #000000;
+  --color-brand-brown: #7f411a;
+  --color-brand-forest: #06412f;
+  --color-brand-leaf: #62bb4d;
+  --color-brand-sand: #d0c6b2;
+  --color-brand-cream: #f4f1eb;
+}
