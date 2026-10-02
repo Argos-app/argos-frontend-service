@@ -13,7 +13,7 @@ export function App() {
 
         <Route element={<PrivateRouteComponent />}>
           <Route path="/home" element={<Home />} />
-          <Route path="/manage-users" element={<ManageUsers />} />
+          <Route path="/gestao-usuarios" element={<ManageUsers />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/login" replace />} />

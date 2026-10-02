@@ -16,11 +16,11 @@ interface DataTableProps<T> {
   error?: string | null;
   emptyMessage?: string;
   loadingMessage?: string;
-  errorMessage?: string;
   onRetry?: () => void;
   rowKey: keyof T | ((row: T) => string);
   striped?: boolean;
   hoverable?: boolean;
+  className?: string;
 }
 
 export function DataTable<T>({
@@ -30,11 +30,11 @@ export function DataTable<T>({
   error = null,
   emptyMessage = "Nenhum registro encontrado.",
   loadingMessage = "Carregando...",
-  errorMessage = "Erro ao carregar dados.",
   onRetry,
   rowKey,
   striped = true,
   hoverable = true,
+  className,
 }: DataTableProps<T>) {
   const getRowKey = (row: T, index: number) => {
     if (typeof rowKey === "function") return rowKey(row);
@@ -56,7 +56,7 @@ export function DataTable<T>({
       return (
         <tr>
           <td colSpan={columns.length} className="p-4 text-center">
-            <span className="text-sm text-brand-brown">{errorMessage}: {error}</span>
+            <span className="text-sm text-brand-ink">{error}</span>
             {onRetry && (
               <button
                 type="button"
@@ -103,7 +103,7 @@ export function DataTable<T>({
   };
 
   return (
-    <div className="overflow-x-auto">
+    <div className={cn("overflow-x-auto", className)}>
       <table className="w-full min-w-max table-auto text-left">
         <thead>
           <tr>

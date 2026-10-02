@@ -1,4 +1,7 @@
 export * from "./Avatar";
+export * from "./DeleteButton";
+export * from "./CreateUserDrawer";
+export * from "./EditUserDrawer";
 export * from './Button';
 export * from './Input';
 export * from './Sidebar';

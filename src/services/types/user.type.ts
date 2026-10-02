@@ -8,4 +8,6 @@ export interface User {
   farmName: string;
   cnpj: string | null;
   linkDate: string;
+  propertyId: string;
+  permissionId: string;
 }

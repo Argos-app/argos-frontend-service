@@ -36,7 +36,7 @@ const menuGroups: MenuGroup[] = [
     items: [
       { label: "Gerenciar acessos" },
       { label: "Histórico de Aplicações" },
-      { label: "Gerenciar Usuários", to: "/manage-users" },
+      { label: "Gerenciar Usuários", to: "/gestao-usuarios" },
       { label: "Propriedades" },
     ],
   },

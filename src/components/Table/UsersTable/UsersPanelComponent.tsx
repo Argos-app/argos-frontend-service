@@ -3,7 +3,7 @@ import { useState } from "react";
 import type { User } from "../../../services";
 import { ButtonComponent } from "../../Button";
 import { SearchComponent } from "../../Search/SearchComponent";
-import { MembersTable } from "./UsersTableComponent";
+import { UsersTable } from "./UsersTableComponent";
 
 interface UsersPanelProps {
   users: User[];
@@ -18,6 +18,7 @@ interface UsersPanelProps {
   onRetry: () => void;
   onAdd?: () => void;
   onEdit?: (user: User) => void;
+  onDelete: (user: User) => Promise<void> | void;
 }
 
 export function UsersPanel({
@@ -33,6 +34,7 @@ export function UsersPanel({
   onRetry,
   onAdd,
   onEdit,
+  onDelete,
 }: UsersPanelProps) {
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -54,33 +56,30 @@ export function UsersPanel({
             <h5 className="text-3xl font-semibold text-brand-ink">Lista de usuários</h5>
             <p className="mt-1 text-sm text-brand-forest/70">Visualize as informações sobre todos os usuários</p>
           </div>
-
-          {onAdd && (
-            <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
-              <ButtonComponent type="button" onClick={onAdd}>
-                <UserPlus strokeWidth={2} className="h-4 w-4" />
-                Adicionar usuário
-              </ButtonComponent>
-            </div>
-          )}
         </div>
 
-        <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
+        <div className="flex flex-col items-center gap-2 md:flex-row">
           <SearchComponent
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
             placeholder={isSearching ? "Pesquisar nesta página" : "Pesquisar usuário"}
             className="md:w-72"
           />
+          <div className="flex flex-col items-center gap-2 md:flex-row">
+            <ButtonComponent type="button" className="rounded-xl" onClick={onAdd} aria-label="Adicionar usuário">
+              <UserPlus strokeWidth={2} className="h-4 w-4" />
+            </ButtonComponent>
+          </div>
         </div>
       </div>
 
-      <MembersTable
+      <UsersTable
         users={filteredRows}
         loading={loading}
         error={error}
         onRetry={onRetry}
         onEdit={onEdit}
+        onDelete={onDelete}
       />
 
       <div className="flex shrink-0 items-center justify-between border-t border-brand-sand p-4">

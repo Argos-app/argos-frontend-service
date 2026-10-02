@@ -8,3 +8,64 @@
   --color-brand-sand: #d0c6b2;
   --color-brand-cream: #f4f1eb;
 }
+
+.argos-delete-popconfirm .ant-popover-inner {
+  border: 1px solid #d0c6b2;
+  border-radius: 12px;
+  background: #f4f1eb;
+  box-shadow: 0 12px 32px rgb(0 0 0 / 0.16);
+}
+
+.argos-delete-popconfirm .ant-popconfirm-title {
+  color: #000000;
+}
+
+.argos-delete-popconfirm .ant-popconfirm-description {
+  color: #06412f;
+}
+
+.argos-delete-popconfirm .ant-popconfirm-buttons .ant-btn-default {
+  border-color: #d0c6b2;
+  color: #06412f;
+  background: #f4f1eb;
+}
+
+.argos-delete-popconfirm .ant-popconfirm-buttons .ant-btn-default:hover {
+  border-color: #06412f;
+  color: #06412f;
+}
+
+.argos-delete-popconfirm .ant-popconfirm-buttons .ant-btn-primary {
+  border-color: #06412f;
+  color: #f4f1eb;
+  background: #06412f;
+  box-shadow: none;
+}
+
+.argos-delete-popconfirm .ant-popconfirm-buttons .ant-btn-primary:hover {
+  color: #f4f1eb;
+  background: #06342a;
+}
+
+.argos-user-drawer .ant-drawer-content {
+  border-left: 1px solid #d0c6b2;
+  background: #f4f1eb;
+}
+
+.argos-user-drawer .ant-drawer-header {
+  border-bottom-color: #d0c6b2;
+}
+
+.argos-user-drawer .ant-drawer-title,
+.argos-user-drawer .ant-form-item-label > label {
+  color: #000000;
+}
+
+.argos-user-drawer .ant-form-item-explain-error {
+  color: #06412f;
+}
+
+.argos-user-drawer .ant-select-dropdown {
+  border: 1px solid #d0c6b2;
+  background: #f4f1eb;
+}
