@@ -1,84 +1,24 @@
-# ─────────────────────────────────────────────
-# Node.js / npm / yarn
-# ─────────────────────────────────────────────
-node_modules/
-.npm/
-.yarn/
-.pnp.*
-.yarn-integrity
-
-dist/
-build/
-out/
-.cache/
-.parcel-cache/
-.next/
-.nuxt/
-
+# Logs
+logs
 *.log
-logs/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+lerna-debug.log*
 
-.env
-.env.*
-!.env.example
+node_modules
+dist
+dist-ssr
+*.local
 
-coverage/
-.nyc_output/
-
-# ─────────────────────────────────────────────
-# Java / Maven / Gradle
-# ─────────────────────────────────────────────
-target/
-*.class
-*.jar
-*.war
-*.ear
-*.nar
-hs_err_pid*
-
-.gradle/
-gradle-app.setting
-!gradle-wrapper.jar
-!gradle-wrapper.properties
-build/
-
-# ─────────────────────────────────────────────
-# VS Code
-# ─────────────────────────────────────────────
+# Editor directories and files
 .vscode/*
-!.vscode/settings.json
 !.vscode/extensions.json
-!.vscode/launch.json
-!.vscode/tasks.json
-*.code-workspace
-
-# ─────────────────────────────────────────────
-# IntelliJ IDEA / JetBrains
-# ─────────────────────────────────────────────
-.idea/
-*.iml
-*.iws
-*.ipr
-out/
-.idea_modules/
-
-# ─────────────────────────────────────────────
-# Docker
-# ─────────────────────────────────────────────
-.dockerignore
-docker-compose.override.yml
-.docker/
-
-# ─────────────────────────────────────────────
-# Misc
-# ─────────────────────────────────────────────
-*.DS_Store
-Thumbs.db
-*.swp
-*.swo
-*.bak
-*.tmp
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
