@@ -57,7 +57,7 @@ export function UsersTable({ users, loading, error, onRetry, onEdit, onDelete }:
       render: (user) => (
         <span
           className={`inline-flex w-max items-center rounded-md px-3 py-1 text-xs font-medium ${
-            user.active ? "bg-brand-leaf/20 text-brand-forest" : "bg-brand-sand/50 text-brand-forest"
+            user.active ? "bg-brand-leaf/20 text-brand-forest" : "bg-brand-sand/50 text-brand-brown"
           }`}
         >
           {user.active ? "Ativo" : "Inativo"}
@@ -95,7 +95,7 @@ export function UsersTable({ users, loading, error, onRetry, onEdit, onDelete }:
               type="button"
               title="Excluir usuário"
               aria-label={`Remover acesso de ${user.name}`}
-              className="rounded-md p-2 text-brand-forest hover:bg-brand-sand/40 hover:text-brand-ink"
+              className="rounded-md p-2 text-brand-brown hover:bg-brand-sand/40 hover:text-brand-ink"
             >
               <Trash className="h-4 w-4" strokeWidth={2} />
             </button>

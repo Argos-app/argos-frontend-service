@@ -21,7 +21,7 @@ export const SearchComponent = ({ searchQuery, setSearchQuery, placeholder, clas
 				aria-label="Pesquisar no menu"
 				value={searchQuery}
 				onChange={(event) => setSearchQuery(event.target.value)}
-				className="peer h-full w-full rounded-lg border border-brand-sand bg-transparent px-3 py-2.5 pr-9 text-sm font-normal text-brand-ink outline-none transition-all placeholder:text-brand-forest/50 focus:border-brand-brown focus:ring-1 focus:ring-brand-brown disabled:border-0 disabled:bg-brand-sand/30"
+				className="peer h-full w-full rounded-lg border border-brand-sand bg-transparent px-3 py-2.5 pr-9 text-sm font-normal text-brand-ink outline-none transition-all placeholder:text-brand-forest/50 focus:border-brand-forest focus:ring-1 focus:ring-brand-forest disabled:border-0 disabled:bg-brand-sand/30"
         {...props}
 			/>
 		</div>

@@ -37,7 +37,7 @@ export const Login = () => {
           </div>
 
           {error && (
-            <p className="w-full text-sm text-brand-brown text-center">{error}</p>
+            <p className="w-full text-sm text-brand-ink text-center">{error}</p>
           )}
 
           <InputComponent
@@ -67,7 +67,10 @@ export const Login = () => {
                 Lembrar acesso
               </label>
             </div>
-            <Link className="text-sm underline" to="/forget-password">
+            <Link
+              className="text-sm underline link-redirect"
+              to="/forget-password"
+            >
               Esqueceu a senha?
             </Link>
           </div>

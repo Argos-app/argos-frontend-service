@@ -1,12 +1,12 @@
-import { UserPlus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useState } from "react";
-import type { User } from "../../../services";
+import type { Property } from "../../../services";
 import { ButtonComponent } from "../../Button";
 import { SearchComponent } from "../../Search/SearchComponent";
-import { UsersTable } from "./UsersTableComponent";
+import { PropertiesTable } from "./PropertiesTableComponent";
 
-interface UsersPanelProps {
-  users: User[];
+interface PropertiesPanelProps {
+  properties: Property[];
   loading: boolean;
   error: string | null;
   page: number;
@@ -16,13 +16,13 @@ interface UsersPanelProps {
   last: boolean;
   onPageChange: (page: number) => void;
   onRetry: () => void;
-  onAdd?: () => void;
-  onEdit?: (user: User) => void;
-  onDelete: (user: User) => Promise<void> | void;
+  onAdd: () => void;
+  onEdit: (property: Property) => void;
+  onDeactivate: (property: Property) => Promise<void> | void;
 }
 
-export function UsersPanel({
-  users = [],
+export function PropertiesPanel({
+  properties,
   loading,
   error,
   page,
@@ -34,60 +34,58 @@ export function UsersPanel({
   onRetry,
   onAdd,
   onEdit,
-  onDelete,
-}: UsersPanelProps) {
+  onDeactivate,
+}: PropertiesPanelProps) {
   const [searchQuery, setSearchQuery] = useState("");
-
-  const normalizedQuery = searchQuery.trim().toLowerCase();
-  const filteredRows = users.filter(
-    (row) =>
-      (row.name ?? "").toLowerCase().includes(normalizedQuery) ||
-      (row.email ?? "").toLowerCase().includes(normalizedQuery) ||
-      (row.farmName ?? "").toLowerCase().includes(normalizedQuery),
+  const normalizedQuery = searchQuery.trim().toLocaleLowerCase();
+  const filteredProperties = properties.filter((property) =>
+    [property.name, property.cnpj, property.address, property.city, property.state, property.responsibleAdminName]
+      .some((value) => value?.toLocaleLowerCase().includes(normalizedQuery)),
   );
-
-  const isSearching = normalizedQuery.length > 0;
 
   return (
     <div className="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-lg border border-brand-sand bg-brand-cream shadow-sm">
-      <div className="shrink-0 rounded-none p-4">
-        <div className="mb-8 flex items-center justify-between gap-8">
-          <div>
-            <h5 className="text-3xl font-semibold text-brand-ink">Lista de usuários</h5>
-            <p className="mt-1 text-sm text-brand-forest/70">Visualize as informações sobre todos os usuários</p>
-          </div>
+      <div className="shrink-0 p-4">
+        <div className="mb-8">
+          <h5 className="text-3xl font-semibold text-brand-ink">Lista de propriedades</h5>
+          <p className="mt-1 text-sm text-brand-forest/70">Gerencie as fazendas cadastradas no sistema</p>
         </div>
 
         <div className="flex flex-col items-center gap-2 md:flex-row">
           <SearchComponent
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
-            placeholder={isSearching ? "Pesquisar nesta página" : "Pesquisar usuário"}
+            placeholder={normalizedQuery ? "Pesquisar nesta página" : "Pesquisar propriedade"}
+            aria-label="Pesquisar propriedades nesta página"
             className="md:w-72"
           />
           <div className="flex w-full flex-col items-center gap-2 md:w-auto md:flex-row">
-            <ButtonComponent type="button" className="rounded-xl md:w-auto" onClick={onAdd} aria-label="Adicionar usuário">
-              <UserPlus strokeWidth={2} className="h-4 w-4" />
-              <span className="md:hidden">Adicionar usuário</span>
+            <ButtonComponent
+              type="button"
+              className="rounded-xl md:w-auto"
+              onClick={onAdd}
+              aria-label="Adicionar propriedade"
+            >
+              <Plus className="h-4 w-4" strokeWidth={2} />
+              <span className="md:hidden">Adicionar propriedade</span>
             </ButtonComponent>
           </div>
         </div>
       </div>
 
-      <UsersTable
-        users={filteredRows}
+      <PropertiesTable
+        properties={filteredProperties}
         loading={loading}
         error={error}
         onRetry={onRetry}
         onEdit={onEdit}
-        onDelete={onDelete}
+        onDeactivate={onDeactivate}
       />
 
       <div className="flex shrink-0 items-center justify-between border-t border-brand-sand p-4">
         <span className="text-sm font-normal text-brand-forest/70">
-          Página {page + 1} de {Math.max(totalPages, 1)} ({totalElements} usuários)
+          Página {page + 1} de {Math.max(totalPages, 1)} ({totalElements} propriedades)
         </span>
-
         <div className="flex gap-2">
           <button
             type="button"

@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router";
 import { GuestRouteComponent, PrivateRouteComponent } from "./components";
-import { ForgetPassword, Home, Login, ManageUsers } from "./pages";
+import { ForgetPassword, Home, Login, ManageProperties, ManageUsers } from "./pages";
 
 export function App() {
   return (
@@ -14,6 +14,7 @@ export function App() {
         <Route element={<PrivateRouteComponent />}>
           <Route path="/home" element={<Home />} />
           <Route path="/gestao-usuarios" element={<ManageUsers />} />
+          <Route path="/gestao-propriedades" element={<ManageProperties />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/login" replace />} />

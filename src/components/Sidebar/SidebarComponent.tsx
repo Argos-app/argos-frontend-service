@@ -35,9 +35,9 @@ const menuGroups: MenuGroup[] = [
     icon: <BoxesIcon />,
     items: [
       { label: "Gerenciar acessos" },
-      { label: "Histórico de Aplicações" },
       { label: "Gerenciar Usuários", to: "/gestao-usuarios" },
-      { label: "Propriedades" },
+      { label: "Gerenciar Propriedades", to: "/gestao-propriedades" },
+      { label: "Histórico de Aplicações" },
     ],
   },
   { label: "Dashboard", icon: <ChartAreaIcon />, items: [{ label: "Desempenho do Lote" }] },
@@ -105,7 +105,7 @@ export default function Sidebar() {
           onClick={() => setCollapsed((current) => !current)}
           aria-label={collapsed ? "Expandir menu lateral" : "Recolher menu lateral"}
           title={collapsed ? "Expandir menu lateral" : "Recolher menu lateral"}
-          className="grid h-10 w-10 shrink-0 place-items-center rounded-lg text-brand-forest transition-colors hover:bg-brand-sand/50 focus:bg-brand-sand/50 focus:outline-none focus:ring-2 focus:ring-brand-brown"
+          className="grid h-10 w-10 shrink-0 place-items-center rounded-lg text-brand-forest transition-colors hover:bg-brand-sand/50 focus:bg-brand-sand/50 focus:outline-none focus:ring-2 focus:ring-brand-forest"
         >
           {collapsed ? <PanelLeftOpenIcon /> : <PanelLeftCloseIcon />}
         </button>
@@ -171,7 +171,7 @@ function CollapsibleItem({ label, icon, items, collapsed }: CollapsibleItemProps
               const className = clsx(
                 menuItemClass(false),
                 isActive &&
-                  "bg-brand-sand text-brand-ink hover:bg-brand-brown hover:text-brand-cream focus:bg-brand-brown focus:text-brand-cream active:bg-brand-brown active:text-brand-cream",
+                  "bg-brand-sand text-brand-ink hover:bg-brand-forest hover:text-brand-cream focus:bg-brand-forest focus:text-brand-cream active:bg-brand-forest active:text-brand-cream",
               );
 
               if (item.to) {
@@ -179,7 +179,7 @@ function CollapsibleItem({ label, icon, items, collapsed }: CollapsibleItemProps
                   <Link
                     key={item.label}
                     to={item.to}
-                    className={className}
+                    className={clsx(className, "sidebar-menu-link")}
                     aria-current={isActive ? "page" : undefined}
                     aria-label={item.label}
                     title={item.label}

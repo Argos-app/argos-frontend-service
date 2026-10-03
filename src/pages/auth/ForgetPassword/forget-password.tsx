@@ -43,7 +43,7 @@ export const ForgetPassword = () => {
 					) : (
 						<>
 							{error && (
-								<p className="w-full text-sm text-brand-brown text-center mt-4">{error}</p>
+								<p className="w-full text-sm text-brand-ink text-center mt-4">{error}</p>
 							)}
 							<InputComponent
 								type="email"
@@ -61,13 +61,13 @@ export const ForgetPassword = () => {
 					)}
 
 					<div className="flex items-start gap-2 mt-4">
-						<CircleAlert className="text-brand-brown shrink-0 mt-0.5" size={18} />
+						<CircleAlert className="text-brand-forest shrink-0 mt-0.5" size={18} />
 						<p className="text-sm text-brand-forest/80">
 							Caso o e-mail acima não seja o seu, entre em contato com a sua organização para atualizar seus dados.
 						</p>
 					</div>
 					<Link
-						className="text-sm underline mt-5 text-brand-brown hover:text-brand-ink transition-colors"
+						className="text-sm mt-5 link-redirect transition-colors"
 						to="/login"
 					>
 						Voltar para Login
