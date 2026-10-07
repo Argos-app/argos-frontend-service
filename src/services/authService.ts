@@ -1,4 +1,4 @@
-import { auth, api } from "../lib";
+import { auth, api, sessionStorage } from "../lib";
 import {
   signInWithEmailAndPassword,
   signOut,
@@ -25,8 +25,7 @@ export async function signInWithEmail(
 
 export async function logout(): Promise<void> {
   await signOut(auth);
-  localStorage.removeItem("bearerToken");
-  localStorage.removeItem("user");
+  sessionStorage.clear();
 }
 
 export async function resetPassword(email: string): Promise<void> {

@@ -4,6 +4,8 @@ import { signInWithEmail } from "../services";
 import { browserLocalPersistence, browserSessionPersistence, setPersistence } from "firebase/auth";
 import { auth } from "../lib";
 import axios from "axios";
+import { sessionStorage } from "../lib";
+import { useAuth } from "../context/AuthContext";
 
 export function useAuthActions() {
   const [loading, setLoading] = useState(false);
@@ -11,6 +13,7 @@ export function useAuthActions() {
   const [rememberMe, setRememberMe] = useState(false);
 
   const navigate = useNavigate();
+  const { refreshSession } = useAuth();
 
   async function handleSignIn(email: string, password: string) {
     setLoading(true);
@@ -20,11 +23,11 @@ export function useAuthActions() {
       await setPersistence(auth, persistLogin);
 
       const data = await signInWithEmail(email, password);
-      localStorage.setItem("bearerToken", data.bearerToken);
-      localStorage.setItem("user", JSON.stringify({
+      sessionStorage.setSession(data.bearerToken, {
         userName: data.userName,
         farmName: data.farmName,
-      }));
+      });
+      refreshSession();
 
       navigate("/home");
     } catch (err: unknown) {

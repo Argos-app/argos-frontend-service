@@ -1,5 +1,6 @@
 import axios from "axios";
 import { auth } from "./firebase";
+import { sessionStorage } from "./sessionStorage";
 
 declare module "axios" {
   interface InternalAxiosRequestConfig {
@@ -23,7 +24,7 @@ function refreshBackendToken(): Promise<string> {
       const { data } = await api.post<{ bearerToken: string }>("/auth/signin", null, {
         headers: { Authorization: `Bearer ${firebaseToken}` },
       });
-      localStorage.setItem("bearerToken", data.bearerToken);
+      sessionStorage.setToken(data.bearerToken);
       return data.bearerToken;
     })().finally(() => {
       backendTokenRefresh = null;
@@ -34,7 +35,7 @@ function refreshBackendToken(): Promise<string> {
 }
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("bearerToken");
+  const token = sessionStorage.getToken();
   if (token && !config.headers.Authorization) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -59,8 +60,8 @@ api.interceptors.response.use(
         }
       }
 
-      localStorage.removeItem("bearerToken");
-      window.location.href = "/login";
+      sessionStorage.clear();
+      window.dispatchEvent(new Event("argos:session-expired"));
     }
     return Promise.reject(error);
   }
