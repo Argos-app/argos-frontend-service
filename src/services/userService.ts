@@ -36,8 +36,8 @@ export interface UpdateUserPayload {
   propertyId: string;
 }
 
-export async function getUsers(page = 0, size = 10): Promise<PageResponse<User>> {
-  const { data } = await api.get<PageResponse<User>>("/users", { params: { page, size } });
+export async function getUsers(page = 0, size = 10, signal?: AbortSignal): Promise<PageResponse<User>> {
+  const { data } = await api.get<PageResponse<User>>("/users", { params: { page, size }, signal });
   return data;
 }
 

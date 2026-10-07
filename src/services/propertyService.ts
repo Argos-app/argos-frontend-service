@@ -2,8 +2,8 @@ import { api } from "../lib";
 import type { PageResponse } from "./types/page-response.type";
 import type { AdminUserOption, Property, PropertyPayload } from "./types/property.type";
 
-export async function getProperties(page = 0, size = 10): Promise<PageResponse<Property>> {
-  const { data } = await api.get<PageResponse<Property>>("/properties", { params: { page, size } });
+export async function getProperties(page = 0, size = 10, signal?: AbortSignal): Promise<PageResponse<Property>> {
+  const { data } = await api.get<PageResponse<Property>>("/properties", { params: { page, size }, signal });
   return data;
 }
 
