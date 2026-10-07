@@ -1,4 +1,4 @@
-import type { CreateUserPayload, UpdateUserPayload } from "../services/userService";
+import type { CreateUserPayload, UpdateUserPayload } from "../types";
 import type { PropertyPayload } from "../types";
 
 export type ValidationResult<T> =

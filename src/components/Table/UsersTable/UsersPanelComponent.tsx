@@ -1,6 +1,6 @@
 import { UserPlus } from "lucide-react";
 import { useState } from "react";
-import type { User } from "../../../services";
+import type { User } from "../../../types";
 import { ButtonComponent } from "../../Button";
 import { SearchComponent } from "../../Search/SearchComponent";
 import { UsersTable } from "./UsersTableComponent";

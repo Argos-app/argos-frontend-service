@@ -1,7 +1,7 @@
 import { Pencil, Trash } from "lucide-react";
 import { formatCNPJ, formatCPF } from "cnpj-cpf-validator";
 import { formatDate } from "../../../lib";
-import type { User } from "../../../services";
+import type { User } from "../../../types";
 import { AvatarComponent } from "../../Avatar";
 import { DeleteButton } from "../../DeleteButton";
 import { DataTable, type Column } from "../DataTable";

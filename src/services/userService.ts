@@ -1,40 +1,6 @@
 import { api } from "../lib";
-import type { PageResponse, User } from "../types";
+import type { CreateUserPayload, CreatedUser, PageResponse, UpdateUserPayload, User, UserCreationOptions } from "../types";
 import { serviceRequest } from "./serviceRequest";
-
-export interface UserOption {
-  id: string;
-  name: string;
-}
-
-export interface UserCreationOptions {
-  properties: UserOption[];
-  permissions: UserOption[];
-}
-
-export interface CreateUserPayload {
-  name: string;
-  email: string;
-  cpf: string;
-  password: string;
-  permissionId: string;
-  propertyId: string;
-}
-
-export interface CreatedUser {
-  userId: string;
-  name: string;
-  email: string;
-}
-
-export interface UpdateUserPayload {
-  name: string;
-  email: string;
-  cpf: string;
-  permissionId: string;
-  currentPropertyId: string;
-  propertyId: string;
-}
 
 export async function getUsers(page = 0, size = 10, signal?: AbortSignal): Promise<PageResponse<User>> {
   return serviceRequest(async () => {
@@ -47,9 +13,9 @@ export async function deleteUser(userId: string): Promise<void> {
   return serviceRequest(() => api.delete(`/users/${encodeURIComponent(userId)}`).then(() => undefined), "Não foi possível remover o usuário.");
 }
 
-export async function getUserCreationOptions(): Promise<UserCreationOptions> {
+export async function getUserCreationOptions(signal?: AbortSignal): Promise<UserCreationOptions> {
   return serviceRequest(async () => {
-    const { data } = await api.get<UserCreationOptions>("/users/options");
+    const { data } = await api.get<UserCreationOptions>("/users/options", { signal });
     return data;
   }, "Não foi possível carregar as opções de cadastro.");
 }

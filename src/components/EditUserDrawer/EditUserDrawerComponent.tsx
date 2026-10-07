@@ -1,13 +1,8 @@
 import { App, Alert, Button, Col, Drawer, Form, Input, Row, Select, Space } from "antd";
 import axios from "axios";
-import { useEffect, useState } from "react";
-import {
-  getUserCreationOptions,
-  updateUser,
-  type UpdateUserPayload,
-  type UserCreationOptions,
-  type User,
-} from "../../services";
+import { useEffect } from "react";
+import { useUserCreationOptions, useUserMutations } from "../../hooks/useUserManagement";
+import type { UpdateUserPayload, User } from "../../types";
 import { validateUpdateUser } from "../../utils/validation";
 
 interface EditUserDrawerProps {
@@ -22,13 +17,8 @@ type EditUserFormValues = Omit<UpdateUserPayload, "currentPropertyId">;
 export function EditUserDrawer({ user, open, onClose, onUpdated }: EditUserDrawerProps) {
   const { message } = App.useApp();
   const [form] = Form.useForm<EditUserFormValues>();
-  const [options, setOptions] = useState<UserCreationOptions>({ properties: [], permissions: [] });
-  const [optionsAttempt, setOptionsAttempt] = useState(0);
-  const [completedOptionsAttempt, setCompletedOptionsAttempt] = useState<number | null>(null);
-  const [optionsErrorAttempt, setOptionsErrorAttempt] = useState<number | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-  const loadingOptions = open && completedOptionsAttempt !== optionsAttempt;
-  const optionsError = optionsErrorAttempt === optionsAttempt;
+  const { options, loading: loadingOptions, error: optionsError, retry } = useUserCreationOptions(open);
+  const { pending: submitting, update } = useUserMutations();
 
   useEffect(() => {
     if (!open || !user) return;
@@ -41,33 +31,9 @@ export function EditUserDrawer({ user, open, onClose, onUpdated }: EditUserDrawe
     });
   }, [form, open, user]);
 
-  useEffect(() => {
-    if (!open) return;
-    let cancelled = false;
-
-    getUserCreationOptions()
-      .then((result) => {
-        if (!cancelled) {
-          setOptions(result);
-          setOptionsErrorAttempt(null);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) setOptionsErrorAttempt(optionsAttempt);
-      })
-      .finally(() => {
-        if (!cancelled) setCompletedOptionsAttempt(optionsAttempt);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [open, optionsAttempt]);
-
   const handleClose = () => {
     if (submitting) return;
     form.resetFields();
-    setOptionsAttempt((attempt) => attempt + 1);
     onClose();
   };
 
@@ -78,9 +44,8 @@ export function EditUserDrawer({ user, open, onClose, onUpdated }: EditUserDrawe
       form.setFields(Object.entries(validation.errors).map(([name, errors]) => ({ name: name as keyof EditUserFormValues, errors: errors ? [errors] : [] })));
       return;
     }
-    setSubmitting(true);
     try {
-      await updateUser(user.userId, {
+      await update(user.userId, {
         ...validation.data,
         currentPropertyId: user.propertyId,
       });
@@ -92,8 +57,6 @@ export function EditUserDrawer({ user, open, onClose, onUpdated }: EditUserDrawe
         ? error.response?.data?.message
         : undefined;
       message.error(errorMessage ?? "Não foi possível atualizar o usuário.");
-    } finally {
-      setSubmitting(false);
     }
   };
 
@@ -130,7 +93,7 @@ export function EditUserDrawer({ user, open, onClose, onUpdated }: EditUserDrawe
           showIcon
           message="Não foi possível carregar fazendas e permissões."
           action={
-            <Button size="small" onClick={() => setOptionsAttempt((attempt) => attempt + 1)}>
+            <Button size="small" onClick={retry}>
               Tentar novamente
             </Button>
           }

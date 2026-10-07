@@ -1,12 +1,12 @@
 import Sidebar from "../../components/Sidebar/SidebarComponent";
 import { UsersPanel } from "../../components/Table/UsersTable";
 import { useUsers } from "../../hooks/useUsers";
-import { deleteUser } from "../../services";
+import { useUserMutations } from "../../hooks/useUserManagement";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { CreateUserDrawer } from "../../components/CreateUserDrawer";
 import { EditUserDrawer } from "../../components/EditUserDrawer";
-import type { User } from "../../services";
+import type { User } from "../../types";
 
 export function ManageUsers() {
   const { page: routePage } = useParams<{ page?: string }>();
@@ -15,6 +15,7 @@ export function ManageUsers() {
   const parsedRoutePage = validRoutePage && routePage !== undefined ? Number(routePage) - 1 : 0;
   const [createDrawerOpen, setCreateDrawerOpen] = useState(false);
   const [userToEdit, setUserToEdit] = useState<User | null>(null);
+  const { remove } = useUserMutations();
   const { users, loading, error, page, totalPages, totalElements, first, last, setPage, reload } =
     useUsers(parsedRoutePage);
 
@@ -33,7 +34,7 @@ export function ManageUsers() {
   }
 
   async function handleDelete(user: (typeof users)[number]) {
-    await deleteUser(user.userId);
+    await remove(user.userId);
     if (users.length === 1 && page > 0) {
       setPage(page - 1);
     } else {
