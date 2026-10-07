@@ -35,11 +35,11 @@ function reducer<T>(state: State<T>, action: Action<T>): State<T> {
 
 type PageLoader<T> = (page: number, size: number, signal: AbortSignal) => Promise<PageResponse<T>>;
 
-export function usePaginatedResource<T>(loadPage: PageLoader<T>, errorMessage: string) {
+export function usePaginatedResource<T>(loadPage: PageLoader<T>, errorMessage: string, initialPage = 0) {
   const [state, dispatch] = useReducer(reducer<T>, {
     data: [],
     meta: null,
-    page: 0,
+    page: initialPage,
     size: 10,
     attempt: 0,
     loading: true,

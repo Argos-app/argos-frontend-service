@@ -53,6 +53,7 @@ export function App() {
           <Route element={<PrivateRouteComponent />}>
             <Route path="/home" element={<Home />} />
             <Route path="/gestao-usuarios" element={<ManageUsers />} />
+            <Route path="/gestao-usuarios/pagina/:page" element={<ManageUsers />} />
             <Route path="/gestao-propriedades" element={<ManageProperties />} />
           </Route>
 
