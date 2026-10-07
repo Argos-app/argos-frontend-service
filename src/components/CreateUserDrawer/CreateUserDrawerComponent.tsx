@@ -2,7 +2,6 @@ import { App, Alert, Button, Col, Drawer, Form, Input, Row, Select, Space } from
 import { useUserCreationOptions, useUserMutations } from "../../hooks/useUserManagement";
 import type { CreateUserPayload } from "../../types";
 import axios from "axios";
-import { validateCreateUser } from "../../utils/validation";
 
 interface CreateUserDrawerProps {
   open: boolean;
@@ -25,22 +24,23 @@ export function CreateUserDrawer({ open, onClose, onCreated }: CreateUserDrawerP
   };
 
   const handleSubmit = async (values: CreateUserFormValues) => {
-    const validation = validateCreateUser(values);
+    let validation;
+    try {
+      validation = await create(values);
+    } catch (error: unknown) {
+      const errorMessage = axios.isAxiosError<{ message?: string }>(error)
+        ? error.response?.data?.message
+        : undefined;
+      message.error(errorMessage ?? "Não foi possível criar o usuário.");
+      return;
+    }
     if (!validation.success) {
       form.setFields(Object.entries(validation.errors).map(([name, errors]) => ({ name: name as keyof CreateUserFormValues, errors: errors ? [errors] : [] })));
       return;
     }
-    try {
-      await create(validation.data);
-      message.success("Usuário criado com sucesso.");
-      form.resetFields();
-      onCreated();
-    } catch (error) {
-      const errorMessage = axios.isAxiosError<{ message?: string }>(error)
-        ? error.response?.data?.message
-        : undefined;
-      message.error(errorMessage);
-    }
+    message.success("Usuário criado com sucesso.");
+    form.resetFields();
+    onCreated();
   };
 
   return (

@@ -6,6 +6,7 @@ import {
   updateUser as updateUserRequest,
 } from "../services";
 import type { CreateUserPayload, UpdateUserPayload, UserCreationOptions } from "../types";
+import { validateCreateUser, validateUpdateUser } from "../utils/validation";
 
 const EMPTY_OPTIONS: UserCreationOptions = { properties: [], permissions: [] };
 
@@ -52,8 +53,19 @@ export function useUserMutations() {
     }
   }, []);
 
-  const create = useCallback((payload: CreateUserPayload) => run(() => createUserRequest(payload)), [run]);
-  const update = useCallback((userId: string, payload: UpdateUserPayload) => run(() => updateUserRequest(userId, payload)), [run]);
+  const create = useCallback(async (payload: CreateUserPayload) => {
+    const validation = validateCreateUser(payload);
+    if (!validation.success) return validation;
+    await run(() => createUserRequest(validation.data));
+    return validation;
+  }, [run]);
+  const update = useCallback(async (userId: string, payload: UpdateUserPayload) => {
+    const { currentPropertyId, ...editableFields } = payload;
+    const validation = validateUpdateUser(editableFields);
+    if (!validation.success) return validation;
+    await run(() => updateUserRequest(userId, { ...validation.data, currentPropertyId }));
+    return validation;
+  }, [run]);
   const remove = useCallback((userId: string) => deleteUserRequest(userId), []);
   return { pending, create, update, remove };
 }

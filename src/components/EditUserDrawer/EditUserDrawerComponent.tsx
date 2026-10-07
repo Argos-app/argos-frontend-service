@@ -3,7 +3,6 @@ import axios from "axios";
 import { useEffect } from "react";
 import { useUserCreationOptions, useUserMutations } from "../../hooks/useUserManagement";
 import type { UpdateUserPayload, User } from "../../types";
-import { validateUpdateUser } from "../../utils/validation";
 
 interface EditUserDrawerProps {
   user: User | null;
@@ -39,25 +38,26 @@ export function EditUserDrawer({ user, open, onClose, onUpdated }: EditUserDrawe
 
   const handleSubmit = async (values: EditUserFormValues) => {
     if (!user) return;
-    const validation = validateUpdateUser(values);
-    if (!validation.success) {
-      form.setFields(Object.entries(validation.errors).map(([name, errors]) => ({ name: name as keyof EditUserFormValues, errors: errors ? [errors] : [] })));
-      return;
-    }
+    let validation;
     try {
-      await update(user.userId, {
-        ...validation.data,
+      validation = await update(user.userId, {
+        ...values,
         currentPropertyId: user.propertyId,
       });
-      message.success("Usuário atualizado com sucesso.");
-      form.resetFields();
-      onUpdated();
     } catch (error: unknown) {
       const errorMessage = axios.isAxiosError<{ message?: string }>(error)
         ? error.response?.data?.message
         : undefined;
       message.error(errorMessage ?? "Não foi possível atualizar o usuário.");
+      return;
     }
+    if (!validation.success) {
+      form.setFields(Object.entries(validation.errors).map(([name, errors]) => ({ name: name as keyof EditUserFormValues, errors: errors ? [errors] : [] })));
+      return;
+    }
+    message.success("Usuário atualizado com sucesso.");
+    form.resetFields();
+    onUpdated();
   };
 
   return (
