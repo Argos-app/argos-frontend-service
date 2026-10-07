@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect } from "react";
-import { BrowserRouter, Routes, Route, useNavigate } from "react-router";
+import { BrowserRouter, Navigate, Route, Routes, useNavigate } from "react-router";
 import { GuestRouteComponent, PrivateRouteComponent } from "./components";
 
 const ForgetPassword = lazy(() => import("./pages/auth/ForgetPassword/forget-password").then((module) => ({ default: module.ForgetPassword })));
@@ -45,6 +45,8 @@ export function App() {
       <SessionExpiryNavigation />
       <Suspense fallback={<RouteLoading />}>
         <Routes>
+          <Route path="/" element={<Navigate to="/login" replace />} />
+
           <Route element={<GuestRouteComponent />}>
             <Route path="/login" element={<Login />} />
             <Route path="/forget-password" element={<ForgetPassword />} />
