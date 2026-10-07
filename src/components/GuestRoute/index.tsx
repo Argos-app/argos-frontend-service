@@ -1,0 +1,1 @@
+export { GuestRouteComponent } from "./GuestRouteComponent";
