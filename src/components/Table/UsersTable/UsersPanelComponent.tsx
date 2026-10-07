@@ -49,11 +49,11 @@ export function UsersPanel({
   const isSearching = normalizedQuery.length > 0;
 
   return (
-    <div className="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-lg border border-brand-sand bg-brand-cream shadow-sm">
+    <main aria-labelledby="users-page-title" className="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-lg border border-brand-sand bg-brand-cream shadow-sm">
       <div className="shrink-0 rounded-none p-4">
         <div className="mb-8 flex items-center justify-between gap-8">
           <div>
-            <h5 className="text-3xl font-semibold text-brand-ink">Lista de usuários</h5>
+            <h1 id="users-page-title" className="text-3xl font-semibold text-brand-ink">Lista de usuários</h1>
             <p className="mt-1 text-sm text-brand-forest/70">Visualize as informações sobre todos os usuários</p>
           </div>
         </div>
@@ -107,6 +107,6 @@ export function UsersPanel({
           </button>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

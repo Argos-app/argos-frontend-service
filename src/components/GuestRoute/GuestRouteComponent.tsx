@@ -3,6 +3,6 @@ import { useAuth } from "../../context/AuthContext";
 
 export function GuestRouteComponent() {
   const { isAuthenticated, loading } = useAuth();
-  if (loading) return <p role="status" aria-live="polite">Verificando sessão...</p>;
+  if (loading) return <main role="status" aria-live="polite">Verificando sessão...</main>;
   return isAuthenticated ? <Navigate to="/home" replace /> : <Outlet />;
 }

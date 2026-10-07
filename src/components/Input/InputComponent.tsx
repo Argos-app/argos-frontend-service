@@ -4,6 +4,7 @@ import type React from "react";
 
 interface InputProps extends ComponentPropsWithoutRef<"input"> {
 	children: React.ReactNode;
+	label: string;
 }
 
 export const InputComponent = ({
@@ -13,12 +14,16 @@ export const InputComponent = ({
 	className,
 	onChange,
 	children,
+	label,
+	id,
 	...props
 }: InputProps) => {
 	return (
 		<div className="flex items-center mt-6 w-full bg-transparent border border-brand-sand h-12 rounded-full overflow-hidden pl-6 gap-2">
+			<label className="sr-only" htmlFor={id}>{label}</label>
 			{children}
 			<input
+				id={id}
 				type={type}
 				placeholder={placeholder}
 				className={cn(

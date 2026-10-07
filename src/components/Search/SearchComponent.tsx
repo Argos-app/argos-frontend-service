@@ -1,5 +1,5 @@
 import { SearchIcon } from "lucide-react";
-import type { ComponentPropsWithoutRef } from "react";
+import { useId, type ComponentPropsWithoutRef } from "react";
 import {cn} from "../../lib";
 
 interface SearchProps extends ComponentPropsWithoutRef<"input"> {
@@ -8,14 +8,17 @@ interface SearchProps extends ComponentPropsWithoutRef<"input"> {
 }
 
 export const SearchComponent = ({ searchQuery, setSearchQuery, placeholder, className, ...props }: SearchProps) => {
+	const inputId = useId();
+	const accessibleName = typeof props["aria-label"] === "string" ? props["aria-label"] : "Pesquisar";
 	return (
 		<div className={cn("relative h-10 w-full min-w-50", className)}>
 			<div className="pointer-events-none absolute right-3 top-1/2 grid h-5 w-5 -translate-y-1/2 place-items-center text-brand-forest/70">
 				<SearchIcon size={16} />
 			</div>
+			<label className="sr-only" htmlFor={inputId}>{accessibleName}</label>
 
 			<input
-				id="sidebar-search"
+				id={inputId}
 				type="search"
 				placeholder={placeholder}
 				aria-label="Pesquisar no menu"

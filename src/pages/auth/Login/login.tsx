@@ -16,7 +16,7 @@ export const Login = () => {
   }
 
   return (
-    <div className="flex h-screen w-full bg-brand-cream">
+    <main className="flex h-screen w-full bg-brand-cream">
       <div className="w-1/2 h-full hidden md:block shrink-0">
         <img
           className="w-full h-full object-cover object-left"
@@ -29,7 +29,7 @@ export const Login = () => {
         <form onSubmit={onSubmit} className="md:w-96 w-96 flex flex-col items-center justify-center">
           <img className="w-100 h-42" src={Logo} alt="Logo" />
 
-          <h2 className="text-4xl text-brand-ink font-medium">Área administrativa</h2>
+          <h1 className="text-4xl text-brand-ink font-medium">Área administrativa</h1>
           <div className="flex items-center gap-4 w-full my-5">
             <div className="w-full h-px bg-brand-sand"></div>
             <p className="w-full text-nowrap text-sm text-brand-forest/70">O aplicativo que gere, cuida e organiza para você.</p>
@@ -37,10 +37,13 @@ export const Login = () => {
           </div>
 
           {error && (
-            <p className="w-full text-sm text-brand-ink text-center">{error}</p>
+            <p role="alert" className="w-full text-sm text-brand-ink text-center">{error}</p>
           )}
 
           <InputComponent
+				id="login-email"
+				label="E-mail"
+				maxLength={120}
             type="email"
             placeholder="exemplo@email.com"
             required
@@ -50,6 +53,9 @@ export const Login = () => {
             <Mail color="gray" size={18}/>
           </InputComponent>
           <InputComponent
+				id="login-password"
+				label="Senha"
+				maxLength={128}
             type="password"
             placeholder="Senha"
             required
@@ -80,6 +86,6 @@ export const Login = () => {
           </ButtonComponent>
         </form>
       </div>
-    </div>
+    </main>
   );
 }

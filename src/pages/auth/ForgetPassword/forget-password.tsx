@@ -25,7 +25,7 @@ export const ForgetPassword = () => {
 	}
 
 	return (
-		<div className="flex min-h-screen justify-center items-center w-full bg-brand-cream px-4 py-8">
+		<main className="flex min-h-screen justify-center items-center w-full bg-brand-cream px-4 py-8">
 			<div className="w-full max-w-lg">
 				<form onSubmit={onSubmit} className="flex flex-col items-center w-full">
 					<h1 className="text-4xl md:text-5xl text-brand-ink font-medium mb-4 text-center">
@@ -43,9 +43,11 @@ export const ForgetPassword = () => {
 					) : (
 						<>
 							{error && (
-								<p className="w-full text-sm text-brand-ink text-center mt-4">{error}</p>
+								<p role="alert" className="w-full text-sm text-brand-ink text-center mt-4">{error}</p>
 							)}
 							<InputComponent
+								id="reset-email"
+								label="E-mail para redefinição de senha"
 								type="email"
 								placeholder="exemplo@email.com"
 								required
@@ -74,6 +76,6 @@ export const ForgetPassword = () => {
 					</Link>
 				</form>
 			</div>
-		</div>
+		</main>
 	);
 };

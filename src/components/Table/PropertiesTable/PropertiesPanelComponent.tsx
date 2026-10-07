@@ -44,10 +44,10 @@ export function PropertiesPanel({
   );
 
   return (
-    <div className="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-lg border border-brand-sand bg-brand-cream shadow-sm">
+    <main aria-labelledby="properties-page-title" className="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-lg border border-brand-sand bg-brand-cream shadow-sm">
       <div className="shrink-0 p-4">
         <div className="mb-8">
-          <h5 className="text-3xl font-semibold text-brand-ink">Lista de propriedades</h5>
+          <h1 id="properties-page-title" className="text-3xl font-semibold text-brand-ink">Lista de propriedades</h1>
           <p className="mt-1 text-sm text-brand-forest/70">Gerencie as fazendas cadastradas no sistema</p>
         </div>
 
@@ -105,6 +105,6 @@ export function PropertiesPanel({
           </button>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

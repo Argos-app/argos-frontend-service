@@ -93,10 +93,10 @@ export default function Sidebar() {
       )}
     >
       <div className={clsx("mb-2 flex items-center", collapsed ? "justify-center" : "justify-between gap-4 p-4")}>
-        <Link to="/">
+        <Link to="/home" aria-label="Página inicial do Argos">
           <img
             src={Logo}
-            alt="brand"
+            alt="Argos"
             className={collapsed ? "hidden" : "max-w-full"}
           />
         </Link>
@@ -148,10 +148,11 @@ export default function Sidebar() {
 function CollapsibleItem({ label, icon, items, collapsed }: CollapsibleItemProps) {
   const [open, setOpen] = useState(true);
   const location = useLocation();
+  const submenuId = `sidebar-group-${label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
 
   return (
     <div className="relative block w-full">
-      <button type="button" onClick={() => !collapsed && setOpen((current) => !current)} aria-expanded={!collapsed && open} className={clsx(menuItemClass(collapsed), !collapsed && "justify-between")} aria-label={label} title={collapsed ? label : undefined}>
+      <button type="button" onClick={() => !collapsed && setOpen((current) => !current)} aria-expanded={!collapsed && open} aria-controls={submenuId} className={clsx(menuItemClass(collapsed), !collapsed && "justify-between")} aria-label={label} title={collapsed ? label : undefined}>
         <span className={clsx("grid place-items-center", !collapsed && "mr-4")}>{icon}</span>
         {!collapsed && (
           <>
@@ -163,8 +164,7 @@ function CollapsibleItem({ label, icon, items, collapsed }: CollapsibleItemProps
         )}
       </button>
 
-      {!collapsed && open && (
-        <div className="overflow-hidden py-1">
+      <div id={submenuId} hidden={collapsed || !open} className="overflow-hidden py-1">
           <nav className="flex min-w-60 flex-col gap-1">
             {items.map((item) => {
               const isActive = Boolean(item.to) && location.pathname === item.to;
@@ -198,8 +198,7 @@ function CollapsibleItem({ label, icon, items, collapsed }: CollapsibleItemProps
               );
             })}
           </nav>
-        </div>
-      )}
+      </div>
     </div>
   );
 }

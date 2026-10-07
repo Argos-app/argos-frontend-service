@@ -8,6 +8,11 @@
   --color-brand-cream: #f4f1eb;
 }
 
+:is(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid #06412f;
+  outline-offset: 3px;
+}
+
 a.link-redirect {
   color: #06412f;
   text-decoration: underline;
