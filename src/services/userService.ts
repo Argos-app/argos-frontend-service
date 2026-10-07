@@ -1,6 +1,5 @@
 import { api } from "../lib";
-import type { PageResponse } from "./types/page-response.type";
-import type { User } from "./types/user.type";
+import type { PageResponse, User } from "../types";
 
 export interface UserOption {
   id: string;

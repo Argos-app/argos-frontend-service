@@ -4,7 +4,7 @@ import {
   signOut,
   sendPasswordResetEmail,
 } from "firebase/auth";
-import type { SignInResponse } from "./types/sign-in-response.type";
+import type { SignInResponse } from "../types";
 
 async function signInWithBackend(idToken: string): Promise<SignInResponse> {
   const { data } = await api.post<SignInResponse>("/auth/signin", null, {

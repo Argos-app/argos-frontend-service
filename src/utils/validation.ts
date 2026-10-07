@@ -1,5 +1,5 @@
 import type { CreateUserPayload, UpdateUserPayload } from "../services/userService";
-import type { PropertyPayload } from "../services/types/property.type";
+import type { PropertyPayload } from "../types";
 
 export type ValidationResult<T> =
   | { success: true; data: T }

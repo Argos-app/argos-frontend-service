@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useReducer } from "react";
-import type { PageResponse } from "../services/types/page-response.type";
+import type { PageResponse } from "../types";
 
 interface State<T> {
   data: T[];
