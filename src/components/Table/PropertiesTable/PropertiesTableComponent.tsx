@@ -33,7 +33,7 @@ export function PropertiesTable({
       key: "cnpj",
       header: "CNPJ",
       render: (property) => (
-        <span className="text-sm text-brand-forest/70">
+        <span className="text-sm text-brand-forest">
           {property.cnpj ? formatCNPJ(property.cnpj) || property.cnpj : "Não informado"}
         </span>
       ),
@@ -92,7 +92,7 @@ export function PropertiesTable({
             title="Editar propriedade"
             aria-label={`Editar propriedade ${property.name}`}
             onClick={() => onEdit(property)}
-            className="rounded-md p-2 text-brand-forest/70 hover:bg-brand-sand/40 hover:text-brand-ink"
+            className="rounded-md p-2 text-brand-forest hover:bg-brand-sand/40 hover:text-brand-ink"
           >
             <Pencil className="h-4 w-4" strokeWidth={2} />
           </button>

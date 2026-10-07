@@ -54,7 +54,7 @@ export function UsersPanel({
         <header className="mb-8 flex items-center justify-between gap-8">
           <div>
             <h1 id="users-page-title" className="text-3xl font-semibold text-brand-ink">Lista de usuários</h1>
-            <p className="mt-1 text-sm text-brand-forest/70">Visualize as informações sobre todos os usuários</p>
+            <p className="mt-1 text-sm text-brand-forest">Visualize as informações sobre todos os usuários</p>
           </div>
         </header>
 
@@ -84,7 +84,7 @@ export function UsersPanel({
       />
 
       <div className="flex shrink-0 items-center justify-between border-t border-brand-sand p-4">
-        <span className="text-sm font-normal text-brand-forest/70">
+        <span className="text-sm font-normal text-brand-forest">
           Página {page + 1} de {Math.max(totalPages, 1)} ({totalElements} usuários)
         </span>
 

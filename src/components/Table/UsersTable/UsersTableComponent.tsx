@@ -25,7 +25,7 @@ export function UsersTable({ users, loading, error, onRetry, onEdit, onDelete }:
           <AvatarComponent name={user.name} photoUrl={user.photoUrl} />
           <div className="flex flex-col">
             <span className="text-sm font-normal text-brand-ink">{user.name}</span>
-            <span className="text-sm font-normal text-brand-forest/70">{user.email}</span>
+            <span className="text-sm font-normal text-brand-forest">{user.email}</span>
           </div>
         </div>
       ),
@@ -45,7 +45,7 @@ export function UsersTable({ users, loading, error, onRetry, onEdit, onDelete }:
       render: (user) => (
         <div className="flex flex-col">
           <span className="text-sm font-normal text-brand-ink">{user.farmName}</span>
-          <span className="text-sm font-normal text-brand-forest/70">
+          <span className="text-sm font-normal text-brand-forest">
             {user.cnpj ? formatCNPJ(user.cnpj) || "CNPJ não informado" : "CNPJ não informado"}
           </span>
         </div>
@@ -79,7 +79,7 @@ export function UsersTable({ users, loading, error, onRetry, onEdit, onDelete }:
             title="Editar usuário"
             aria-label={`Editar usuário ${user.name}`}
             onClick={() => onEdit?.(user)}
-            className="rounded-md p-2 text-brand-forest/70 hover:bg-brand-sand/40 hover:text-brand-ink"
+            className="rounded-md p-2 text-brand-forest hover:bg-brand-sand/40 hover:text-brand-ink"
           >
             <Pencil className="h-4 w-4" strokeWidth={2} />
           </button>

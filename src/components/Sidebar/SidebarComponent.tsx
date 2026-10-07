@@ -139,7 +139,7 @@ export default function Sidebar() {
           </button>
         ))}
 
-        {groups.length === 0 && actions.length === 0 && <p className="px-3 py-2 text-sm text-brand-forest/70">Nenhum resultado encontrado.</p>}
+        {groups.length === 0 && actions.length === 0 && <p className="px-3 py-2 text-sm text-brand-forest">Nenhum resultado encontrado.</p>}
       </nav>
     </aside>
   );

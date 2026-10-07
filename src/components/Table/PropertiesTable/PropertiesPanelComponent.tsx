@@ -48,7 +48,7 @@ export function PropertiesPanel({
       <div className="shrink-0 p-4">
         <header className="mb-8">
           <h1 id="properties-page-title" className="text-3xl font-semibold text-brand-ink">Lista de propriedades</h1>
-          <p className="mt-1 text-sm text-brand-forest/70">Gerencie as fazendas cadastradas no sistema</p>
+          <p className="mt-1 text-sm text-brand-forest">Gerencie as fazendas cadastradas no sistema</p>
         </header>
 
         <div className="flex flex-col items-center gap-2 md:flex-row">
@@ -83,7 +83,7 @@ export function PropertiesPanel({
       />
 
       <div className="flex shrink-0 items-center justify-between border-t border-brand-sand p-4">
-        <span className="text-sm font-normal text-brand-forest/70">
+        <span className="text-sm font-normal text-brand-forest">
           Página {page + 1} de {Math.max(totalPages, 1)} ({totalElements} propriedades)
         </span>
         <div className="flex gap-2">

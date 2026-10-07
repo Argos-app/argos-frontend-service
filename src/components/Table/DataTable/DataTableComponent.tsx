@@ -47,7 +47,7 @@ export function DataTable<T>({
     if (loading) {
       return (
         <tr>
-          <td colSpan={columns.length} role="status" aria-live="polite" className="p-4 text-center text-sm text-brand-forest/70">
+          <td colSpan={columns.length} role="status" aria-live="polite" className="p-4 text-center text-sm text-brand-forest">
             {loadingMessage}
           </td>
         </tr>
@@ -76,7 +76,7 @@ export function DataTable<T>({
     if (data.length === 0) {
       return (
         <tr>
-          <td colSpan={columns.length} className="p-4 text-center text-sm text-brand-forest/70">
+          <td colSpan={columns.length} className="p-4 text-center text-sm text-brand-forest">
             {emptyMessage}
           </td>
         </tr>
@@ -115,7 +115,7 @@ export function DataTable<T>({
                 className="border-y border-brand-sand bg-brand-sand/30 p-4"
                 style={{ width: col.width }}
               >
-                <span className="text-xs font-normal leading-none text-brand-forest/70">{col.header}</span>
+                <span className="text-xs font-normal leading-none text-brand-forest">{col.header}</span>
               </th>
             ))}
           </tr>

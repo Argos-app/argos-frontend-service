@@ -33,7 +33,7 @@ export const Login = () => {
           </header>
           <div className="flex items-center gap-4 w-full my-5">
             <div className="w-full h-px bg-brand-sand"></div>
-            <p className="w-full text-nowrap text-sm text-brand-forest/70">O aplicativo que gere, cuida e organiza para você.</p>
+            <p className="w-full text-nowrap text-sm text-brand-forest">O aplicativo que gere, cuida e organiza para você.</p>
             <div className="w-full h-px bg-brand-sand"></div>
           </div>
 
@@ -67,7 +67,7 @@ export const Login = () => {
           </InputComponent>
 
 
-          <div className="w-full flex items-center justify-between mt-8 text-brand-forest/70">
+          <div className="w-full flex items-center justify-between mt-8 text-brand-forest">
             <div className="flex items-center gap-2">
               <input className="h-5" type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} id="checkbox" />
               <label className="text-sm" htmlFor="checkbox">
