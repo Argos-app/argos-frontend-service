@@ -8,6 +8,7 @@ import {
   type UserCreationOptions,
   type User,
 } from "../../services";
+import { validateUpdateUser } from "../../utils/validation";
 
 interface EditUserDrawerProps {
   user: User | null;
@@ -72,11 +73,15 @@ export function EditUserDrawer({ user, open, onClose, onUpdated }: EditUserDrawe
 
   const handleSubmit = async (values: EditUserFormValues) => {
     if (!user) return;
+    const validation = validateUpdateUser(values);
+    if (!validation.success) {
+      form.setFields(Object.entries(validation.errors).map(([name, errors]) => ({ name: name as keyof EditUserFormValues, errors: errors ? [errors] : [] })));
+      return;
+    }
     setSubmitting(true);
     try {
       await updateUser(user.userId, {
-        ...values,
-        cpf: values.cpf.replace(/\D/g, ""),
+        ...validation.data,
         currentPropertyId: user.propertyId,
       });
       message.success("Usuário atualizado com sucesso.");

@@ -3,6 +3,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { createProperty, getAdministrators, updateProperty } from "../../services";
 import type { AdminUserOption, Property, PropertyPayload } from "../../services";
+import { validateProperty } from "../../utils/validation";
 
 interface PropertyFormDrawerProps {
   property: Property | null;
@@ -111,12 +112,19 @@ export function PropertyFormDrawer({ property, open, onClose, onSaved }: Propert
       phone: values.phone?.trim() || null,
     };
 
+    const validation = validateProperty(payload);
+    if (!validation.success) {
+      form.setFields(Object.entries(validation.errors).map(([name, errors]) => ({ name: name as keyof PropertyFormValues, errors: errors ? [errors] : [] })));
+      setSubmitting(false);
+      return;
+    }
+
     try {
       if (property) {
-        await updateProperty(property.id, payload);
+        await updateProperty(property.id, validation.data);
         message.success("Propriedade atualizada com sucesso.");
       } else {
-        await createProperty(payload);
+        await createProperty(validation.data);
         message.success("Propriedade cadastrada com sucesso.");
       }
       form.resetFields();

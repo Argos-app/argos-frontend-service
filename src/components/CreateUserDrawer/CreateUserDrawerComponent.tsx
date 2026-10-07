@@ -2,6 +2,7 @@ import { App, Alert, Button, Col, Drawer, Form, Input, Row, Select, Space } from
 import { useEffect, useState } from "react";
 import { createUser, getUserCreationOptions, type CreateUserPayload, type UserCreationOptions } from "../../services";
 import axios from "axios";
+import { validateCreateUser } from "../../utils/validation";
 
 interface CreateUserDrawerProps {
   open: boolean;
@@ -54,9 +55,14 @@ export function CreateUserDrawer({ open, onClose, onCreated }: CreateUserDrawerP
   };
 
   const handleSubmit = async (values: CreateUserFormValues) => {
+    const validation = validateCreateUser(values);
+    if (!validation.success) {
+      form.setFields(Object.entries(validation.errors).map(([name, errors]) => ({ name: name as keyof CreateUserFormValues, errors: errors ? [errors] : [] })));
+      return;
+    }
     setSubmitting(true);
     try {
-      await createUser({ ...values, cpf: values.cpf.replace(/\D/g, "") });
+      await createUser(validation.data);
       message.success("Usuário criado com sucesso.");
       form.resetFields();
       setOptionsAttempt((attempt) => attempt + 1);
