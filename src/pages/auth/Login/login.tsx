@@ -6,13 +6,12 @@ import { Link } from "react-router";
 import { useAuthActions } from "../../../hooks/useAuthActions";
 
 export const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+	const [credentials, setCredentials] = useState({ email: "", password: "" });
   const { handleSignIn, loading, error, rememberMe, setRememberMe } = useAuthActions();
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    await handleSignIn(email, password);
+		await handleSignIn(credentials.email, credentials.password);
   }
 
   return (
@@ -49,8 +48,8 @@ export const Login = () => {
             type="email"
             placeholder="exemplo@email.com"
             required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+				value={credentials.email}
+				onChange={(e) => setCredentials((current) => ({ ...current, email: e.target.value }))}
           >
             <Mail color="gray" size={18}/>
           </InputComponent>
@@ -61,8 +60,8 @@ export const Login = () => {
             type="password"
             placeholder="Senha"
             required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+				value={credentials.password}
+				onChange={(e) => setCredentials((current) => ({ ...current, password: e.target.value }))}
           >
             <KeyRound color="gray" size={18} />
           </InputComponent>
