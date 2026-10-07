@@ -1,6 +1,6 @@
 import { App, Alert, Button, Col, Drawer, Form, Input, InputNumber, Row, Select, Space } from "antd";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createProperty, getAdministrators, updateProperty } from "../../services";
 import type { AdminUserOption, Property, PropertyPayload } from "../../services";
 import { validateProperty } from "../../utils/validation";
@@ -139,17 +139,21 @@ export function PropertyFormDrawer({ property, open, onClose, onSaved }: Propert
     }
   };
 
-  const adminOptions: { value: string; label: string; disabled?: boolean }[] = administrators.map((administrator) => ({
-    value: administrator.id,
-    label: `${administrator.name} - ${administrator.email}`,
-  }));
-  if (property && !administrators.some(({ id }) => id === property.responsibleAdminId)) {
-    adminOptions.push({
-      value: property.responsibleAdminId,
-      label: `${property.responsibleAdminName} (fora da lista de administradores ativos)`,
-      disabled: true,
-    });
-  }
+  // Keep the potentially large select option list stable while form state changes.
+  const adminOptions = useMemo(() => {
+    const options: { value: string; label: string; disabled?: boolean }[] = administrators.map((administrator) => ({
+      value: administrator.id,
+      label: `${administrator.name} - ${administrator.email}`,
+    }));
+    if (property && !administrators.some(({ id }) => id === property.responsibleAdminId)) {
+      options.push({
+        value: property.responsibleAdminId,
+        label: `${property.responsibleAdminName} (fora da lista de administradores ativos)`,
+        disabled: true,
+      });
+    }
+    return options;
+  }, [administrators, property]);
 
   const canSubmit = !loadingAdministrators && !administratorsError && administrators.length > 0;
 
