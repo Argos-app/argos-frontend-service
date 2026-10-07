@@ -24,13 +24,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, []);
 
   useEffect(() => {
+    window.addEventListener('argos:session-updated', refreshSession);
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       refreshSession();
       setLoading(false);
     });
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribe();
+      window.removeEventListener('argos:session-updated', refreshSession);
+    };
   }, [refreshSession]);
 
   return (

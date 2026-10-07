@@ -74,6 +74,10 @@ function writeSession(session: SessionData): void {
   localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
 }
 
+function notifySessionChanged(): void {
+  window.dispatchEvent(new Event("argos:session-updated"));
+}
+
 export const sessionStorage = {
   getToken(): string | null {
     return readSession().bearerToken || null;
@@ -84,13 +88,16 @@ export const sessionStorage = {
   setToken(bearerToken: string): void {
     const session = readSession();
     writeSession({ ...session, bearerToken });
+    notifySessionChanged();
   },
   setSession(bearerToken: string, user: StoredUser): void {
     writeSession({ _versao: SESSION_VERSION, bearerToken, user });
+    notifySessionChanged();
   },
   clear(): void {
     localStorage.removeItem(SESSION_STORAGE_KEY);
     localStorage.removeItem("bearerToken");
     localStorage.removeItem("user");
+    notifySessionChanged();
   },
 };
