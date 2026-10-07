@@ -9,9 +9,9 @@ export async function getProperties(page = 0, size = 10, signal?: AbortSignal): 
   }, "Não foi possível consultar as propriedades.");
 }
 
-export async function getAdministrators(page = 0, size = 100): Promise<PageResponse<AdminUserOption>> {
+export async function getAdministrators(page = 0, size = 100, signal?: AbortSignal): Promise<PageResponse<AdminUserOption>> {
   return serviceRequest(async () => {
-    const { data } = await api.get<PageResponse<AdminUserOption>>("/users/admins", { params: { page, size } });
+    const { data } = await api.get<PageResponse<AdminUserOption>>("/users/admins", { params: { page, size }, signal });
     return data;
   }, "Não foi possível consultar os administradores.");
 }

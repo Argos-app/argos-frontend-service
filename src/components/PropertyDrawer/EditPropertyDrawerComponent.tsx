@@ -1,4 +1,4 @@
-import type { Property } from "../../services";
+import type { Property } from "../../types";
 import { PropertyFormDrawer } from "./PropertyFormDrawerComponent";
 
 interface EditPropertyDrawerProps {

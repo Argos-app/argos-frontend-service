@@ -1,6 +1,6 @@
 import { formatCNPJ } from "cnpj-cpf-validator";
 import { Pencil, Trash } from "lucide-react";
-import type { Property } from "../../../services";
+import type { Property } from "../../../types";
 import { DeleteButton } from "../../DeleteButton";
 import { DataTable, type Column } from "../DataTable/DataTableComponent";
 

@@ -1,6 +1,6 @@
 import { Plus } from "lucide-react";
 import { useState } from "react";
-import type { Property } from "../../../services";
+import type { Property } from "../../../types";
 import { ButtonComponent } from "../../Button";
 import { SearchComponent } from "../../Search/SearchComponent";
 import { PropertiesTable } from "./PropertiesTableComponent";

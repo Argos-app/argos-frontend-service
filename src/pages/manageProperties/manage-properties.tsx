@@ -3,16 +3,17 @@ import { CreatePropertyDrawer, EditPropertyDrawer } from "../../components/Prope
 import { PropertiesPanel } from "../../components/Table/PropertiesTable";
 import Sidebar from "../../components/Sidebar/SidebarComponent";
 import { useProperties } from "../../hooks/useProperties";
-import { deactivateProperty } from "../../services";
-import type { Property } from "../../services";
+import { usePropertyMutations } from "../../hooks/usePropertyManagement";
+import type { Property } from "../../types";
 
 export function ManageProperties() {
   const [createDrawerOpen, setCreateDrawerOpen] = useState(false);
   const [propertyToEdit, setPropertyToEdit] = useState<Property | null>(null);
+  const { deactivate } = usePropertyMutations();
   const { properties, loading, error, page, totalPages, totalElements, first, last, setPage, reload } = useProperties();
 
   async function handleDeactivate(property: Property) {
-    await deactivateProperty(property.id);
+    await deactivate(property.id);
     if (properties.length === 1 && page > 0) {
       setPage(page - 1);
     } else {

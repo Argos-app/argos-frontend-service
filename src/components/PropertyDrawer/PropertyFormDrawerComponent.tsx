@@ -1,9 +1,9 @@
 import { App, Alert, Button, Col, Drawer, Form, Input, InputNumber, Row, Select, Space } from "antd";
 import axios from "axios";
 import { isValidCNPJ } from "cnpj-cpf-validator";
-import { useEffect, useMemo, useState } from "react";
-import { createProperty, getAdministrators, updateProperty } from "../../services";
-import type { AdminUserOption, Property, PropertyPayload } from "../../services";
+import { useEffect, useMemo } from "react";
+import { usePropertyAdministrators, usePropertyMutations } from "../../hooks/usePropertyManagement";
+import type { Property, PropertyPayload } from "../../types";
 import { validateProperty } from "../../utils/validation";
 
 interface PropertyFormDrawerProps {
@@ -24,56 +24,17 @@ const states = [
   "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO",
 ];
 
-async function getAllAdministrators() {
-  const administrators: AdminUserOption[] = [];
-  let page = 0;
-  let last = false;
-
-  while (!last) {
-    const result = await getAdministrators(page, 100);
-    administrators.push(...result.data);
-    last = result.last || page + 1 >= result.totalPages;
-    page += 1;
-  }
-
-  return administrators;
-}
-
 export function PropertyFormDrawer({ property, open, onClose, onSaved }: PropertyFormDrawerProps) {
   const { message } = App.useApp();
   const [form] = Form.useForm<PropertyFormValues>();
-  const [administrators, setAdministrators] = useState<AdminUserOption[]>([]);
-  const [loadAttempt, setLoadAttempt] = useState(0);
-  const [loadedAttempt, setLoadedAttempt] = useState<number | null>(null);
-  const [errorAttempt, setErrorAttempt] = useState<number | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-
-  const loadingAdministrators = open && loadedAttempt !== loadAttempt;
-  const administratorsError = errorAttempt === loadAttempt;
+  const {
+    administrators,
+    loading: loadingAdministrators,
+    error: administratorsError,
+    retry: retryAdministrators,
+  } = usePropertyAdministrators(open);
+  const { pending: submitting, save } = usePropertyMutations();
   const editing = property !== null;
-
-  useEffect(() => {
-    if (!open) return;
-    let cancelled = false;
-
-    getAllAdministrators()
-      .then((result) => {
-        if (!cancelled) {
-          setAdministrators(result);
-          setErrorAttempt(null);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) setErrorAttempt(loadAttempt);
-      })
-      .finally(() => {
-        if (!cancelled) setLoadedAttempt(loadAttempt);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [open, loadAttempt]);
 
   useEffect(() => {
     if (!open) return;
@@ -96,12 +57,10 @@ export function PropertyFormDrawer({ property, open, onClose, onSaved }: Propert
   const handleClose = () => {
     if (submitting) return;
     form.resetFields();
-    setLoadAttempt((attempt) => attempt + 1);
     onClose();
   };
 
   const handleSubmit = async (values: PropertyFormValues) => {
-    setSubmitting(true);
     const payload: PropertyPayload = {
       ...values,
       name: values.name.trim(),
@@ -116,16 +75,15 @@ export function PropertyFormDrawer({ property, open, onClose, onSaved }: Propert
     const validation = validateProperty(payload);
     if (!validation.success) {
       form.setFields(Object.entries(validation.errors).map(([name, errors]) => ({ name: name as keyof PropertyFormValues, errors: errors ? [errors] : [] })));
-      setSubmitting(false);
       return;
     }
 
     try {
       if (property) {
-        await updateProperty(property.id, validation.data);
+        await save(property, validation.data);
         message.success("Propriedade atualizada com sucesso.");
       } else {
-        await createProperty(validation.data);
+        await save(property, validation.data);
         message.success("Propriedade cadastrada com sucesso.");
       }
       form.resetFields();
@@ -135,8 +93,6 @@ export function PropertyFormDrawer({ property, open, onClose, onSaved }: Propert
         ? error.response?.data?.message
         : undefined;
       message.error(errorMessage ?? "Não foi possível salvar a propriedade.");
-    } finally {
-      setSubmitting(false);
     }
   };
 
@@ -191,7 +147,7 @@ export function PropertyFormDrawer({ property, open, onClose, onSaved }: Propert
           showIcon
           message="Não foi possível carregar os administradores."
           action={
-            <Button size="small" onClick={() => setLoadAttempt((attempt) => attempt + 1)}>
+            <Button size="small" onClick={retryAdministrators}>
               Tentar novamente
             </Button>
           }
