@@ -2,8 +2,8 @@ import { BoxesIcon, ChartAreaIcon, ChevronDownIcon, CircleUserIcon, LogOutIcon, 
 import { useDeferredValue, useEffect, useState, type ReactNode } from "react";
 import clsx from "clsx";
 import Logo  from "../../assets/logo_main.svg";
-import { Link, useLocation, useNavigate } from "react-router";
-import { logout } from "../../services/authService";
+import { Link, useLocation } from "react-router";
+import { useAuthActions } from "../../hooks/useAuthActions";
 import { SearchComponent } from "../Search/SearchComponent";
 
 type MenuItem = {
@@ -75,7 +75,7 @@ export default function Sidebar() {
   const [collapsed, setCollapsed] = useState(() => window.matchMedia("(max-width: 640px)").matches);
   const [searchQuery, setSearchQuery] = useState("");
   const { groups, actions, isFiltering } = useSidebarFilter(collapsed ? "" : searchQuery);
-  const navigate = useNavigate();
+  const { handleLogout } = useAuthActions();
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(max-width: 640px)");
@@ -131,7 +131,7 @@ export default function Sidebar() {
         {groups.length > 0 && actions.length > 0 && <hr className="my-2 border-brand-sand" />}
 
         {actions.map((action) => (
-          <button key={action.label} type="button" className={menuItemClass(collapsed)} aria-label={action.label} title={collapsed ? action.label : undefined} onClick={action.label === "Log Out" ? () => { logout(); navigate("/login"); } : undefined}>
+          <button key={action.label} type="button" className={menuItemClass(collapsed)} aria-label={action.label} title={collapsed ? action.label : undefined} onClick={action.label === "Log Out" ? handleLogout : undefined}>
             <span className={clsx("grid place-items-center", !collapsed && "mr-4")}>
               {action.icon}
             </span>

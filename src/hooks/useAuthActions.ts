@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { signInWithEmail } from "../services";
+import { logout as logoutRequest, resetPassword, signInWithEmail } from "../services";
 import { browserLocalPersistence, browserSessionPersistence, setPersistence } from "firebase/auth";
 import { auth } from "../lib";
 import axios from "axios";
@@ -44,7 +44,17 @@ export function useAuthActions() {
     }
   }
 
-  return { handleSignIn, loading, error, rememberMe, setRememberMe };
+  async function handleLogout() {
+    await logoutRequest();
+    refreshSession();
+    navigate("/login", { replace: true });
+  }
+
+  async function handlePasswordReset(email: string) {
+    await resetPassword(email);
+  }
+
+  return { handleSignIn, handleLogout, handlePasswordReset, loading, error, rememberMe, setRememberMe };
 }
 
 function mapFirebaseError(code: string): string {

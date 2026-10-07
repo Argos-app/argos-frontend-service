@@ -2,20 +2,21 @@ import { useState } from "react";
 import { CircleAlert, Mail, CheckCircle } from "lucide-react";
 import { ButtonComponent, InputComponent } from "../../../components";
 import { Link } from "react-router";
-import { resetPassword } from "../../../services/authService";
+import { useAuthActions } from "../../../hooks/useAuthActions";
 
 export const ForgetPassword = () => {
 	const [email, setEmail] = useState("");
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [sent, setSent] = useState(false);
+	const { handlePasswordReset } = useAuthActions();
 
 	async function onSubmit(e: React.FormEvent) {
 		e.preventDefault();
 		setLoading(true);
 		setError(null);
 		try {
-			await resetPassword(email);
+			await handlePasswordReset(email);
 			setSent(true);
 		} catch {
 			setError("Erro ao enviar link. Verifique o e-mail informado.");
