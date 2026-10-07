@@ -22,7 +22,7 @@ function validateUserFields<T extends { name: string; email: string; cpf: string
 
   if (!data.name || data.name.length > 120) errors.name = "O nome é obrigatório e deve ter até 120 caracteres.";
   if (!isValidEmail(data.email) || data.email.length > 120) errors.email = "Informe um e-mail válido com até 120 caracteres.";
-  if (data.cpf.length !== 11) errors.cpf = "Informe um CPF com 11 dígitos.";
+  if (!isValidCPF(data.cpf)) errors.cpf = "Informe um CPF válido com 11 dígitos.";
   if (!data.permissionId) errors.permissionId = "Selecione uma permissão.";
   if (!data.propertyId) errors.propertyId = "Selecione uma fazenda.";
 
@@ -56,7 +56,7 @@ export function validateProperty(values: PropertyPayload): ValidationResult<Prop
   const data: PropertyPayload = {
     ...values,
     name: values.name.trim(),
-    cnpj: values.cnpj?.replace(/\D/g, "") || null,
+    cnpj: values.cnpj ? cleanCNPJ(values.cnpj) || null : null,
     address: values.address.trim(),
     city: values.city.trim(),
     state: values.state.trim().toUpperCase(),
@@ -64,7 +64,7 @@ export function validateProperty(values: PropertyPayload): ValidationResult<Prop
   };
   const errors: Partial<Record<keyof PropertyPayload, string>> = {};
   if (!data.name || data.name.length > 120) errors.name = "O nome é obrigatório e deve ter até 120 caracteres.";
-  if (data.cnpj && data.cnpj.length !== 14) errors.cnpj = "O CNPJ deve conter 14 dígitos.";
+  if (data.cnpj && !isValidCNPJ(data.cnpj)) errors.cnpj = "Informe um CNPJ válido.";
   if (!data.address || data.address.length > 255) errors.address = "O endereço é obrigatório e deve ter até 255 caracteres.";
   if (!data.city || data.city.length > 100) errors.city = "A cidade é obrigatória e deve ter até 100 caracteres.";
   if (!/^[A-Z]{2}$/.test(data.state)) errors.state = "Informe uma UF válida.";
@@ -73,3 +73,4 @@ export function validateProperty(values: PropertyPayload): ValidationResult<Prop
   if (!data.responsibleAdminId) errors.responsibleAdminId = "Selecione o administrador responsável.";
   return Object.keys(errors).length > 0 ? { success: false, errors } : { success: true, data };
 }
+import { cleanCNPJ, isValidCNPJ, isValidCPF } from "cnpj-cpf-validator";

@@ -8,8 +8,10 @@ export function Home() {
     <div className="flex h-screen bg-brand-cream">
       <Sidebar />
        <main className="flex-1 p-8">
+        <header>
         <h1 className="text-4xl font-semibold text-brand-ink">Olá! {userName}</h1>
         <p className="mt-2 text-brand-forest/80">Selecione uma das opções do painel de controle para visualizar as informações.</p>
+        </header>
       </main>
     </div>
   );

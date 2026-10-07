@@ -29,7 +29,9 @@ export const Login = () => {
         <form onSubmit={onSubmit} className="md:w-96 w-96 flex flex-col items-center justify-center">
           <img className="w-100 h-42" src={Logo} alt="Logo" />
 
-          <h1 className="text-4xl text-brand-ink font-medium">Área administrativa</h1>
+          <header>
+            <h1 className="text-4xl text-brand-ink font-medium">Área administrativa</h1>
+          </header>
           <div className="flex items-center gap-4 w-full my-5">
             <div className="w-full h-px bg-brand-sand"></div>
             <p className="w-full text-nowrap text-sm text-brand-forest/70">O aplicativo que gere, cuida e organiza para você.</p>

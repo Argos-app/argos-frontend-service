@@ -59,6 +59,7 @@ export function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
+      <footer className="sr-only">Argos · Painel administrativo</footer>
     </BrowserRouter>
   );
 }

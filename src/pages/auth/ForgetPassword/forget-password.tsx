@@ -28,9 +28,11 @@ export const ForgetPassword = () => {
 		<main className="flex min-h-screen justify-center items-center w-full bg-brand-cream px-4 py-8">
 			<div className="w-full max-w-lg">
 				<form onSubmit={onSubmit} className="flex flex-col items-center w-full">
+					<header>
 					<h1 className="text-4xl md:text-5xl text-brand-ink font-medium mb-4 text-center">
 						Esqueceu sua senha?
 					</h1>
+					</header>
 					<p className="text-brand-forest/80 text-center text-sm sm:text-base mb-2">
 						Um link de redefinição de senha será enviado para o e-mail cadastrado abaixo:
 					</p>

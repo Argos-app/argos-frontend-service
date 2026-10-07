@@ -1,5 +1,6 @@
 import { App, Alert, Button, Col, Drawer, Form, Input, InputNumber, Row, Select, Space } from "antd";
 import axios from "axios";
+import { isValidCNPJ } from "cnpj-cpf-validator";
 import { useEffect, useMemo, useState } from "react";
 import { createProperty, getAdministrators, updateProperty } from "../../services";
 import type { AdminUserOption, Property, PropertyPayload } from "../../services";
@@ -104,7 +105,7 @@ export function PropertyFormDrawer({ property, open, onClose, onSaved }: Propert
     const payload: PropertyPayload = {
       ...values,
       name: values.name.trim(),
-      cnpj: values.cnpj?.trim() ? values.cnpj.replace(/\D/g, "") : null,
+      cnpj: values.cnpj?.trim() || null,
       address: values.address.trim(),
       city: values.city.trim(),
       state: values.state,
@@ -234,9 +235,8 @@ export function PropertyFormDrawer({ property, open, onClose, onSaved }: Propert
                 {
                   validator: async (_, value?: string) => {
                     if (!value?.trim()) return;
-                    const digits = value.replace(/\D/g, "");
-                    if (/^[\d./-]+$/.test(value) && digits.length === 14) return;
-                    throw new Error("Informe um CNPJ com 14 dígitos.");
+                    if (isValidCNPJ(value)) return;
+                    throw new Error("Informe um CNPJ válido.");
                   },
                 },
               ]}
