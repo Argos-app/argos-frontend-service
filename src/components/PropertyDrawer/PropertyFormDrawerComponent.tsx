@@ -3,8 +3,7 @@ import axios from "axios";
 import { isValidCNPJ } from "cnpj-cpf-validator";
 import { useEffect, useMemo } from "react";
 import { usePropertyAdministrators, usePropertyMutations } from "../../hooks/usePropertyManagement";
-import type { Property, PropertyPayload } from "../../types";
-import { validateProperty } from "../../utils/validation";
+import type { Property, PropertyFormValues } from "../../types";
 
 interface PropertyFormDrawerProps {
   property: Property | null;
@@ -12,12 +11,6 @@ interface PropertyFormDrawerProps {
   onClose: () => void;
   onSaved: () => void;
 }
-
-type PropertyFormValues = Omit<PropertyPayload, "cnpj" | "areaHectares" | "phone"> & {
-  cnpj?: string;
-  areaHectares?: number | null;
-  phone?: string;
-};
 
 const states = [
   "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA", "PB", "PR",
@@ -61,39 +54,24 @@ export function PropertyFormDrawer({ property, open, onClose, onSaved }: Propert
   };
 
   const handleSubmit = async (values: PropertyFormValues) => {
-    const payload: PropertyPayload = {
-      ...values,
-      name: values.name.trim(),
-      cnpj: values.cnpj?.trim() || null,
-      address: values.address.trim(),
-      city: values.city.trim(),
-      state: values.state,
-      areaHectares: values.areaHectares ?? null,
-      phone: values.phone?.trim() || null,
-    };
-
-    const validation = validateProperty(payload);
-    if (!validation.success) {
-      form.setFields(Object.entries(validation.errors).map(([name, errors]) => ({ name: name as keyof PropertyFormValues, errors: errors ? [errors] : [] })));
-      return;
-    }
-
+    let validation;
     try {
-      if (property) {
-        await save(property, validation.data);
-        message.success("Propriedade atualizada com sucesso.");
-      } else {
-        await save(property, validation.data);
-        message.success("Propriedade cadastrada com sucesso.");
-      }
-      form.resetFields();
-      onSaved();
+      validation = await save(property, values);
     } catch (error: unknown) {
       const errorMessage = axios.isAxiosError<{ message?: string }>(error)
         ? error.response?.data?.message
         : undefined;
       message.error(errorMessage ?? "Não foi possível salvar a propriedade.");
+      return;
     }
+    if (!validation.success) {
+      form.setFields(Object.entries(validation.errors).map(([name, errors]) => ({ name: name as keyof PropertyFormValues, errors: errors ? [errors] : [] })));
+      return;
+    }
+
+    message.success(property ? "Propriedade atualizada com sucesso." : "Propriedade cadastrada com sucesso.");
+    form.resetFields();
+    onSaved();
   };
 
   // Keep the potentially large select option list stable while form state changes.

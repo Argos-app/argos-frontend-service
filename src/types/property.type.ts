@@ -23,6 +23,12 @@ export interface PropertyPayload {
   responsibleAdminId: string;
 }
 
+export type PropertyFormValues = Omit<PropertyPayload, "cnpj" | "areaHectares" | "phone"> & {
+  cnpj?: string;
+  areaHectares?: number | null;
+  phone?: string;
+};
+
 export interface AdminUserOption {
   id: string;
   name: string;

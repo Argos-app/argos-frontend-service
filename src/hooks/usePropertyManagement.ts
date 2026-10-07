@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { createProperty, deactivateProperty, getAdministrators, updateProperty } from "../services";
-import type { AdminUserOption, Property, PropertyPayload } from "../types";
+import type { AdminUserOption, Property, PropertyFormValues, PropertyPayload } from "../types";
+import { validateProperty } from "../utils/validation";
 
 export function usePropertyAdministrators(open: boolean) {
   const [state, setState] = useState({
@@ -54,14 +55,28 @@ export function usePropertyAdministrators(open: boolean) {
 
 export function usePropertyMutations() {
   const [pending, setPending] = useState(false);
-  const save = useCallback(async (property: Property | null, payload: PropertyPayload) => {
+  const save = useCallback(async (property: Property | null, values: PropertyFormValues) => {
+    const payload: PropertyPayload = {
+      ...values,
+      name: values.name.trim(),
+      cnpj: values.cnpj?.trim() || null,
+      address: values.address.trim(),
+      city: values.city.trim(),
+      state: values.state,
+      areaHectares: values.areaHectares ?? null,
+      phone: values.phone?.trim() || null,
+    };
+    const validation = validateProperty(payload);
+    if (!validation.success) return validation;
+
     setPending(true);
     try {
-      if (property) await updateProperty(property.id, payload);
-      else await createProperty(payload);
+      if (property) await updateProperty(property.id, validation.data);
+      else await createProperty(validation.data);
     } finally {
       setPending(false);
     }
+    return validation;
   }, []);
   const deactivate = useCallback((propertyId: string) => deactivateProperty(propertyId), []);
   return { pending, save, deactivate };
