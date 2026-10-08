@@ -7,6 +7,7 @@ const Home = lazy(() => import("./pages/home/home").then((module) => ({ default:
 const Login = lazy(() => import("./pages/auth/Login/login").then((module) => ({ default: module.Login })));
 const ManageProperties = lazy(() => import("./pages/manageProperties/manage-properties").then((module) => ({ default: module.ManageProperties })));
 const ManageUsers = lazy(() => import("./pages/manageUsers/manage-users").then((module) => ({ default: module.ManageUsers })));
+const ManageAccess = lazy(() => import("./pages/manageAccess/manage-access").then((module) => ({ default: module.ManageAccess })));
 
 function SessionExpiryNavigation() {
   const navigate = useNavigate();
@@ -56,6 +57,8 @@ export function App() {
             <Route path="/home" element={<Home />} />
             <Route path="/gestao-usuarios" element={<ManageUsers />} />
             <Route path="/gestao-usuarios/pagina/:page" element={<ManageUsers />} />
+            <Route path="/gestao-acessos" element={<ManageAccess />} />
+            <Route path="/gestao-acessos/pagina/:page" element={<ManageAccess />} />
             <Route path="/gestao-propriedades" element={<ManageProperties />} />
           </Route>
 

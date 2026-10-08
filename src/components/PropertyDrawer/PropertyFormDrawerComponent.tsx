@@ -74,7 +74,6 @@ export function PropertyFormDrawer({ property, open, onClose, onSaved }: Propert
     onSaved();
   };
 
-  // Keep the potentially large select option list stable while form state changes.
   const adminOptions = useMemo(() => {
     const options: { value: string; label: string; disabled?: boolean }[] = administrators.map((administrator) => ({
       value: administrator.id,
@@ -83,7 +82,7 @@ export function PropertyFormDrawer({ property, open, onClose, onSaved }: Propert
     if (property && !administrators.some(({ id }) => id === property.responsibleAdminId)) {
       options.push({
         value: property.responsibleAdminId,
-        label: `${property.responsibleAdminName} (fora da lista de administradores ativos)`,
+        label: property.responsibleAdminName,
         disabled: true,
       });
     }

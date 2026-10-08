@@ -34,7 +34,7 @@ const menuGroups: MenuGroup[] = [
     label: "Gestão Executiva",
     icon: <BoxesIcon />,
     items: [
-      { label: "Gerenciar acessos" },
+      { label: "Gerenciar acessos", to: "/gestao-acessos" },
       { label: "Gerenciar Usuários", to: "/gestao-usuarios" },
       { label: "Gerenciar Propriedades", to: "/gestao-propriedades" },
       { label: "Histórico de Aplicações" },
@@ -167,7 +167,7 @@ function CollapsibleItem({ label, icon, items, collapsed }: CollapsibleItemProps
       <div id={submenuId} hidden={collapsed || !open} className="overflow-hidden py-1">
           <nav className="flex min-w-60 flex-col gap-1">
             {items.map((item) => {
-              const isActive = Boolean(item.to) && location.pathname === item.to;
+              const isActive = Boolean(item.to) && (location.pathname === item.to || location.pathname.startsWith(`${item.to}/`));
               const className = clsx(
                 menuItemClass(false),
                 isActive &&

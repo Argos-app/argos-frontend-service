@@ -8,3 +8,4 @@ export * from './Sidebar';
 export * from './PrivateRoute';
 export * from './GuestRoute';
 export * from './Search';
+export * from "./EditAccessDrawer";

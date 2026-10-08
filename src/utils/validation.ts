@@ -1,4 +1,4 @@
-import type { CreateUserPayload, UpdateUserPayload } from "../types";
+import type { CreateUserPayload, UpdateUserAccessPayload, UpdateUserPayload } from "../types";
 import type { PropertyPayload } from "../types";
 
 export type ValidationResult<T> =
@@ -50,6 +50,13 @@ type EditableUserFields = Omit<UpdateUserPayload, "currentPropertyId">;
 
 export function validateUpdateUser(values: EditableUserFields): ValidationResult<EditableUserFields> {
   return validateUserFields(values);
+}
+
+export function validateUpdateUserAccess(values: UpdateUserAccessPayload): ValidationResult<UpdateUserAccessPayload> {
+  const data = { permissionId: values.permissionId.trim() };
+  const errors: Partial<Record<keyof UpdateUserAccessPayload, string>> = {};
+  if (!data.permissionId) errors.permissionId = "Selecione uma permissão.";
+  return Object.keys(errors).length > 0 ? { success: false, errors } : { success: true, data };
 }
 
 export function validateProperty(values: PropertyPayload): ValidationResult<PropertyPayload> {
