@@ -11,7 +11,7 @@ interface EditUserDrawerProps {
   onUpdated: () => void;
 }
 
-type EditUserFormValues = Omit<UpdateUserPayload, "currentPropertyId">;
+type EditUserFormValues = UpdateUserPayload;
 
 export function EditUserDrawer({ user, open, onClose, onUpdated }: EditUserDrawerProps) {
   const { message } = App.useApp();
@@ -26,7 +26,8 @@ export function EditUserDrawer({ user, open, onClose, onUpdated }: EditUserDrawe
       email: user.email,
       cpf: user.cpf ?? "",
       permissionId: user.permissionId,
-      propertyId: user.propertyId,
+      currentPropertyId: user.properties[0]?.id,
+      propertyId: user.properties[0]?.id,
     });
   }, [form, open, user]);
 
@@ -40,10 +41,7 @@ export function EditUserDrawer({ user, open, onClose, onUpdated }: EditUserDrawe
     if (!user) return;
     let validation;
     try {
-      validation = await update(user.userId, {
-        ...values,
-        currentPropertyId: user.propertyId,
-      });
+      validation = await update(user.userId, values);
     } catch (error: unknown) {
       const errorMessage = axios.isAxiosError<{ message?: string }>(error)
         ? error.response?.data?.message
@@ -79,7 +77,7 @@ export function EditUserDrawer({ user, open, onClose, onUpdated }: EditUserDrawe
             htmlType="submit"
             form="argos-edit-user-form"
             loading={submitting}
-            disabled={!user || optionsError || loadingOptions}
+            disabled={!user || user.properties.length === 0 || optionsError || loadingOptions}
           >
             Salvar alterações
           </Button>
@@ -106,7 +104,7 @@ export function EditUserDrawer({ user, open, onClose, onUpdated }: EditUserDrawe
         layout="vertical"
         requiredMark={false}
         onFinish={handleSubmit}
-        disabled={submitting || !user || optionsError || loadingOptions}
+        disabled={submitting || !user || user.properties.length === 0 || optionsError || loadingOptions}
       >
         <Row gutter={16}>
           <Col span={24}>
@@ -153,8 +151,22 @@ export function EditUserDrawer({ user, open, onClose, onUpdated }: EditUserDrawe
           </Col>
           <Col span={24}>
             <Form.Item
+              name="currentPropertyId"
+              label="Vínculo que deseja editar"
+              rules={[{ required: true, message: "Selecione o vínculo atual." }]}
+            >
+              <Select
+                disabled={user?.properties.length === 1}
+                options={user?.properties.map(({ id, name }) => ({ value: id, label: name })) ?? []}
+                onChange={(propertyId: string) => form.setFieldValue("propertyId", propertyId)}
+                getPopupContainer={(trigger) => trigger.parentElement ?? document.body}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={24}>
+            <Form.Item
               name="propertyId"
-              label="Fazenda"
+              label="Fazenda de destino"
               rules={[{ required: true, message: "Selecione uma fazenda." }]}
             >
               <Select

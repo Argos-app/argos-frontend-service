@@ -5,11 +5,15 @@ export interface User {
   email: string;
   cpf: string | null;
   active: boolean;
-  farmName: string;
+  permissionId: string;
+  properties: UserProperty[];
+}
+
+export interface UserProperty {
+  id: string;
+  name: string;
   cnpj: string | null;
   linkDate: string;
-  propertyId: string;
-  permissionId: string;
 }
 
 export interface UserOption {

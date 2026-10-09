@@ -43,7 +43,7 @@ export function UsersPanel({
     (row) =>
       (row.name ?? "").toLowerCase().includes(normalizedQuery) ||
       (row.email ?? "").toLowerCase().includes(normalizedQuery) ||
-      (row.farmName ?? "").toLowerCase().includes(normalizedQuery),
+      row.properties.some((farm) => farm.name.toLowerCase().includes(normalizedQuery)),
   );
 
   const isSearching = normalizedQuery.length > 0;

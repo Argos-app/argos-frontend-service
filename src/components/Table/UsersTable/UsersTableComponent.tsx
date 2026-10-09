@@ -1,10 +1,10 @@
 import { Pencil, Trash } from "lucide-react";
-import { formatCNPJ, formatCPF } from "cnpj-cpf-validator";
-import { formatDate } from "../../../lib";
+import { formatCPF } from "cnpj-cpf-validator";
 import type { User } from "../../../types";
 import { AvatarComponent } from "../../Avatar";
 import { DeleteButton } from "../../DeleteButton";
 import { DataTable, type Column } from "../DataTable";
+import { UserFarmsCell } from "./UserFarmsCell";
 
 interface UsersTableProps {
   users: User[];
@@ -41,15 +41,8 @@ export function UsersTable({ users, loading, error, onRetry, onEdit, onDelete }:
     },
     {
       key: "farm",
-      header: "Fazenda",
-      render: (user) => (
-        <div className="flex flex-col">
-          <span className="text-sm font-normal text-brand-ink">{user.farmName}</span>
-          <span className="text-sm font-normal text-brand-forest">
-            {user.cnpj ? formatCNPJ(user.cnpj) || "CNPJ não informado" : "CNPJ não informado"}
-          </span>
-        </div>
-      ),
+      header: "Fazendas",
+      render: (user) => <UserFarmsCell user={user} />,
     },
     {
       key: "status",
@@ -63,11 +56,6 @@ export function UsersTable({ users, loading, error, onRetry, onEdit, onDelete }:
           {user.active ? "Ativo" : "Inativo"}
         </span>
       ),
-    },
-    {
-      key: "linkDate",
-      header: "Vinculado em",
-      render: (user) => <span className="text-sm font-normal text-brand-ink">{formatDate(user.linkDate)}</span>,
     },
     {
       key: "actions",
@@ -85,7 +73,7 @@ export function UsersTable({ users, loading, error, onRetry, onEdit, onDelete }:
           </button>
           <DeleteButton
             title="Remover acesso do usuário?"
-            description={`O acesso de ${user.name} será desativado.`}
+            description={`Os vínculos de ${user.name} com as fazendas sob sua responsabilidade serão removidos.`}
             confirmText="Remover acesso"
             cancelText="Cancelar"
             errorMessage="Não foi possível remover o acesso. Tente novamente."
