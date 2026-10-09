@@ -1,35 +1,45 @@
 import { useCallback, useEffect, useReducer } from "react";
-import type { PageResponse } from "../types";
+import type { PageResponse } from "@/types";
 
-interface State<T> {
+interface ResourceState<T> {
   data: T[];
-  meta: PageResponse<T> | null;
+  meta: Omit<PageResponse<T>, "data"> | null;
   page: number;
   size: number;
   attempt: number;
-  loading: boolean;
-  error: string | null;
 }
+
+type State<T> = ResourceState<T> & (
+  | { status: "loading"; error: null }
+  | { status: "success"; error: null }
+  | { status: "error"; error: string }
+);
 
 type Action<T> =
   | { type: "page-changed"; page: number }
   | { type: "size-changed"; size: number }
   | { type: "reload" }
-  | { type: "loaded"; response: PageResponse<T> }
-  | { type: "failed"; message: string };
+  | { type: "loaded"; response: PageResponse<T>; page: number; size: number; attempt: number }
+  | { type: "failed"; message: string; page: number; size: number; attempt: number };
 
 function reducer<T>(state: State<T>, action: Action<T>): State<T> {
   switch (action.type) {
     case "page-changed":
-      return { ...state, page: action.page, loading: true, error: null };
+      if (state.page === action.page) return state;
+      return { ...state, data: [], meta: null, page: action.page, status: "loading", error: null };
     case "size-changed":
-      return { ...state, size: action.size, page: 0, loading: true, error: null };
+      if (state.size === action.size) return state;
+      return { ...state, data: [], meta: null, size: action.size, page: 0, status: "loading", error: null };
     case "reload":
-      return { ...state, attempt: state.attempt + 1, loading: true, error: null };
-    case "loaded":
-      return { ...state, data: action.response.data, meta: action.response, loading: false, error: null };
+      return { ...state, attempt: state.attempt + 1, status: "loading", error: null };
+    case "loaded": {
+      if (state.page !== action.page || state.size !== action.size || state.attempt !== action.attempt) return state;
+      const { data, ...meta } = action.response;
+      return { ...state, data, meta, status: "success", error: null };
+    }
     case "failed":
-      return { ...state, data: [], meta: null, loading: false, error: action.message };
+      if (state.page !== action.page || state.size !== action.size || state.attempt !== action.attempt) return state;
+      return { ...state, data: [], meta: null, status: "error", error: action.message };
   }
 }
 
@@ -42,19 +52,23 @@ export function usePaginatedResource<T>(loadPage: PageLoader<T>, errorMessage: s
     page: initialPage,
     size: 10,
     attempt: 0,
-    loading: true,
+    status: "loading",
     error: null,
   });
 
+  const { page, size, attempt } = state;
+
   useEffect(() => {
     const controller = new AbortController();
-    loadPage(state.page, state.size, controller.signal)
-      .then((response) => dispatch({ type: "loaded", response }))
+    loadPage(page, size, controller.signal)
+      .then((response) => {
+        if (!controller.signal.aborted) dispatch({ type: "loaded", response, page, size, attempt });
+      })
       .catch(() => {
-        if (!controller.signal.aborted) dispatch({ type: "failed", message: errorMessage });
+        if (!controller.signal.aborted) dispatch({ type: "failed", message: errorMessage, page, size, attempt });
       });
     return () => controller.abort();
-  }, [loadPage, state.page, state.size, state.attempt, errorMessage]);
+  }, [loadPage, page, size, attempt, errorMessage]);
 
   const setPage = useCallback((page: number) => dispatch({ type: "page-changed", page }), []);
   const setSize = useCallback((size: number) => dispatch({ type: "size-changed", size }), []);
@@ -62,6 +76,7 @@ export function usePaginatedResource<T>(loadPage: PageLoader<T>, errorMessage: s
 
   return {
     ...state,
+    loading: state.status === "loading",
     setPage,
     setSize,
     reload,

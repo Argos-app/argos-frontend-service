@@ -1,1 +1,1 @@
-export { CreateUserDrawer } from "./CreateUserDrawerComponent";
+export { CreateUserDrawer } from "@/components/CreateUserDrawer/CreateUserDrawerComponent";

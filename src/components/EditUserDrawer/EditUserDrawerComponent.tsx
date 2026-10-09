@@ -1,8 +1,8 @@
 import { App, Alert, Button, Col, Drawer, Form, Input, Row, Select, Space } from "antd";
 import axios from "axios";
 import { useEffect } from "react";
-import { useUserCreationOptions, useUserMutations } from "../../hooks/useUserManagement";
-import type { UpdateUserPayload, User } from "../../types";
+import { useUserCreationOptions, useUserMutations } from "@/hooks/useUserManagement";
+import type { UpdateUserPayload, User } from "@/types";
 
 interface EditUserDrawerProps {
   user: User | null;
@@ -21,6 +21,7 @@ export function EditUserDrawer({ user, open, onClose, onUpdated }: EditUserDrawe
 
   useEffect(() => {
     if (!open || !user) return;
+    form.resetFields();
     form.setFieldsValue({
       name: user.name,
       email: user.email,

@@ -1,2 +1,1 @@
-export { UsersTable } from "./UsersTableComponent";
-export { UsersPanel } from "./UsersPanelComponent";
+export { UsersTable } from "@/components/Table/UsersTable/UsersTableComponent";

@@ -1,1 +1,1 @@
-export { ManageProperties } from "./manage-properties";
+export { ManageProperties } from "@/pages/manageProperties/manage-properties";

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { getInitials, hasValidPhoto } from "../../lib";
+import { getInitials, hasValidPhoto } from "@/lib/format";
 
 interface AvatarProps {
   name: string;

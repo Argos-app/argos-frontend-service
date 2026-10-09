@@ -1,49 +1,17 @@
-import Sidebar from "../../components/Sidebar/SidebarComponent";
-import { UsersPanel } from "../../components/Table/UsersTable";
-import { useUsers } from "../../hooks/useUsers";
-import { useUserMutations } from "../../hooks/useUserManagement";
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router";
-import { CreateUserDrawer } from "../../components/CreateUserDrawer";
-import { EditUserDrawer } from "../../components/EditUserDrawer";
-import type { User } from "../../types";
+import Sidebar from "@/components/Sidebar/SidebarComponent";
+import { UsersPanel } from "@/components/Table/UsersPanel";
+import { useUsers } from "@/hooks/useUsers";
+import { useState } from "react";
+import { CreateUserDrawer } from "@/components/CreateUserDrawer";
+import { EditUserDrawer } from "@/components/EditUserDrawer";
+import type { User } from "@/types";
 
 export function ManageUsers() {
-  const { page: routePage } = useParams<{ page?: string }>();
-  const navigate = useNavigate();
-  const validRoutePage = routePage === undefined || (/^[1-9]\d*$/.test(routePage) && Number.isSafeInteger(Number(routePage)));
-  const parsedRoutePage = validRoutePage && routePage !== undefined ? Number(routePage) - 1 : 0;
-  const [createDrawerOpen, setCreateDrawerOpen] = useState(false);
-  const [userToEdit, setUserToEdit] = useState<User | null>(null);
-  const { remove } = useUserMutations();
-  const { users, loading, error, page, totalPages, totalElements, first, last, setPage, reload } =
-    useUsers(parsedRoutePage);
-
-  useEffect(() => {
-    if (!validRoutePage) {
-      navigate("/gestao-usuarios", { replace: true });
-      return;
-    }
-    const targetPage = routePage === undefined ? 0 : parsedRoutePage;
-    if (page !== targetPage) setPage(targetPage);
-  }, [navigate, page, parsedRoutePage, routePage, setPage, validRoutePage]);
-
-  function handlePageChange(nextPage: number) {
-    setPage(nextPage);
-    navigate(nextPage === 0 ? "/gestao-usuarios" : `/gestao-usuarios/pagina/${nextPage + 1}`);
-  }
-
-  async function handleDelete(user: (typeof users)[number]) {
-    await remove(user.userId);
-    if (users.length === 1 && page > 0) {
-      setPage(page - 1);
-    } else {
-      reload();
-    }
-  }
+  const [drawer, setDrawer] = useState<{ type: "closed" } | { type: "create" } | { type: "edit"; user: User }>({ type: "closed" });
+  const { users, loading, error, page, totalPages, totalElements, first, last, setPage, reload, remove } = useUsers();
 
   function handleCreated() {
-    setCreateDrawerOpen(false);
+    setDrawer({ type: "closed" });
     reload();
   }
 
@@ -59,23 +27,23 @@ export function ManageUsers() {
         totalElements={totalElements}
         first={first}
         last={last}
-        onPageChange={handlePageChange}
+        onPageChange={setPage}
         onRetry={reload}
-        onAdd={() => setCreateDrawerOpen(true)}
-        onEdit={setUserToEdit}
-        onDelete={handleDelete}
+        onAdd={() => setDrawer({ type: "create" })}
+        onEdit={(user) => setDrawer({ type: "edit", user })}
+        onDelete={remove}
       />
       <CreateUserDrawer
-        open={createDrawerOpen}
-        onClose={() => setCreateDrawerOpen(false)}
+        open={drawer.type === "create"}
+        onClose={() => setDrawer({ type: "closed" })}
         onCreated={handleCreated}
       />
       <EditUserDrawer
-        user={userToEdit}
-        open={userToEdit !== null}
-        onClose={() => setUserToEdit(null)}
+        user={drawer.type === "edit" ? drawer.user : null}
+        open={drawer.type === "edit"}
+        onClose={() => setDrawer({ type: "closed" })}
         onUpdated={() => {
-          setUserToEdit(null);
+          setDrawer({ type: "closed" });
           reload();
         }}
       />

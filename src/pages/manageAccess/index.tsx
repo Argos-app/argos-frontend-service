@@ -1,1 +1,1 @@
-export { ManageAccess } from "./manage-access";
+export { ManageAccess } from "@/pages/manageAccess/manage-access";

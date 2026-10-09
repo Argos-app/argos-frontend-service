@@ -1,1 +1,1 @@
-export { GuestRouteComponent } from "./GuestRouteComponent";
+export { GuestRouteComponent } from "@/components/GuestRoute/GuestRouteComponent";

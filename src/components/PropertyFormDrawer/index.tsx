@@ -2,8 +2,8 @@ import { App, Alert, Button, Col, Drawer, Form, Input, InputNumber, Row, Select,
 import axios from "axios";
 import { isValidCNPJ } from "cnpj-cpf-validator";
 import { useEffect, useMemo } from "react";
-import { usePropertyAdministrators, usePropertyMutations } from "../../hooks/usePropertyManagement";
-import type { Property, PropertyFormValues } from "../../types";
+import { usePropertyAdministrators, usePropertyMutations } from "@/hooks/usePropertyManagement";
+import type { Property, PropertyFormValues } from "@/types";
 
 interface PropertyFormDrawerProps {
   property: Property | null;
@@ -31,10 +31,8 @@ export function PropertyFormDrawer({ property, open, onClose, onSaved }: Propert
 
   useEffect(() => {
     if (!open) return;
-    if (!property) {
-      form.resetFields();
-      return;
-    }
+    form.resetFields();
+    if (!property) return;
     form.setFieldsValue({
       name: property.name,
       cnpj: property.cnpj ?? "",

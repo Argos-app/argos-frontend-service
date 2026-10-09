@@ -1,1 +1,1 @@
-export { EditUserDrawer } from "./EditUserDrawerComponent";
+export { EditUserDrawer } from "@/components/EditUserDrawer/EditUserDrawerComponent";

@@ -3,13 +3,11 @@ import {
   createUser as createUserRequest,
   deleteUser as deleteUserRequest,
   getUserCreationOptions,
-  getPermissionOptions,
   updateUser as updateUserRequest,
-  updateUserAccess as updateUserAccessRequest,
-  updateUserStatus as updateUserStatusRequest,
-} from "../services";
-import type { CreateUserPayload, UpdateUserAccessPayload, UpdateUserPayload, UpdateUserStatusPayload, UserCreationOptions, UserOption } from "../types";
-import { validateCreateUser, validateUpdateUser, validateUpdateUserAccess } from "../utils/validation";
+} from "@/services/userService";
+import { getPermissionOptions, updateUserAccess as updateUserAccessRequest, updateUserStatus as updateUserStatusRequest } from "@/services/userAccessService";
+import type { CreateUserPayload, UpdateUserAccessPayload, UpdateUserPayload, UpdateUserStatusPayload, UserCreationOptions, UserOption } from "@/types";
+import { validateCreateUser, validateUpdateUser, validateUpdateUserAccess, validateUpdateUserStatus } from "@/utils/validation";
 
 const EMPTY_OPTIONS: UserCreationOptions = { properties: [], permissions: [] };
 
@@ -26,7 +24,11 @@ export function useUserCreationOptions(open: boolean) {
     const controller = new AbortController();
     const attempt = state.attempt;
     getUserCreationOptions(controller.signal)
-      .then((options) => setState((current) => ({ ...current, options, completedAttempt: attempt, errorAttempt: -1 })))
+      .then((options) => {
+        if (!controller.signal.aborted) {
+          setState((current) => ({ ...current, options, completedAttempt: attempt, errorAttempt: -1 }));
+        }
+      })
       .catch(() => {
         if (!controller.signal.aborted) {
           setState((current) => ({ ...current, completedAttempt: attempt, errorAttempt: attempt }));
@@ -63,10 +65,9 @@ export function useUserMutations() {
     return validation;
   }, [run]);
   const update = useCallback(async (userId: string, payload: UpdateUserPayload) => {
-    const { currentPropertyId, ...editableFields } = payload;
-    const validation = validateUpdateUser(editableFields);
+    const validation = validateUpdateUser(payload);
     if (!validation.success) return validation;
-    await run(() => updateUserRequest(userId, { ...validation.data, currentPropertyId }));
+    await run(() => updateUserRequest(userId, validation.data));
     return validation;
   }, [run]);
   const remove = useCallback((userId: string) => deleteUserRequest(userId), []);
@@ -80,7 +81,11 @@ export function usePermissionOptions(open: boolean) {
     const controller = new AbortController();
     const attempt = state.attempt;
     getPermissionOptions(controller.signal)
-      .then((options) => setState((current) => ({ ...current, options, completedAttempt: attempt, errorAttempt: -1 })))
+      .then((options) => {
+        if (!controller.signal.aborted) {
+          setState((current) => ({ ...current, options, completedAttempt: attempt, errorAttempt: -1 }));
+        }
+      })
       .catch(() => {
         if (!controller.signal.aborted) setState((current) => ({ ...current, completedAttempt: attempt, errorAttempt: attempt }));
       });
@@ -107,14 +112,10 @@ export function useUserAccessMutation() {
 }
 
 export function useUserStatusMutation() {
-  const [pending, setPending] = useState(false);
   const updateStatus = useCallback(async (userId: string, payload: UpdateUserStatusPayload) => {
-    setPending(true);
-    try {
-      await updateUserStatusRequest(userId, payload);
-    } finally {
-      setPending(false);
-    }
+    const validation = validateUpdateUserStatus(payload);
+    if (!validation.success) throw new Error(validation.errors.active);
+    await updateUserStatusRequest(userId, validation.data);
   }, []);
-  return { pending, updateStatus };
+  return { updateStatus };
 }

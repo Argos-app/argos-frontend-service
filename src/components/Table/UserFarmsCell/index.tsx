@@ -1,11 +1,19 @@
 import { Button, Popover } from "antd";
 import { formatCNPJ } from "cnpj-cpf-validator";
-import { formatDate } from "../../../lib";
-import type { User } from "../../../types";
+import { useId, useRef, useState } from "react";
+import { formatDate } from "@/lib/format";
+import type { User } from "@/types";
 
-export function UserFarmsCell({ user }: { user: User }) {
+interface UserFarmsCellProps {
+  user: User;
+}
+
+export function UserFarmsCell({ user }: UserFarmsCellProps) {
   const firstFarm = user.properties[0];
   const additionalCount = user.properties.length - 1;
+  const [popoverOpen, setPopoverOpen] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const popoverId = useId();
 
   if (!firstFarm) {
     return <span className="text-sm text-brand-forest">Sem fazenda vinculada</span>;
@@ -17,11 +25,15 @@ export function UserFarmsCell({ user }: { user: User }) {
         <span className="text-sm text-brand-ink">{firstFarm.name}</span>
         {additionalCount > 0 && (
           <Popover
+            id={popoverId}
+            forceRender
+            open={popoverOpen}
+            onOpenChange={setPopoverOpen}
             trigger="click"
             placement="bottomLeft"
             title={`Fazendas vinculadas (${user.properties.length})`}
             content={
-              <ul className="m-0 max-h-72 max-w-xs list-none space-y-3 overflow-y-auto p-0" aria-label="Fazendas vinculadas">
+              <ul className="m-0 max-h-72 max-w-xs list-none space-y-3 overflow-y-auto p-0">
                 {user.properties.map((farm) => (
                   <li key={farm.id} className="flex flex-col gap-1 break-words">
                     <span className="font-medium text-brand-ink">{farm.name}</span>
@@ -34,7 +46,18 @@ export function UserFarmsCell({ user }: { user: User }) {
               </ul>
             }
           >
-            <Button size="small" aria-label={`Mostrar as ${user.properties.length} fazendas de ${user.name}`}>
+            <Button
+              ref={triggerRef}
+              size="small"
+              aria-label={`Mostrar as ${user.properties.length} fazendas de ${user.name}`}
+              onKeyDown={(event) => {
+                if (event.key !== "Escape" || !popoverOpen) return;
+                event.preventDefault();
+                event.stopPropagation();
+                setPopoverOpen(false);
+                triggerRef.current?.focus();
+              }}
+            >
               +{additionalCount}
             </Button>
           </Popover>

@@ -1,49 +1,28 @@
-import { lazy, Suspense, useEffect } from "react";
-import { BrowserRouter, Navigate, Route, Routes, useNavigate } from "react-router";
-import { GuestRouteComponent, PrivateRouteComponent } from "./components";
+import { lazy, Suspense } from "react";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router";
+import { GuestRouteComponent } from "@/components/GuestRoute";
+import { PrivateRouteComponent } from "@/components/PrivateRoute";
+import { SessionExpiryNavigation } from "@/components/SessionExpiryNavigation";
+import { RouteLoading } from "@/components/RouteLoading";
+import { NotFound } from "@/pages/notFound";
 
-const ForgetPassword = lazy(() => import("./pages/auth/ForgetPassword/forget-password").then((module) => ({ default: module.ForgetPassword })));
-const Home = lazy(() => import("./pages/home/home").then((module) => ({ default: module.Home })));
-const Login = lazy(() => import("./pages/auth/Login/login").then((module) => ({ default: module.Login })));
-const ManageProperties = lazy(() => import("./pages/manageProperties/manage-properties").then((module) => ({ default: module.ManageProperties })));
-const ManageUsers = lazy(() => import("./pages/manageUsers/manage-users").then((module) => ({ default: module.ManageUsers })));
-const ManageAccess = lazy(() => import("./pages/manageAccess/manage-access").then((module) => ({ default: module.ManageAccess })));
-
-function SessionExpiryNavigation() {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const redirectToLogin = () => navigate("/login", { replace: true });
-    window.addEventListener("argos:session-expired", redirectToLogin);
-    return () => window.removeEventListener("argos:session-expired", redirectToLogin);
-  }, [navigate]);
-
-  return null;
-}
-
-function RouteLoading() {
-  return <main className="grid min-h-screen place-items-center bg-brand-cream" role="status" aria-live="polite">Carregando página...</main>;
-}
-
-function NotFound() {
-  const navigate = useNavigate();
-  return (
-    <main className="grid min-h-screen place-items-center bg-brand-cream p-6 text-center">
-      <section>
-        <h1 className="text-4xl font-semibold text-brand-ink">Página não encontrada</h1>
-        <p className="mt-3 text-brand-forest">O endereço informado não corresponde a uma página disponível.</p>
-        <button type="button" onClick={() => navigate(-1)} className="mt-6 rounded-lg bg-brand-forest px-5 py-3 text-brand-cream focus-visible:outline-2 focus-visible:outline-offset-2">
-          Voltar
-        </button>
-      </section>
-    </main>
-  );
-}
+const ForgetPassword = lazy(() => import("@/pages/auth/ForgetPassword/forget-password").then((module) => ({ default: module.ForgetPassword })));
+const Home = lazy(() => import("@/pages/home/home").then((module) => ({ default: module.Home })));
+const Login = lazy(() => import("@/pages/auth/Login/login").then((module) => ({ default: module.Login })));
+const ManageProperties = lazy(() => import("@/pages/manageProperties/manage-properties").then((module) => ({ default: module.ManageProperties })));
+const ManageUsers = lazy(() => import("@/pages/manageUsers/manage-users").then((module) => ({ default: module.ManageUsers })));
+const ManageAccess = lazy(() => import("@/pages/manageAccess/manage-access").then((module) => ({ default: module.ManageAccess })));
 
 export function App() {
   return (
     <BrowserRouter>
       <SessionExpiryNavigation />
+      <a
+        href="#main-content"
+        className="argos-skip-link absolute left-2 top-2 z-[10000] -translate-y-20 rounded-md bg-white px-4 py-3 text-brand-ink focus:translate-y-0 focus:outline-none focus:ring-2 focus:ring-brand-ink"
+      >
+        Pular para o conteúdo
+      </a>
       <Suspense fallback={<RouteLoading />}>
         <Routes>
           <Route path="/" element={<Navigate to="/login" replace />} />

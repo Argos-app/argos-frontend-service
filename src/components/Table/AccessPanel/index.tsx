@@ -1,7 +1,7 @@
 import { useState } from "react";
-import type { UserAccess } from "../../../types";
-import { SearchComponent } from "../../Search/SearchComponent";
-import { AccessTable } from "./AccessTableComponent";
+import type { UserAccess } from "@/types";
+import { SearchComponent } from "@/components/Search/SearchComponent";
+import { AccessTable } from "@/components/Table/AccessTable";
 
 interface AccessPanelProps {
   accesses: UserAccess[];
@@ -23,7 +23,7 @@ export function AccessPanel({ accesses, loading, error, page, totalPages, totalE
   const query = searchQuery.trim().toLocaleLowerCase();
   const filtered = accesses.filter((user) => user.name.toLocaleLowerCase().includes(query) || user.email.toLocaleLowerCase().includes(query) || user.permissionName.toLocaleLowerCase().includes(query));
   return (
-    <main aria-labelledby="access-page-title" className="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-lg border border-brand-sand bg-brand-cream shadow-sm">
+    <main id="main-content" tabIndex={-1} aria-labelledby="access-page-title" className="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-lg border border-brand-sand bg-brand-cream shadow-sm">
       <div className="shrink-0 p-4">
         <header className="mb-8"><h1 id="access-page-title" className="text-3xl font-semibold text-brand-ink">Gerenciar acessos</h1><p className="mt-1 text-sm text-brand-forest">Consulte e edite a permissão de cada usuário.</p></header>
         <SearchComponent searchQuery={searchQuery} setSearchQuery={setSearchQuery} placeholder="Pesquisar nesta página" aria-label="Pesquisar nesta página" className="md:w-72" />

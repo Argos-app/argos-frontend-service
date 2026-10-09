@@ -1,10 +1,10 @@
 import { Pencil, Trash } from "lucide-react";
 import { formatCPF } from "cnpj-cpf-validator";
-import type { User } from "../../../types";
-import { AvatarComponent } from "../../Avatar";
-import { DeleteButton } from "../../DeleteButton";
-import { DataTable, type Column } from "../DataTable";
-import { UserFarmsCell } from "./UserFarmsCell";
+import type { User } from "@/types";
+import { AvatarComponent } from "@/components/Avatar";
+import { DeleteButton } from "@/components/DeleteButton";
+import { DataTable, type Column } from "@/components/Table/DataTable";
+import { UserFarmsCell } from "@/components/Table/UserFarmsCell";
 
 interface UsersTableProps {
   users: User[];
@@ -64,7 +64,6 @@ export function UsersTable({ users, loading, error, onRetry, onEdit, onDelete }:
         <div className="flex items-center">
           <button
             type="button"
-            title="Editar usuário"
             aria-label={`Editar usuário ${user.name}`}
             onClick={() => onEdit?.(user)}
             className="rounded-md p-2 text-brand-forest hover:bg-brand-sand/40 hover:text-brand-ink"
@@ -76,12 +75,12 @@ export function UsersTable({ users, loading, error, onRetry, onEdit, onDelete }:
             description={`Os vínculos de ${user.name} com as fazendas sob sua responsabilidade serão removidos.`}
             confirmText="Remover acesso"
             cancelText="Cancelar"
+            successMessage="Acesso removido com sucesso."
             errorMessage="Não foi possível remover o acesso. Tente novamente."
             onConfirm={() => onDelete(user)}
           >
             <button
               type="button"
-              title="Excluir usuário"
               aria-label={`Remover acesso de ${user.name}`}
               className="rounded-md p-2 text-brand-brown hover:bg-brand-sand/40 hover:text-brand-ink"
             >

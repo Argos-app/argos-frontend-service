@@ -1,1 +1,1 @@
-export { SearchComponent } from "./SearchComponent";
+export { SearchComponent } from "@/components/Search/SearchComponent";

@@ -1,1 +1,1 @@
-export { ManageUsers } from "./manage-users";
+export { ManageUsers } from "@/pages/manageUsers/manage-users";

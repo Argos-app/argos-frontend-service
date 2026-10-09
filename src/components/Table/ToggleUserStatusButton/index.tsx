@@ -1,6 +1,6 @@
 import { App, Switch } from "antd";
 import { useState } from "react";
-import type { UserAccess } from "../../../types";
+import type { UserAccess } from "@/types";
 
 interface ToggleUserStatusButtonProps {
   user: UserAccess;

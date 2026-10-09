@@ -1,6 +1,6 @@
-import { api } from "../lib";
-import type { PageResponse, UpdateUserAccessPayload, UpdateUserStatusPayload, UserAccess, UserOption } from "../types";
-import { serviceRequest } from "./serviceRequest";
+import { api } from "@/lib/api";
+import type { PageResponse, UpdateUserAccessPayload, UpdateUserStatusPayload, UserAccess, UserOption } from "@/types";
+import { serviceRequest } from "@/services/serviceRequest";
 
 export async function getUserAccesses(page = 0, size = 10, signal?: AbortSignal): Promise<PageResponse<UserAccess>> {
   return serviceRequest(async () => {

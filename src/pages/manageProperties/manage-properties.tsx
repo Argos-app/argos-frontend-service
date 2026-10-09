@@ -1,34 +1,22 @@
 import { useState } from "react";
-import { CreatePropertyDrawer, EditPropertyDrawer } from "../../components/PropertyDrawer";
-import { PropertiesPanel } from "../../components/Table/PropertiesTable";
-import Sidebar from "../../components/Sidebar/SidebarComponent";
-import { useProperties } from "../../hooks/useProperties";
-import { usePropertyMutations } from "../../hooks/usePropertyManagement";
-import type { Property } from "../../types";
+import { CreatePropertyDrawer, EditPropertyDrawer } from "@/components/PropertyDrawer";
+import { PropertiesPanel } from "@/components/Table/PropertiesPanel";
+import Sidebar from "@/components/Sidebar/SidebarComponent";
+import { useProperties } from "@/hooks/useProperties";
+import type { Property } from "@/types";
 
 export function ManageProperties() {
-  const [createDrawerOpen, setCreateDrawerOpen] = useState(false);
-  const [propertyToEdit, setPropertyToEdit] = useState<Property | null>(null);
-  const { deactivate } = usePropertyMutations();
-  const { properties, loading, error, page, totalPages, totalElements, first, last, setPage, reload } = useProperties();
-
-  async function handleDeactivate(property: Property) {
-    await deactivate(property.id);
-    if (properties.length === 1 && page > 0) {
-      setPage(page - 1);
-    } else {
-      reload();
-    }
-  }
+  const [drawer, setDrawer] = useState<{ type: "closed" } | { type: "create" } | { type: "edit"; property: Property }>({ type: "closed" });
+  const { properties, loading, error, page, totalPages, totalElements, first, last, setPage, reload, deactivate } = useProperties();
 
   function handleCreated() {
-    setCreateDrawerOpen(false);
+    setDrawer({ type: "closed" });
     if (page !== 0) setPage(0);
     reload();
   }
 
   function handleUpdated() {
-    setPropertyToEdit(null);
+    setDrawer({ type: "closed" });
     reload();
   }
 
@@ -46,19 +34,19 @@ export function ManageProperties() {
         last={last}
         onPageChange={setPage}
         onRetry={reload}
-        onAdd={() => setCreateDrawerOpen(true)}
-        onEdit={setPropertyToEdit}
-        onDeactivate={handleDeactivate}
+        onAdd={() => setDrawer({ type: "create" })}
+        onEdit={(property) => setDrawer({ type: "edit", property })}
+        onDeactivate={deactivate}
       />
       <CreatePropertyDrawer
-        open={createDrawerOpen}
-        onClose={() => setCreateDrawerOpen(false)}
+        open={drawer.type === "create"}
+        onClose={() => setDrawer({ type: "closed" })}
         onCreated={handleCreated}
       />
       <EditPropertyDrawer
-        property={propertyToEdit}
-        open={propertyToEdit !== null}
-        onClose={() => setPropertyToEdit(null)}
+        property={drawer.type === "edit" ? drawer.property : null}
+        open={drawer.type === "edit"}
+        onClose={() => setDrawer({ type: "closed" })}
         onUpdated={handleUpdated}
       />
     </div>

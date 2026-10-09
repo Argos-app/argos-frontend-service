@@ -1,1 +1,1 @@
-export { AccessPanel } from "./AccessPanelComponent";
+export { AccessTable } from "@/components/Table/AccessTable/AccessTableComponent";

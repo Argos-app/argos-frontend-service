@@ -1,8 +1,8 @@
 import { Alert, App, Button, Drawer, Form, Select, Space, Typography } from "antd";
 import axios from "axios";
 import { useEffect } from "react";
-import type { UserAccess } from "../../types";
-import { usePermissionOptions, useUserAccessMutation } from "../../hooks/useUserManagement";
+import type { UserAccess } from "@/types";
+import { usePermissionOptions, useUserAccessMutation } from "@/hooks/useUserManagement";
 
 interface EditAccessDrawerProps {
   user: UserAccess | null;
@@ -20,7 +20,9 @@ export function EditAccessDrawer({ user, open, onClose, onUpdated }: EditAccessD
   const { pending, updateAccess } = useUserAccessMutation();
 
   useEffect(() => {
-    if (open && user) form.setFieldsValue({ permissionId: user.permissionId });
+    if (!open || !user) return;
+    form.resetFields();
+    form.setFieldsValue({ permissionId: user.permissionId });
   }, [form, open, user]);
 
   const close = () => {
