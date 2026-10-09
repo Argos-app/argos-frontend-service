@@ -1,13 +1,8 @@
 import { App, Alert, Button, Col, Drawer, Form, Input, Row, Select, Space } from "antd";
 import axios from "axios";
-import { useEffect, useState } from "react";
-import {
-  getUserCreationOptions,
-  updateUser,
-  type UpdateUserPayload,
-  type UserCreationOptions,
-  type User,
-} from "../../services";
+import { useEffect } from "react";
+import { useUserCreationOptions, useUserMutations } from "@/hooks/useUserManagement";
+import type { UpdateUserPayload, User } from "@/types";
 
 interface EditUserDrawerProps {
   user: User | null;
@@ -16,80 +11,52 @@ interface EditUserDrawerProps {
   onUpdated: () => void;
 }
 
-type EditUserFormValues = Omit<UpdateUserPayload, "currentPropertyId">;
+type EditUserFormValues = UpdateUserPayload;
 
 export function EditUserDrawer({ user, open, onClose, onUpdated }: EditUserDrawerProps) {
   const { message } = App.useApp();
   const [form] = Form.useForm<EditUserFormValues>();
-  const [options, setOptions] = useState<UserCreationOptions>({ properties: [], permissions: [] });
-  const [optionsAttempt, setOptionsAttempt] = useState(0);
-  const [completedOptionsAttempt, setCompletedOptionsAttempt] = useState<number | null>(null);
-  const [optionsErrorAttempt, setOptionsErrorAttempt] = useState<number | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-  const loadingOptions = open && completedOptionsAttempt !== optionsAttempt;
-  const optionsError = optionsErrorAttempt === optionsAttempt;
+  const { options, loading: loadingOptions, error: optionsError, retry } = useUserCreationOptions(open);
+  const { pending: submitting, update } = useUserMutations();
 
   useEffect(() => {
     if (!open || !user) return;
+    form.resetFields();
     form.setFieldsValue({
       name: user.name,
       email: user.email,
       cpf: user.cpf ?? "",
       permissionId: user.permissionId,
-      propertyId: user.propertyId,
+      currentPropertyId: user.properties[0]?.id,
+      propertyId: user.properties[0]?.id,
     });
   }, [form, open, user]);
-
-  useEffect(() => {
-    if (!open) return;
-    let cancelled = false;
-
-    getUserCreationOptions()
-      .then((result) => {
-        if (!cancelled) {
-          setOptions(result);
-          setOptionsErrorAttempt(null);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) setOptionsErrorAttempt(optionsAttempt);
-      })
-      .finally(() => {
-        if (!cancelled) setCompletedOptionsAttempt(optionsAttempt);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [open, optionsAttempt]);
 
   const handleClose = () => {
     if (submitting) return;
     form.resetFields();
-    setOptionsAttempt((attempt) => attempt + 1);
     onClose();
   };
 
   const handleSubmit = async (values: EditUserFormValues) => {
     if (!user) return;
-    setSubmitting(true);
+    let validation;
     try {
-      await updateUser(user.userId, {
-        ...values,
-        cpf: values.cpf.replace(/\D/g, ""),
-        currentPropertyId: user.propertyId,
-      });
-      message.success("Usuário atualizado com sucesso.");
-      form.resetFields();
-      onUpdated();
+      validation = await update(user.userId, values);
     } catch (error: unknown) {
       const errorMessage = axios.isAxiosError<{ message?: string }>(error)
         ? error.response?.data?.message
         : undefined;
       message.error(errorMessage ?? "Não foi possível atualizar o usuário.");
-    } finally {
-      setSubmitting(false);
+      return;
     }
+    if (!validation.success) {
+      form.setFields(Object.entries(validation.errors).map(([name, errors]) => ({ name: name as keyof EditUserFormValues, errors: errors ? [errors] : [] })));
+      return;
+    }
+    message.success("Usuário atualizado com sucesso.");
+    form.resetFields();
+    onUpdated();
   };
 
   return (
@@ -111,7 +78,7 @@ export function EditUserDrawer({ user, open, onClose, onUpdated }: EditUserDrawe
             htmlType="submit"
             form="argos-edit-user-form"
             loading={submitting}
-            disabled={!user || optionsError || loadingOptions}
+            disabled={!user || user.properties.length === 0 || optionsError || loadingOptions}
           >
             Salvar alterações
           </Button>
@@ -125,7 +92,7 @@ export function EditUserDrawer({ user, open, onClose, onUpdated }: EditUserDrawe
           showIcon
           message="Não foi possível carregar fazendas e permissões."
           action={
-            <Button size="small" onClick={() => setOptionsAttempt((attempt) => attempt + 1)}>
+            <Button size="small" onClick={retry}>
               Tentar novamente
             </Button>
           }
@@ -138,7 +105,7 @@ export function EditUserDrawer({ user, open, onClose, onUpdated }: EditUserDrawe
         layout="vertical"
         requiredMark={false}
         onFinish={handleSubmit}
-        disabled={submitting || !user || optionsError || loadingOptions}
+        disabled={submitting || !user || user.properties.length === 0 || optionsError || loadingOptions}
       >
         <Row gutter={16}>
           <Col span={24}>
@@ -185,8 +152,22 @@ export function EditUserDrawer({ user, open, onClose, onUpdated }: EditUserDrawe
           </Col>
           <Col span={24}>
             <Form.Item
+              name="currentPropertyId"
+              label="Vínculo que deseja editar"
+              rules={[{ required: true, message: "Selecione o vínculo atual." }]}
+            >
+              <Select
+                disabled={user?.properties.length === 1}
+                options={user?.properties.map(({ id, name }) => ({ value: id, label: name })) ?? []}
+                onChange={(propertyId: string) => form.setFieldValue("propertyId", propertyId)}
+                getPopupContainer={(trigger) => trigger.parentElement ?? document.body}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={24}>
+            <Form.Item
               name="propertyId"
-              label="Fazenda"
+              label="Fazenda de destino"
               rules={[{ required: true, message: "Selecione uma fazenda." }]}
             >
               <Select

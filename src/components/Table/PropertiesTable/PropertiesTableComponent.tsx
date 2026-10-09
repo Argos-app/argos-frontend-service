@@ -1,8 +1,8 @@
 import { formatCNPJ } from "cnpj-cpf-validator";
 import { Pencil, Trash } from "lucide-react";
-import type { Property } from "../../../services";
-import { DeleteButton } from "../../DeleteButton";
-import { DataTable, type Column } from "../DataTable/DataTableComponent";
+import type { Property } from "@/types";
+import { DeleteButton } from "@/components/DeleteButton";
+import { DataTable, type Column } from "@/components/Table/DataTable/DataTableComponent";
 
 interface PropertiesTableProps {
   properties: Property[];
@@ -33,7 +33,7 @@ export function PropertiesTable({
       key: "cnpj",
       header: "CNPJ",
       render: (property) => (
-        <span className="text-sm text-brand-forest/70">
+        <span className="text-sm text-brand-forest">
           {property.cnpj ? formatCNPJ(property.cnpj) || property.cnpj : "Não informado"}
         </span>
       ),
@@ -89,10 +89,9 @@ export function PropertiesTable({
         <div className="flex items-center">
           <button
             type="button"
-            title="Editar propriedade"
             aria-label={`Editar propriedade ${property.name}`}
             onClick={() => onEdit(property)}
-            className="rounded-md p-2 text-brand-forest/70 hover:bg-brand-sand/40 hover:text-brand-ink"
+            className="rounded-md p-2 text-brand-forest hover:bg-brand-sand/40 hover:text-brand-ink"
           >
             <Pencil className="h-4 w-4" strokeWidth={2} />
           </button>
@@ -101,12 +100,12 @@ export function PropertiesTable({
             description={`A fazenda ${property.name} e todos os vínculos ativos dos usuários serão desativados.`}
             confirmText="Desativar"
             cancelText="Cancelar"
+            successMessage="Propriedade desativada com sucesso."
             errorMessage="Não foi possível desativar a propriedade. Tente novamente."
             onConfirm={() => onDeactivate(property)}
           >
             <button
               type="button"
-              title="Desativar propriedade"
               aria-label={`Desativar propriedade ${property.name}`}
               className="rounded-md p-2 text-brand-forest hover:bg-brand-sand/40 hover:text-brand-ink"
             >

@@ -1,5 +1,10 @@
-import axios from "axios";
-import { auth } from "./firebase";
+import { api } from "@/lib/httpClient";
+import { refreshBackendToken } from "@/services/authService";
+
+import { auth } from "@/lib/firebase";
+import { sessionStorage } from "@/lib/sessionStorage";
+
+export { api };
 
 declare module "axios" {
   interface InternalAxiosRequestConfig {
@@ -7,34 +12,8 @@ declare module "axios" {
   }
 }
 
-export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
-});
-
-let backendTokenRefresh: Promise<string> | null = null;
-
-function refreshBackendToken(): Promise<string> {
-  if (!backendTokenRefresh) {
-    backendTokenRefresh = (async () => {
-      const firebaseUser = auth.currentUser;
-      if (!firebaseUser) throw new Error("No authenticated Firebase user");
-
-      const firebaseToken = await firebaseUser.getIdToken(true);
-      const { data } = await api.post<{ bearerToken: string }>("/auth/signin", null, {
-        headers: { Authorization: `Bearer ${firebaseToken}` },
-      });
-      localStorage.setItem("bearerToken", data.bearerToken);
-      return data.bearerToken;
-    })().finally(() => {
-      backendTokenRefresh = null;
-    });
-  }
-
-  return backendTokenRefresh;
-}
-
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("bearerToken");
+  const token = sessionStorage.getToken();
   if (token && !config.headers.Authorization) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -59,8 +38,8 @@ api.interceptors.response.use(
         }
       }
 
-      localStorage.removeItem("bearerToken");
-      window.location.href = "/login";
+      sessionStorage.clear();
+      window.dispatchEvent(new Event("argos:session-expired"));
     }
     return Promise.reject(error);
   }

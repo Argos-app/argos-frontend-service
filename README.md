@@ -1,75 +1,40 @@
-# React + TypeScript + Vite
+# Argos · Painel administrativo
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Aplicação web para autenticação e gestão de usuários e propriedades da plataforma Argos. Construída com React, TypeScript e Vite.
 
-Currently, two official plugins are available:
+## Requisitos locais
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Node.js 22 ou superior
+- npm
+- Backend Argos disponível em uma URL acessível pela aplicação
+- Projeto Firebase com Authentication por e-mail e senha habilitado
 
-## React Compiler
+## Configuração
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1. Instale as dependências com `npm ci`.
+2. Copie `.env.example` para `.env.local`.
+3. Preencha as variáveis `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_AUTH_DOMAIN`, `VITE_FIREBASE_PROJECT_ID` e `VITE_API_URL`.
+4. Inicie o frontend com `npm run dev`.
 
-## Expanding the ESLint configuration
+O Vite disponibiliza o painel em `http://localhost:4200`. Para ambiente local, `VITE_API_URL` normalmente aponta para `http://localhost:8080/api/v1`.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Comandos
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- `npm run dev`: servidor local de desenvolvimento.
+- `npm run lint`: análise estática do código.
+- `npm run build`: verificação TypeScript e build de produção.
+- `npm run preview`: servir localmente o build gerado.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Deploy na Vercel
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+O workflow `.github/workflows/deploy.yml` publica a branch `main` na Vercel. Configure no repositório GitHub:
 
-```
+- Secrets `VERCEL_TOKEN`, `VERCEL_ORG_ID` e `VERCEL_PROJECT_ID`.
+- Variáveis de ambiente `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_AUTH_DOMAIN`, `VITE_FIREBASE_PROJECT_ID` e `VITE_API_URL` no projeto Vercel para o ambiente Production.
+- O domínio de produção nas configurações de Firebase Authentication, quando necessário.
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+O arquivo `vercel.json` encaminha rotas do React Router para a aplicação SPA. Após o primeiro deploy, registre aqui a URL pública: **pendente de configuração do projeto e dos secrets da Vercel**.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Critérios e status
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
-```
+O inventário de requisitos, evidências, percentuais e itens que dependem de validação presencial está em [REQUISITOS.md](./REQUISITOS.md).

@@ -1,10 +1,10 @@
 import { Pencil, Trash } from "lucide-react";
-import { formatCNPJ, formatCPF } from "cnpj-cpf-validator";
-import { formatDate } from "../../../lib";
-import type { User } from "../../../services";
-import { AvatarComponent } from "../../Avatar";
-import { DeleteButton } from "../../DeleteButton";
-import { DataTable, type Column } from "../DataTable";
+import { formatCPF } from "cnpj-cpf-validator";
+import type { User } from "@/types";
+import { AvatarComponent } from "@/components/Avatar";
+import { DeleteButton } from "@/components/DeleteButton";
+import { DataTable, type Column } from "@/components/Table/DataTable";
+import { UserFarmsCell } from "@/components/Table/UserFarmsCell";
 
 interface UsersTableProps {
   users: User[];
@@ -25,7 +25,7 @@ export function UsersTable({ users, loading, error, onRetry, onEdit, onDelete }:
           <AvatarComponent name={user.name} photoUrl={user.photoUrl} />
           <div className="flex flex-col">
             <span className="text-sm font-normal text-brand-ink">{user.name}</span>
-            <span className="text-sm font-normal text-brand-forest/70">{user.email}</span>
+            <span className="text-sm font-normal text-brand-forest">{user.email}</span>
           </div>
         </div>
       ),
@@ -41,15 +41,8 @@ export function UsersTable({ users, loading, error, onRetry, onEdit, onDelete }:
     },
     {
       key: "farm",
-      header: "Fazenda",
-      render: (user) => (
-        <div className="flex flex-col">
-          <span className="text-sm font-normal text-brand-ink">{user.farmName}</span>
-          <span className="text-sm font-normal text-brand-forest/70">
-            {user.cnpj ? formatCNPJ(user.cnpj) || "CNPJ não informado" : "CNPJ não informado"}
-          </span>
-        </div>
-      ),
+      header: "Fazendas",
+      render: (user) => <UserFarmsCell user={user} />,
     },
     {
       key: "status",
@@ -65,35 +58,29 @@ export function UsersTable({ users, loading, error, onRetry, onEdit, onDelete }:
       ),
     },
     {
-      key: "linkDate",
-      header: "Vinculado em",
-      render: (user) => <span className="text-sm font-normal text-brand-ink">{formatDate(user.linkDate)}</span>,
-    },
-    {
       key: "actions",
       header: "Ações",
       render: (user) => (
         <div className="flex items-center">
           <button
             type="button"
-            title="Editar usuário"
             aria-label={`Editar usuário ${user.name}`}
             onClick={() => onEdit?.(user)}
-            className="rounded-md p-2 text-brand-forest/70 hover:bg-brand-sand/40 hover:text-brand-ink"
+            className="rounded-md p-2 text-brand-forest hover:bg-brand-sand/40 hover:text-brand-ink"
           >
             <Pencil className="h-4 w-4" strokeWidth={2} />
           </button>
           <DeleteButton
             title="Remover acesso do usuário?"
-            description={`O acesso de ${user.name} será desativado.`}
+            description={`Os vínculos de ${user.name} com as fazendas sob sua responsabilidade serão removidos.`}
             confirmText="Remover acesso"
             cancelText="Cancelar"
+            successMessage="Acesso removido com sucesso."
             errorMessage="Não foi possível remover o acesso. Tente novamente."
             onConfirm={() => onDelete(user)}
           >
             <button
               type="button"
-              title="Excluir usuário"
               aria-label={`Remover acesso de ${user.name}`}
               className="rounded-md p-2 text-brand-brown hover:bg-brand-sand/40 hover:text-brand-ink"
             >

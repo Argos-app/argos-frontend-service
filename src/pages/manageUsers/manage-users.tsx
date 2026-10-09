@@ -1,29 +1,17 @@
-import Sidebar from "../../components/Sidebar/SidebarComponent";
-import { UsersPanel } from "../../components/Table/UsersTable";
-import { useUsers } from "../../hooks/useUsers";
-import { deleteUser } from "../../services";
+import Sidebar from "@/components/Sidebar/SidebarComponent";
+import { UsersPanel } from "@/components/Table/UsersPanel";
+import { useUsers } from "@/hooks/useUsers";
 import { useState } from "react";
-import { CreateUserDrawer } from "../../components/CreateUserDrawer";
-import { EditUserDrawer } from "../../components/EditUserDrawer";
-import type { User } from "../../services";
+import { CreateUserDrawer } from "@/components/CreateUserDrawer";
+import { EditUserDrawer } from "@/components/EditUserDrawer";
+import type { User } from "@/types";
 
 export function ManageUsers() {
-  const [createDrawerOpen, setCreateDrawerOpen] = useState(false);
-  const [userToEdit, setUserToEdit] = useState<User | null>(null);
-  const { users, loading, error, page, totalPages, totalElements, first, last, setPage, reload } =
-    useUsers();
-
-  async function handleDelete(user: (typeof users)[number]) {
-    await deleteUser(user.userId);
-    if (users.length === 1 && page > 0) {
-      setPage(page - 1);
-    } else {
-      reload();
-    }
-  }
+  const [drawer, setDrawer] = useState<{ type: "closed" } | { type: "create" } | { type: "edit"; user: User }>({ type: "closed" });
+  const { users, loading, error, page, totalPages, totalElements, first, last, setPage, reload, remove } = useUsers();
 
   function handleCreated() {
-    setCreateDrawerOpen(false);
+    setDrawer({ type: "closed" });
     reload();
   }
 
@@ -41,21 +29,21 @@ export function ManageUsers() {
         last={last}
         onPageChange={setPage}
         onRetry={reload}
-        onAdd={() => setCreateDrawerOpen(true)}
-        onEdit={setUserToEdit}
-        onDelete={handleDelete}
+        onAdd={() => setDrawer({ type: "create" })}
+        onEdit={(user) => setDrawer({ type: "edit", user })}
+        onDelete={remove}
       />
       <CreateUserDrawer
-        open={createDrawerOpen}
-        onClose={() => setCreateDrawerOpen(false)}
+        open={drawer.type === "create"}
+        onClose={() => setDrawer({ type: "closed" })}
         onCreated={handleCreated}
       />
       <EditUserDrawer
-        user={userToEdit}
-        open={userToEdit !== null}
-        onClose={() => setUserToEdit(null)}
+        user={drawer.type === "edit" ? drawer.user : null}
+        open={drawer.type === "edit"}
+        onClose={() => setDrawer({ type: "closed" })}
         onUpdated={() => {
-          setUserToEdit(null);
+          setDrawer({ type: "closed" });
           reload();
         }}
       />

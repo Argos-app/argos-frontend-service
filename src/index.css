@@ -8,6 +8,30 @@
   --color-brand-cream: #f4f1eb;
 }
 
+:is(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid #06412f;
+  outline-offset: 3px;
+}
+
+.argos-skip-link,
+.argos-skip-link:visited,
+.argos-skip-link:hover,
+.argos-skip-link:active {
+  color: #000 !important;
+  background-color: #fff !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 a.link-redirect {
   color: #06412f;
   text-decoration: underline;

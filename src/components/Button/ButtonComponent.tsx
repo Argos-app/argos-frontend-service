@@ -1,5 +1,5 @@
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
-import { cn } from "../../lib";
+import { cn } from "@/lib/utils";
 
 interface ButtonProps extends ComponentPropsWithoutRef<"button"> {
 	children: ReactNode;

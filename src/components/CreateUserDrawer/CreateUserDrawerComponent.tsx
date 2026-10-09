@@ -1,6 +1,6 @@
 import { App, Alert, Button, Col, Drawer, Form, Input, Row, Select, Space } from "antd";
-import { useEffect, useState } from "react";
-import { createUser, getUserCreationOptions, type CreateUserPayload, type UserCreationOptions } from "../../services";
+import { useUserCreationOptions, useUserMutations } from "@/hooks/useUserManagement";
+import type { CreateUserPayload } from "@/types";
 import axios from "axios";
 
 interface CreateUserDrawerProps {
@@ -14,61 +14,33 @@ type CreateUserFormValues = CreateUserPayload;
 export function CreateUserDrawer({ open, onClose, onCreated }: CreateUserDrawerProps) {
   const { message } = App.useApp();
   const [form] = Form.useForm<CreateUserFormValues>();
-  const [options, setOptions] = useState<UserCreationOptions>({ properties: [], permissions: [] });
-  const [optionsAttempt, setOptionsAttempt] = useState(0);
-  const [completedOptionsAttempt, setCompletedOptionsAttempt] = useState<number | null>(null);
-  const [optionsErrorAttempt, setOptionsErrorAttempt] = useState<number | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-  const loadingOptions = open && completedOptionsAttempt !== optionsAttempt;
-  const optionsError = optionsErrorAttempt === optionsAttempt;
-
-  useEffect(() => {
-    if (!open) return;
-
-    let cancelled = false;
-
-    getUserCreationOptions()
-      .then((result) => {
-        if (!cancelled) {
-          setOptions(result);
-          setOptionsErrorAttempt(null);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) setOptionsErrorAttempt(optionsAttempt);
-      })
-      .finally(() => {
-        if (!cancelled) setCompletedOptionsAttempt(optionsAttempt);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [open, optionsAttempt]);
+  const { options, loading: loadingOptions, error: optionsError, retry } = useUserCreationOptions(open);
+  const { pending: submitting, create } = useUserMutations();
 
   const handleClose = () => {
     if (submitting) return;
     form.resetFields();
-    setOptionsAttempt((attempt) => attempt + 1);
     onClose();
   };
 
   const handleSubmit = async (values: CreateUserFormValues) => {
-    setSubmitting(true);
+    let validation;
     try {
-      await createUser({ ...values, cpf: values.cpf.replace(/\D/g, "") });
-      message.success("Usuário criado com sucesso.");
-      form.resetFields();
-      setOptionsAttempt((attempt) => attempt + 1);
-      onCreated();
-    } catch (error) {
+      validation = await create(values);
+    } catch (error: unknown) {
       const errorMessage = axios.isAxiosError<{ message?: string }>(error)
         ? error.response?.data?.message
         : undefined;
-      message.error(errorMessage);
-    } finally {
-      setSubmitting(false);
+      message.error(errorMessage ?? "Não foi possível criar o usuário.");
+      return;
     }
+    if (!validation.success) {
+      form.setFields(Object.entries(validation.errors).map(([name, errors]) => ({ name: name as keyof CreateUserFormValues, errors: errors ? [errors] : [] })));
+      return;
+    }
+    message.success("Usuário criado com sucesso.");
+    form.resetFields();
+    onCreated();
   };
 
   return (
@@ -97,7 +69,7 @@ export function CreateUserDrawer({ open, onClose, onCreated }: CreateUserDrawerP
           type="error"
           showIcon
           message="Não foi possível carregar fazendas e permissões."
-          action={<Button size="small" onClick={() => setOptionsAttempt((attempt) => attempt + 1)}>Tentar novamente</Button>}
+          action={<Button size="small" onClick={retry}>Tentar novamente</Button>}
         />
       )}
       {!optionsError && (options.properties.length === 0 || options.permissions.length === 0) && !loadingOptions && (

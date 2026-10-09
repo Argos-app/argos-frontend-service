@@ -1,61 +1,38 @@
-import { useCallback, useEffect, useState } from "react";
-import { getUsers } from "../services";
-import type { PageResponse, User } from "../services";
+import { useNavigate, useParams } from "react-router";
+import { useCallback, useEffect } from "react";
+import { getUsers } from "@/services/userService";
+import type { User } from "@/types";
+import { useUserMutations } from "@/hooks/useUserManagement";
+import { usePaginatedResource } from "@/hooks/usePaginatedResource";
 
 export function useUsers() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [page, setPage] = useState(0);
-  const [size, setSize] = useState(10);
-  const [attempt, setAttempt] = useState(0);
-  const [meta, setMeta] = useState<PageResponse<User> | null>(null);
-  const [completedKey, setCompletedKey] = useState<string | null>(null);
+  const { page: routePage } = useParams<{ page?: string }>();
+  const navigate = useNavigate();
+  const validRoutePage = routePage === undefined || (/^[1-9]\d*$/.test(routePage) && Number.isSafeInteger(Number(routePage)));
+  const parsedRoutePage = validRoutePage && routePage !== undefined ? Number(routePage) - 1 : 0;
 
-  const currentKey = `${page}:${attempt}`;
-
+  const loadPage = useCallback((page: number, size: number, signal: AbortSignal) => getUsers(page, size, signal), []);
+  const resource = usePaginatedResource<User>(loadPage, "Não foi possível carregar os usuários.", parsedRoutePage);
+  const { page, setPage: setResourcePage, reload } = resource;
   useEffect(() => {
-    let cancelled = false;
-
-    async function fetchUsers() {
-      try {
-        const data = await getUsers(page, size);
-        if (cancelled) return;
-        setUsers(data.data);
-        setMeta(data);
-        setError(null);
-      } catch {
-        if (cancelled) return;
-        setUsers([]);
-        setMeta(null);
-        setError("Não foi possível carregar os usuários.");
-      } finally {
-        if (!cancelled) setCompletedKey(`${page}:${attempt}`);
-      }
+    if (!validRoutePage) {
+      navigate("/gestao-usuarios", { replace: true });
+      return;
     }
+    setResourcePage(parsedRoutePage);
+  }, [navigate, parsedRoutePage, setResourcePage, validRoutePage]);
 
-    fetchUsers();
+  const setPage = useCallback((nextPage: number) => {
+    setResourcePage(nextPage);
+    navigate(nextPage === 0 ? "/gestao-usuarios" : `/gestao-usuarios/pagina/${nextPage + 1}`);
+  }, [navigate, setResourcePage]);
 
-    return () => {
-      cancelled = true;
-    };
-  }, [page, attempt, size]);
+  const { remove: removeRequest } = useUserMutations();
+  const remove = useCallback(async (user: User) => {
+    await removeRequest(user.userId);
+    if (resource.data.length === 1 && page > 0) setPage(page - 1);
+    else reload();
+  }, [removeRequest, resource.data.length, page, setPage, reload]);
 
-  const reload = useCallback(() => {
-    setAttempt((current) => current + 1);
-  }, []);
-
-  return {
-    users,
-    loading: completedKey !== currentKey,
-    error,
-    page,
-    setPage,
-    size,
-    setSize,
-    reload,
-    totalElements: meta?.totalElements ?? 0,
-    totalPages: meta?.totalPages ?? 0,
-    first: meta?.first ?? true,
-    last: meta?.last ?? true,
-  };
+  return { ...resource, users: resource.data, setPage, remove };
 }

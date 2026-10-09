@@ -1,4 +1,4 @@
-import { cn } from "../../../lib";
+import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 
 export interface Column<T> {
@@ -36,16 +36,18 @@ export function DataTable<T>({
   hoverable = true,
   className,
 }: DataTableProps<T>) {
-  const getRowKey = (row: T, index: number) => {
+  const getRowKey = (row: T) => {
     if (typeof rowKey === "function") return rowKey(row);
-    return String(row[rowKey] ?? index);
+    const value = row[rowKey];
+    if (value == null || value === "") throw new Error(`A propriedade ${String(rowKey)} deve conter uma chave estável.`);
+    return String(value);
   };
 
   const renderBody = () => {
     if (loading) {
       return (
         <tr>
-          <td colSpan={columns.length} className="p-4 text-center text-sm text-brand-forest/70">
+          <td colSpan={columns.length} role="status" aria-live="polite" className="p-4 text-center text-sm text-brand-forest">
             {loadingMessage}
           </td>
         </tr>
@@ -56,7 +58,7 @@ export function DataTable<T>({
       return (
         <tr>
           <td colSpan={columns.length} className="p-4 text-center">
-            <span className="text-sm text-brand-ink">{error}</span>
+            <span role="alert" className="text-sm text-brand-ink">{error}</span>
             {onRetry && (
               <button
                 type="button"
@@ -74,7 +76,7 @@ export function DataTable<T>({
     if (data.length === 0) {
       return (
         <tr>
-          <td colSpan={columns.length} className="p-4 text-center text-sm text-brand-forest/70">
+          <td colSpan={columns.length} className="p-4 text-center text-sm text-brand-forest">
             {emptyMessage}
           </td>
         </tr>
@@ -91,7 +93,7 @@ export function DataTable<T>({
       );
 
       return (
-        <tr key={getRowKey(row, index)} className={hoverable ? "transition-colors" : undefined}>
+        <tr key={getRowKey(row)} className={hoverable ? "transition-colors" : undefined}>
           {columns.map((col) => (
             <td key={col.key} className={cn(rowClasses, col.className)} style={{ width: col.width }}>
               {col.render ? col.render(row, index) : String((row as Record<string, unknown>)[col.key] ?? "")}
@@ -104,7 +106,7 @@ export function DataTable<T>({
 
   return (
     <div className={cn("overflow-x-auto", className)}>
-      <table className="w-full min-w-max table-auto text-left">
+      <table aria-busy={loading} className="w-full min-w-max table-auto text-left">
         <thead>
           <tr>
             {columns.map((col) => (
@@ -113,7 +115,7 @@ export function DataTable<T>({
                 className="border-y border-brand-sand bg-brand-sand/30 p-4"
                 style={{ width: col.width }}
               >
-                <span className="text-xs font-normal leading-none text-brand-forest/70">{col.header}</span>
+                <span className="text-xs font-normal leading-none text-brand-forest">{col.header}</span>
               </th>
             ))}
           </tr>

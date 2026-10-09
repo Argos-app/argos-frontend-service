@@ -1,3 +1,5 @@
+import { sessionStorage } from "@/lib/sessionStorage";
+
 export function useUser() {
-  return JSON.parse(localStorage.getItem("user") || "{}");
+  return sessionStorage.getUser() ?? { userName: "", farmName: null };
 }
