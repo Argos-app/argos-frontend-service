@@ -1,34 +1,29 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CircleAlert, Mail, CheckCircle } from "lucide-react";
-import { ButtonComponent, InputComponent } from "../../../components";
+import { ButtonComponent } from "@/components/Button";
+import { InputComponent } from "@/components/Input";
 import { Link } from "react-router";
-import { useAuthActions } from "../../../hooks/useAuthActions";
+import { usePasswordReset } from "@/hooks/useAuthActions";
 
 export const ForgetPassword = () => {
 	const [email, setEmail] = useState("");
-	const [loading, setLoading] = useState(false);
-	const [error, setError] = useState<string | null>(null);
-	const [sent, setSent] = useState(false);
-	const { handlePasswordReset } = useAuthActions();
+	const [submitAttempt, setSubmitAttempt] = useState(0);
+	const { submit, loading, error, emailError, sent } = usePasswordReset();
 
-	async function onSubmit(e: React.FormEvent) {
+	useEffect(() => {
+		if (emailError) document.getElementById("reset-email")?.focus();
+	}, [emailError, submitAttempt]);
+
+	function onSubmit(e: React.FormEvent) {
 		e.preventDefault();
-		setLoading(true);
-		setError(null);
-		try {
-			await handlePasswordReset(email);
-			setSent(true);
-		} catch {
-			setError("Erro ao enviar link. Verifique o e-mail informado.");
-		} finally {
-			setLoading(false);
-		}
+		setSubmitAttempt((attempt) => attempt + 1);
+		void submit(email);
 	}
 
 	return (
-		<main className="flex min-h-screen justify-center items-center w-full bg-brand-cream px-4 py-8">
+		<main id="main-content" tabIndex={-1} className="flex min-h-screen justify-center items-center w-full bg-brand-cream px-4 py-8">
 			<div className="w-full max-w-lg">
-				<form onSubmit={onSubmit} className="flex flex-col items-center w-full">
+				<form noValidate aria-busy={loading} onSubmit={onSubmit} className="flex flex-col items-center w-full">
 					<header>
 					<h1 className="text-4xl md:text-5xl text-brand-ink font-medium mb-4 text-center">
 						Esqueceu sua senha?
@@ -39,7 +34,7 @@ export const ForgetPassword = () => {
 					</p>
 
 					{sent ? (
-						<div className="flex items-center gap-2 mt-6 text-brand-forest">
+						<div role="status" aria-live="polite" className="flex items-center gap-2 mt-6 text-brand-forest">
 							<CheckCircle size={20} />
 							<p className="text-sm">Link enviado! Verifique sua caixa de entrada.</p>
 						</div>
@@ -50,7 +45,14 @@ export const ForgetPassword = () => {
 							)}
 							<InputComponent
 								id="reset-email"
+								disabled={loading}
+								maxLength={120}
+								aria-invalid={Boolean(emailError)}
+								aria-describedby={emailError ? "reset-email-error" : undefined}
 								label="E-mail para redefinição de senha"
+								name="email"
+								autoComplete="email"
+								spellCheck={false}
 								type="email"
 								placeholder="exemplo@email.com"
 								required
@@ -59,6 +61,7 @@ export const ForgetPassword = () => {
 							>
 								<Mail color="gray" size={18} />
 							</InputComponent>
+							{emailError && <p id="reset-email-error" role="alert" className="w-full text-sm text-brand-ink">{emailError}</p>}
 							<ButtonComponent type="submit" disabled={loading} className="font-medium w-full mt-8">
 								{loading ? "Enviando..." : "Enviar Link"}
 							</ButtonComponent>
@@ -77,6 +80,7 @@ export const ForgetPassword = () => {
 					>
 						Voltar para Login
 					</Link>
+				{loading && <p role="status" aria-live="polite" className="sr-only">Enviando link de redefinição...</p>}
 				</form>
 			</div>
 		</main>

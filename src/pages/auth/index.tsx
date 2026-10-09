@@ -1,2 +1,2 @@
-export { Login } from "./Login";
-export { ForgetPassword } from "./ForgetPassword";
+export { Login } from "@/pages/auth/Login";
+export { ForgetPassword } from "@/pages/auth/ForgetPassword";
