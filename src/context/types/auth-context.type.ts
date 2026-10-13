@@ -5,5 +5,4 @@ export interface AuthContextType {
   user: User | null;
   loading: boolean;
   isAuthenticated: boolean;
-  refreshSession: () => void;
 }
