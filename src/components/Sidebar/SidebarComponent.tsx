@@ -1,11 +1,11 @@
-import { BoxesIcon, ChartAreaIcon, CircleUserIcon, LogOutIcon, PanelLeftCloseIcon, PanelLeftOpenIcon, SettingsIcon } from "lucide-react";
+import { BoxesIcon, ChartAreaIcon, CircleUserIcon, LogOutIcon, PanelLeftCloseIcon, PanelLeftOpenIcon } from "lucide-react";
 import { useDeferredValue, useEffect, useState, type ReactNode } from "react";
 import clsx from "clsx";
 import { CollapsibleItem } from "@/components/Sidebar/CollapsibleItem";
 import { menuItemClass } from "@/components/Sidebar/menuItemClass";
 import type { SidebarMenuItem } from "@/types/sidebar.type";
 import Logo  from "@/assets/logo_main.svg";
-import { Link } from "react-router";
+import { Link, NavLink } from "react-router";
 import { useAuthActions } from "@/hooks/useAuthActions";
 import { SearchComponent } from "@/components/Search/SearchComponent";
 
@@ -18,6 +18,7 @@ type MenuGroup = {
 type MenuAction = {
   label: string;
   icon: ReactNode;
+  to?: string;
 };
 
 const menuGroups: MenuGroup[] = [
@@ -31,12 +32,11 @@ const menuGroups: MenuGroup[] = [
       { label: "Histórico de Aplicações" },
     ],
   },
-  { label: "Dashboard", icon: <ChartAreaIcon />, items: [{ label: "Desempenho do Lote" }] },
+  { label: "Relatórios", icon: <ChartAreaIcon />, items: [{ label: "Desempenho do Lote" }] },
 ];
 
 const menuActions: MenuAction[] = [
-  { label: "Perfil", icon: <CircleUserIcon /> },
-  { label: "Configurações", icon: <SettingsIcon /> },
+  { label: "Perfil", icon: <CircleUserIcon />, to: "/perfil" },
   { label: "Log Out", icon: <LogOutIcon /> },
 ];
 
@@ -114,9 +114,14 @@ export default function Sidebar() {
 
         {groups.length > 0 && actions.length > 0 && <hr className="my-2 border-brand-sand" />}
 
-        {actions.map((action) => (
-          <button key={action.label} type="button" disabled={loading && action.label === "Log Out"} className={menuItemClass(collapsed)} aria-label={collapsed ? action.label : undefined} onClick={action.label === "Log Out" ? handleLogout : undefined}>
-            <span className={clsx("grid place-items-center", !collapsed && "mr-4")}>
+        {actions.map((action) => action.to ? (
+          <NavLink key={action.label} to={action.to} className={({ isActive }) => clsx(menuItemClass(collapsed), "focus-visible:ring-2 focus-visible:ring-brand-forest", isActive && "bg-brand-sand")} aria-label={collapsed ? action.label : undefined}>
+            <span aria-hidden="true" className={clsx("grid place-items-center", !collapsed && "mr-4")}>{action.icon}</span>
+            {!collapsed && action.label}
+          </NavLink>
+        ) : (
+          <button key={action.label} type="button" disabled={loading} className={menuItemClass(collapsed)} aria-label={collapsed ? action.label : undefined} onClick={handleLogout}>
+            <span aria-hidden="true" className={clsx("grid place-items-center", !collapsed && "mr-4")}>
               {action.icon}
             </span>
             {!collapsed && action.label}
