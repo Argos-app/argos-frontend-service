@@ -1,40 +1,90 @@
-# Argos · Painel administrativo
+# Argos — Painel administrativo
 
-Aplicação web para autenticação e gestão de usuários e propriedades da plataforma Argos. Construída com React, TypeScript e Vite.
+Aplicação web para administrar usuários, acessos e propriedades da plataforma Argos. O painel também permite consultar o perfil do usuário autenticado e iniciar a recuperação de senha.
 
-## Requisitos locais
+## Funcionalidades
 
-- Node.js 22 ou superior
-- npm
-- Backend Argos disponível em uma URL acessível pela aplicação
-- Projeto Firebase com Authentication por e-mail e senha habilitado
+- Autenticação por e-mail e senha e recuperação de acesso.
+- Consulta de usuários, propriedades, fazendas vinculadas e permissões.
+- Criação, edição e desativação de usuários e propriedades.
+- Consulta do perfil, dos dados de acesso e das fazendas do usuário autenticado.
+- Rotas protegidas e navegação por teclado com controles acessíveis.
 
-## Configuração
+## Tecnologias
 
-1. Instale as dependências com `npm ci`.
+React 19, TypeScript, Vite, React Router, Ant Design, Tailwind CSS, Firebase Authentication e Axios.
+
+## Acessos
+
+- **Produção:** [argos-frontend-service.vercel.app](https://argos-frontend-service.vercel.app/)
+- **Homologação (Preview):** [argos-frontend-service-64wzvnnxa-luismede.vercel.app](https://argos-frontend-service-64wzvnnxa-luismede.vercel.app/)
+- **Detalhes do deployment:** [abrir no painel da Vercel](https://vercel.com/luismede/argos-frontend-service/7wUjNKN3TmD666zNrAciYa4Rn59t)
+
+## Começando
+
+### Pré-requisitos
+
+- Node.js 22 ou superior e npm.
+- Um projeto Firebase com autenticação por e-mail e senha habilitada.
+- Uma instância acessível da API Argos.
+
+### Configuração local
+
+1. Instale as dependências:
+
+   ```bash
+   npm ci
+   ```
+
 2. Copie `.env.example` para `.env.local`.
-3. Preencha as variáveis `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_AUTH_DOMAIN`, `VITE_FIREBASE_PROJECT_ID` e `VITE_API_URL`.
-4. Inicie o frontend com `npm run dev`.
+3. Preencha as variáveis do Firebase e da API:
 
-O Vite disponibiliza o painel em `http://localhost:4200`. Para ambiente local, `VITE_API_URL` normalmente aponta para `http://localhost:8080/api/v1`.
+   | Variável | Descrição |
+   | --- | --- |
+   | `VITE_FIREBASE_API_KEY` | Chave da aplicação Web no Firebase. |
+   | `VITE_FIREBASE_AUTH_DOMAIN` | Domínio de autenticação do projeto Firebase. |
+   | `VITE_FIREBASE_PROJECT_ID` | Identificador do projeto Firebase. |
+   | `VITE_API_URL` | URL base da API, incluindo o prefixo da versão. |
+
+   Para desenvolvimento local, a URL da API costuma ser `http://localhost:8080/api/v1`.
+
+4. Inicie o servidor:
+
+   ```bash
+   npm run dev
+   ```
+
+   O painel estará disponível em `http://localhost:4200`.
 
 ## Comandos
 
-- `npm run dev`: servidor local de desenvolvimento.
-- `npm run lint`: análise estática do código.
-- `npm run build`: verificação TypeScript e build de produção.
-- `npm run preview`: servir localmente o build gerado.
+| Comando | Descrição |
+| --- | --- |
+| `npm run dev` | Inicia o servidor de desenvolvimento na porta 4200. |
+| `npm run lint` | Verifica padrões e possíveis problemas no código. |
+| `npm run build` | Verifica os tipos TypeScript e gera a versão de produção em `dist/`. |
+| `npm run preview` | Serve localmente a versão gerada em `dist/`. |
 
-## Deploy na Vercel
+## Estrutura do projeto
 
-O workflow `.github/workflows/deploy.yml` publica a branch `main` na Vercel. Configure no repositório GitHub:
+```text
+src/
+├── components/  componentes de interface reutilizáveis
+├── context/     estado compartilhado de autenticação
+├── hooks/       estado e operações usados pelas telas
+├── lib/         clientes Firebase, HTTP e armazenamento de sessão
+├── pages/       páginas e rotas da aplicação
+├── services/    comunicação com a API e Firebase
+├── types/       tipos de domínio e contratos da API
+└── utils/       validação e funções auxiliares
+```
 
-- Secrets `VERCEL_TOKEN`, `VERCEL_ORG_ID` e `VERCEL_PROJECT_ID`.
-- Variáveis de ambiente `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_AUTH_DOMAIN`, `VITE_FIREBASE_PROJECT_ID` e `VITE_API_URL` no projeto Vercel para o ambiente Production.
-- O domínio de produção nas configurações de Firebase Authentication, quando necessário.
+As páginas são carregadas sob demanda. O acesso às rotas privadas é controlado pelo contexto de autenticação; chamadas à API ficam nos services, e os formulários validam os dados antes de enviá-los.
 
-O arquivo `vercel.json` encaminha rotas do React Router para a aplicação SPA. Após o primeiro deploy, registre aqui a URL pública: **pendente de configuração do projeto e dos secrets da Vercel**.
+## Convenções de contribuição
 
-## Critérios e status
-
-O inventário de requisitos, evidências, percentuais e itens que dependem de validação presencial está em [REQUISITOS.md](./REQUISITOS.md).
+- Use TypeScript (`.ts` e `.tsx`) em `src/` e evite `any`.
+- Mantenha componentes, páginas e tipos de domínio organizados nas pastas existentes.
+- Preserve nomes acessíveis, labels associados aos campos, mensagens de erro e navegação por teclado.
+- Use mensagens de commit no padrão Conventional Commits, por exemplo `feat(profile): exibir dados do usuário` ou `fix(auth): tratar sessão expirada`.
+- Antes de abrir um pull request, execute `npm run lint` e `npm run build`.
