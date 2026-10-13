@@ -12,6 +12,7 @@ const Login = lazy(() => import("@/pages/auth/Login/login").then((module) => ({ 
 const ManageProperties = lazy(() => import("@/pages/manageProperties/manage-properties").then((module) => ({ default: module.ManageProperties })));
 const ManageUsers = lazy(() => import("@/pages/manageUsers/manage-users").then((module) => ({ default: module.ManageUsers })));
 const ManageAccess = lazy(() => import("@/pages/manageAccess/manage-access").then((module) => ({ default: module.ManageAccess })));
+const Profile = lazy(() => import("@/pages/profile/profile").then((module) => ({ default: module.Profile })));
 
 export function App() {
   return (
@@ -34,6 +35,7 @@ export function App() {
 
           <Route element={<PrivateRouteComponent />}>
             <Route path="/home" element={<Home />} />
+            <Route path="/perfil" element={<Profile />} />
             <Route path="/gestao-usuarios" element={<ManageUsers />} />
             <Route path="/gestao-usuarios/pagina/:page" element={<ManageUsers />} />
             <Route path="/gestao-acessos" element={<ManageAccess />} />

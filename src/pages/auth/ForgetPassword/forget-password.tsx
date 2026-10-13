@@ -3,7 +3,7 @@ import { CircleAlert, Mail, CheckCircle } from "lucide-react";
 import { ButtonComponent } from "@/components/Button";
 import { InputComponent } from "@/components/Input";
 import { Link } from "react-router";
-import { usePasswordReset } from "@/hooks/useAuthActions";
+import { usePasswordReset } from "@/hooks/usePasswordReset";
 
 export const ForgetPassword = () => {
 	const [email, setEmail] = useState("");
