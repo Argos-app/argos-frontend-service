@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { onAuthStateChanged, type User } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { sessionStorage } from '@/lib/sessionStorage';
@@ -8,7 +8,6 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
   isAuthenticated: false,
-  refreshSession: () => undefined,
 });
 
 interface AuthProviderProps {
@@ -22,13 +21,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
     hasBackendSession: Boolean(sessionStorage.getToken()),
   }));
 
-  const refreshSession = useCallback(() => {
-    setState((current) => ({ ...current, hasBackendSession: Boolean(sessionStorage.getToken()) }));
-  }, []);
-
   useEffect(() => {
+    const refreshSession = () => {
+      const hasBackendSession = Boolean(sessionStorage.getToken());
+      setState((current) => current.hasBackendSession === hasBackendSession
+        ? current
+        : { ...current, hasBackendSession });
+    };
+    let previousUid: string | null | undefined;
     window.addEventListener('argos:session-updated', refreshSession);
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      const uid = currentUser?.uid ?? null;
+      if (uid === null || (previousUid !== undefined && previousUid !== uid)) sessionStorage.clear();
+      previousUid = uid;
       setState({ user: currentUser, loading: false, hasBackendSession: Boolean(sessionStorage.getToken()) });
     });
 
@@ -36,10 +41,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
       unsubscribe();
       window.removeEventListener('argos:session-updated', refreshSession);
     };
-  }, [refreshSession]);
+  }, []);
 
   return (
-    <AuthContext.Provider value={{ user: state.user, loading: state.loading, isAuthenticated: state.hasBackendSession, refreshSession }}>
+    <AuthContext.Provider value={{ user: state.user, loading: state.loading, isAuthenticated: state.hasBackendSession && state.user !== null }}>
       {state.loading ? <main role="status" aria-live="polite">Verificando sessão...</main> : children}
     </AuthContext.Provider>
   );

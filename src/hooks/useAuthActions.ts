@@ -1,11 +1,9 @@
 import { useState } from "react";
-import { validatePasswordReset, validateSignIn } from "@/utils/validation";
+import { validateSignIn } from "@/utils/validation";
 import type { SignInCredentials } from "@/types/auth.type";
 import { useNavigate } from "react-router";
-import { logout as logoutRequest, resetPassword, signInWithEmail } from "@/services/authService";
+import { logout as logoutRequest, signInWithEmail } from "@/services/authService";
 import axios from "axios";
-import { sessionStorage } from "@/lib/sessionStorage";
-import { useAuth } from "@/context/AuthContext";
 
 type AuthActionState = {
   fieldErrors: Partial<Record<keyof SignInCredentials, string>>;
@@ -19,7 +17,6 @@ export function useAuthActions() {
   const [rememberMe, setRememberMe] = useState(false);
 
   const navigate = useNavigate();
-  const { refreshSession } = useAuth();
 
   async function handleSignIn(email: string, password: string) {
     const validation = validateSignIn({ email, password });
@@ -29,13 +26,7 @@ export function useAuthActions() {
     }
     setState({ status: "loading", error: null, fieldErrors: {} });
     try {
-      const data = await signInWithEmail(validation.data.email, validation.data.password, rememberMe);
-      sessionStorage.setSession(data.bearerToken, {
-        userName: data.userName,
-        farmName: data.farmName,
-      });
-      refreshSession();
-
+      await signInWithEmail(validation.data.email, validation.data.password, rememberMe);
       setState({ status: "success", error: null, fieldErrors: {} });
       navigate("/home");
     } catch (err: unknown) {
@@ -54,7 +45,6 @@ export function useAuthActions() {
     setState({ status: "loading", error: null, fieldErrors: {} });
     try {
       await logoutRequest();
-      refreshSession();
       setState({ status: "success", error: null, fieldErrors: {} });
       navigate("/login", { replace: true });
     } catch {
@@ -62,14 +52,7 @@ export function useAuthActions() {
     }
   }
 
-  async function handlePasswordReset(email: string) {
-    const validation = validatePasswordReset({ email });
-    if (!validation.success) return validation;
-    await resetPassword(validation.data.email);
-    return validation;
-  }
-
-  return { handleSignIn, handleLogout, handlePasswordReset, loading: state.status === "loading", error: state.error, fieldErrors: state.fieldErrors, status: state.status, rememberMe, setRememberMe };
+  return { handleSignIn, handleLogout, loading: state.status === "loading", error: state.error, fieldErrors: state.fieldErrors, status: state.status, rememberMe, setRememberMe };
 }
 
 function mapFirebaseError(code: string): string {
@@ -79,30 +62,4 @@ function mapFirebaseError(code: string): string {
     "auth/too-many-requests": "Muitas tentativas. Tente novamente mais tarde",
   };
   return errors[code] ?? "Erro ao realizar login";
-}
-
-type PasswordResetState =
-  | { status: "idle" | "loading" | "success"; error: null; emailError: null }
-  | { status: "error"; error: string; emailError: null }
-  | { status: "error"; error: null; emailError: string };
-
-export function usePasswordReset() {
-  const [state, setState] = useState<PasswordResetState>({ status: "idle", error: null, emailError: null });
-
-  async function submit(email: string) {
-    const validation = validatePasswordReset({ email });
-    if (!validation.success) {
-      setState({ status: "error", error: null, emailError: validation.errors.email ?? "Informe um e-mail válido." });
-      return;
-    }
-    setState({ status: "loading", error: null, emailError: null });
-    try {
-      await resetPassword(validation.data.email);
-      setState({ status: "success", error: null, emailError: null });
-    } catch {
-      setState({ status: "error", error: "Erro ao enviar link. Verifique o e-mail informado.", emailError: null });
-    }
-  }
-
-  return { submit, loading: state.status === "loading", sent: state.status === "success", error: state.error, emailError: state.emailError };
 }
