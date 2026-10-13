@@ -1,9 +1,9 @@
 import { UserPlus } from "lucide-react";
 import { useState } from "react";
-import type { User } from "../../../types";
-import { ButtonComponent } from "../../Button";
-import { SearchComponent } from "../../Search/SearchComponent";
-import { UsersTable } from "./UsersTableComponent";
+import type { User } from "@/types";
+import { ButtonComponent } from "@/components/Button";
+import { SearchComponent } from "@/components/Search/SearchComponent";
+import { UsersTable } from "@/components/Table/UsersTable";
 
 interface UsersPanelProps {
   users: User[];
@@ -43,13 +43,13 @@ export function UsersPanel({
     (row) =>
       (row.name ?? "").toLowerCase().includes(normalizedQuery) ||
       (row.email ?? "").toLowerCase().includes(normalizedQuery) ||
-      (row.farmName ?? "").toLowerCase().includes(normalizedQuery),
+      row.properties.some((farm) => farm.name.toLowerCase().includes(normalizedQuery)),
   );
 
   const isSearching = normalizedQuery.length > 0;
 
   return (
-    <main aria-labelledby="users-page-title" className="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-lg border border-brand-sand bg-brand-cream shadow-sm">
+    <main id="main-content" tabIndex={-1} aria-labelledby="users-page-title" className="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-lg border border-brand-sand bg-brand-cream shadow-sm">
       <div className="shrink-0 rounded-none p-4">
         <header className="mb-8 flex items-center justify-between gap-8">
           <div>

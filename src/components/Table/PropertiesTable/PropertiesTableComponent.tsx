@@ -1,8 +1,8 @@
 import { formatCNPJ } from "cnpj-cpf-validator";
 import { Pencil, Trash } from "lucide-react";
-import type { Property } from "../../../types";
-import { DeleteButton } from "../../DeleteButton";
-import { DataTable, type Column } from "../DataTable/DataTableComponent";
+import type { Property } from "@/types";
+import { DeleteButton } from "@/components/DeleteButton";
+import { DataTable, type Column } from "@/components/Table/DataTable/DataTableComponent";
 
 interface PropertiesTableProps {
   properties: Property[];
@@ -89,7 +89,6 @@ export function PropertiesTable({
         <div className="flex items-center">
           <button
             type="button"
-            title="Editar propriedade"
             aria-label={`Editar propriedade ${property.name}`}
             onClick={() => onEdit(property)}
             className="rounded-md p-2 text-brand-forest hover:bg-brand-sand/40 hover:text-brand-ink"
@@ -101,12 +100,12 @@ export function PropertiesTable({
             description={`A fazenda ${property.name} e todos os vínculos ativos dos usuários serão desativados.`}
             confirmText="Desativar"
             cancelText="Cancelar"
+            successMessage="Propriedade desativada com sucesso."
             errorMessage="Não foi possível desativar a propriedade. Tente novamente."
             onConfirm={() => onDeactivate(property)}
           >
             <button
               type="button"
-              title="Desativar propriedade"
               aria-label={`Desativar propriedade ${property.name}`}
               className="rounded-md p-2 text-brand-forest hover:bg-brand-sand/40 hover:text-brand-ink"
             >

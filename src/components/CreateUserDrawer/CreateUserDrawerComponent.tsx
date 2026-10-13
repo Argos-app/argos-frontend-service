@@ -1,6 +1,6 @@
 import { App, Alert, Button, Col, Drawer, Form, Input, Row, Select, Space } from "antd";
-import { useUserCreationOptions, useUserMutations } from "../../hooks/useUserManagement";
-import type { CreateUserPayload } from "../../types";
+import { useUserCreationOptions, useUserMutations } from "@/hooks/useUserManagement";
+import type { CreateUserPayload } from "@/types";
 import axios from "axios";
 
 interface CreateUserDrawerProps {

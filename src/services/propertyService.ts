@@ -1,6 +1,6 @@
-import { api } from "../lib";
-import type { AdminUserOption, PageResponse, Property, PropertyPayload } from "../types";
-import { serviceRequest } from "./serviceRequest";
+import { api } from "@/lib/api";
+import type { AdminUserOption, PageResponse, Property, PropertyPayload } from "@/types";
+import { serviceRequest } from "@/services/serviceRequest";
 
 export async function getProperties(page = 0, size = 10, signal?: AbortSignal): Promise<PageResponse<Property>> {
   return serviceRequest(async () => {

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
-import { createProperty, deactivateProperty, getAdministrators, updateProperty } from "../services";
-import type { AdminUserOption, Property, PropertyFormValues, PropertyPayload } from "../types";
-import { validateProperty } from "../utils/validation";
+import { createProperty, deactivateProperty, getAdministrators, updateProperty } from "@/services/propertyService";
+import type { AdminUserOption, Property, PropertyFormValues, PropertyPayload } from "@/types";
+import { validateProperty } from "@/utils/validation";
 
 export function usePropertyAdministrators(open: boolean) {
   const [state, setState] = useState({
@@ -58,10 +58,10 @@ export function usePropertyMutations() {
   const save = useCallback(async (property: Property | null, values: PropertyFormValues) => {
     const payload: PropertyPayload = {
       ...values,
-      name: values.name.trim(),
+      name: values.name ?? "",
       cnpj: values.cnpj?.trim() || null,
-      address: values.address.trim(),
-      city: values.city.trim(),
+      address: values.address ?? "",
+      city: values.city ?? "",
       state: values.state,
       areaHectares: values.areaHectares ?? null,
       phone: values.phone?.trim() || null,

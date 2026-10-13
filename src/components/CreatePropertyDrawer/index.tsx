@@ -1,4 +1,4 @@
-import { PropertyFormDrawer } from "./PropertyFormDrawerComponent";
+import { PropertyFormDrawer } from "@/components/PropertyFormDrawer";
 
 interface CreatePropertyDrawerProps {
   open: boolean;

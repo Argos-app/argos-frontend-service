@@ -1,9 +1,9 @@
 import { Plus } from "lucide-react";
 import { useState } from "react";
-import type { Property } from "../../../types";
-import { ButtonComponent } from "../../Button";
-import { SearchComponent } from "../../Search/SearchComponent";
-import { PropertiesTable } from "./PropertiesTableComponent";
+import type { Property } from "@/types";
+import { ButtonComponent } from "@/components/Button";
+import { SearchComponent } from "@/components/Search/SearchComponent";
+import { PropertiesTable } from "@/components/Table/PropertiesTable";
 
 interface PropertiesPanelProps {
   properties: Property[];
@@ -44,7 +44,7 @@ export function PropertiesPanel({
   );
 
   return (
-    <main aria-labelledby="properties-page-title" className="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-lg border border-brand-sand bg-brand-cream shadow-sm">
+    <main id="main-content" tabIndex={-1} aria-labelledby="properties-page-title" className="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-lg border border-brand-sand bg-brand-cream shadow-sm">
       <div className="shrink-0 p-4">
         <header className="mb-8">
           <h1 id="properties-page-title" className="text-3xl font-semibold text-brand-ink">Lista de propriedades</h1>

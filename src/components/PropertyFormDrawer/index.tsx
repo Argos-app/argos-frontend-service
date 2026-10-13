@@ -2,8 +2,8 @@ import { App, Alert, Button, Col, Drawer, Form, Input, InputNumber, Row, Select,
 import axios from "axios";
 import { isValidCNPJ } from "cnpj-cpf-validator";
 import { useEffect, useMemo } from "react";
-import { usePropertyAdministrators, usePropertyMutations } from "../../hooks/usePropertyManagement";
-import type { Property, PropertyFormValues } from "../../types";
+import { usePropertyAdministrators, usePropertyMutations } from "@/hooks/usePropertyManagement";
+import type { Property, PropertyFormValues } from "@/types";
 
 interface PropertyFormDrawerProps {
   property: Property | null;
@@ -31,10 +31,8 @@ export function PropertyFormDrawer({ property, open, onClose, onSaved }: Propert
 
   useEffect(() => {
     if (!open) return;
-    if (!property) {
-      form.resetFields();
-      return;
-    }
+    form.resetFields();
+    if (!property) return;
     form.setFieldsValue({
       name: property.name,
       cnpj: property.cnpj ?? "",
@@ -74,7 +72,6 @@ export function PropertyFormDrawer({ property, open, onClose, onSaved }: Propert
     onSaved();
   };
 
-  // Keep the potentially large select option list stable while form state changes.
   const adminOptions = useMemo(() => {
     const options: { value: string; label: string; disabled?: boolean }[] = administrators.map((administrator) => ({
       value: administrator.id,
@@ -83,7 +80,7 @@ export function PropertyFormDrawer({ property, open, onClose, onSaved }: Propert
     if (property && !administrators.some(({ id }) => id === property.responsibleAdminId)) {
       options.push({
         value: property.responsibleAdminId,
-        label: `${property.responsibleAdminName} (fora da lista de administradores ativos)`,
+        label: property.responsibleAdminName,
         disabled: true,
       });
     }

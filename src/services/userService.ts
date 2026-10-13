@@ -1,6 +1,6 @@
-import { api } from "../lib";
-import type { CreateUserPayload, CreatedUser, PageResponse, UpdateUserPayload, User, UserCreationOptions } from "../types";
-import { serviceRequest } from "./serviceRequest";
+import { api } from "@/lib/api";
+import type { CreateUserPayload, CreatedUser, PageResponse, UpdateUserPayload, User, UserCreationOptions } from "@/types";
+import { serviceRequest } from "@/services/serviceRequest";
 
 export async function getUsers(page = 0, size = 10, signal?: AbortSignal): Promise<PageResponse<User>> {
   return serviceRequest(async () => {

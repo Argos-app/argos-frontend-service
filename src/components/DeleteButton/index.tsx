@@ -1,1 +1,1 @@
-export { DeleteButton } from "./DeleteButtonComponent";
+export { DeleteButton } from "@/components/DeleteButton/DeleteButtonComponent";

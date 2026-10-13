@@ -1,1 +1,1 @@
-export { PrivateRouteComponent } from "./PrivateRouteComponent";
+export { PrivateRouteComponent } from "@/components/PrivateRoute/PrivateRouteComponent";

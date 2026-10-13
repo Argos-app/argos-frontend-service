@@ -1,2 +1,1 @@
-export { PropertiesPanel } from "./PropertiesPanelComponent";
-export { PropertiesTable } from "./PropertiesTableComponent";
+export { PropertiesTable } from "@/components/Table/PropertiesTable/PropertiesTableComponent";
