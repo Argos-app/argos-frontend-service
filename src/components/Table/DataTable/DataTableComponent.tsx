@@ -21,6 +21,8 @@ interface DataTableProps<T> {
   striped?: boolean;
   hoverable?: boolean;
   className?: string;
+  scrollAreaTabIndex?: number;
+  scrollAreaLabel?: string;
 }
 
 export function DataTable<T>({
@@ -35,6 +37,8 @@ export function DataTable<T>({
   striped = true,
   hoverable = true,
   className,
+  scrollAreaTabIndex,
+  scrollAreaLabel,
 }: DataTableProps<T>) {
   const getRowKey = (row: T) => {
     if (typeof rowKey === "function") return rowKey(row);
@@ -105,7 +109,12 @@ export function DataTable<T>({
   };
 
   return (
-    <div className={cn("overflow-x-auto", className)}>
+    <div
+      role={scrollAreaLabel ? "region" : undefined}
+      aria-label={scrollAreaLabel}
+      tabIndex={scrollAreaTabIndex}
+      className={cn("overflow-x-auto", className)}
+    >
       <table aria-busy={loading} className="w-full min-w-max table-auto text-left">
         <thead>
           <tr>

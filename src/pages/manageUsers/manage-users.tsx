@@ -8,7 +8,7 @@ import type { User } from "@/types";
 
 export function ManageUsers() {
   const [drawer, setDrawer] = useState<{ type: "closed" } | { type: "create" } | { type: "edit"; user: User }>({ type: "closed" });
-  const { users, loading, error, page, totalPages, totalElements, first, last, setPage, reload, remove } = useUsers();
+  const { users, loading, error, page, totalPages, totalElements, setPage, reload, remove } = useUsers();
 
   function handleCreated() {
     setDrawer({ type: "closed" });
@@ -25,8 +25,6 @@ export function ManageUsers() {
         page={page}
         totalPages={totalPages}
         totalElements={totalElements}
-        first={first}
-        last={last}
         onPageChange={setPage}
         onRetry={reload}
         onAdd={() => setDrawer({ type: "create" })}

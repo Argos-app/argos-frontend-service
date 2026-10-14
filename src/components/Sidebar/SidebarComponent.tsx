@@ -29,7 +29,7 @@ const menuGroups: MenuGroup[] = [
       { label: "Gerenciar acessos", to: "/gestao-acessos" },
       { label: "Gerenciar Usuários", to: "/gestao-usuarios" },
       { label: "Gerenciar Propriedades", to: "/gestao-propriedades" },
-      { label: "Histórico de Aplicações" },
+      { label: "Histórico de Aplicações", to: "/historico-aplicacoes" },
     ],
   },
   { label: "Relatórios", icon: <ChartAreaIcon />, items: [{ label: "Desempenho do Lote" }] },

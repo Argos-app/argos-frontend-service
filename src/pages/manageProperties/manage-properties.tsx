@@ -7,7 +7,7 @@ import type { Property } from "@/types";
 
 export function ManageProperties() {
   const [drawer, setDrawer] = useState<{ type: "closed" } | { type: "create" } | { type: "edit"; property: Property }>({ type: "closed" });
-  const { properties, loading, error, page, totalPages, totalElements, first, last, setPage, reload, deactivate } = useProperties();
+  const { properties, loading, error, page, totalPages, totalElements, setPage, reload, deactivate } = useProperties();
 
   function handleCreated() {
     setDrawer({ type: "closed" });
@@ -30,8 +30,6 @@ export function ManageProperties() {
         page={page}
         totalPages={totalPages}
         totalElements={totalElements}
-        first={first}
-        last={last}
         onPageChange={setPage}
         onRetry={reload}
         onAdd={() => setDrawer({ type: "create" })}

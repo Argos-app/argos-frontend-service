@@ -7,12 +7,12 @@ import type { UserAccess } from "@/types";
 
 export function ManageAccess() {
   const [userToEdit, setUserToEdit] = useState<UserAccess | null>(null);
-  const { accesses, loading, error, page, totalPages, totalElements, first, last, setPage, reload, toggleStatus } = useUserAccesses();
+  const { accesses, loading, error, page, totalPages, totalElements, setPage, reload, toggleStatus } = useUserAccesses();
 
   return (
     <div className="flex h-screen bg-brand-cream">
       <Sidebar />
-      <AccessPanel accesses={accesses} loading={loading} error={error} page={page} totalPages={totalPages} totalElements={totalElements} first={first} last={last} onPageChange={setPage} onRetry={reload} onEdit={setUserToEdit} onToggleStatus={toggleStatus} />
+      <AccessPanel accesses={accesses} loading={loading} error={error} page={page} totalPages={totalPages} totalElements={totalElements} onPageChange={setPage} onRetry={reload} onEdit={setUserToEdit} onToggleStatus={toggleStatus} />
       <EditAccessDrawer user={userToEdit} open={userToEdit !== null} onClose={() => setUserToEdit(null)} onUpdated={() => { setUserToEdit(null); reload(); }} />
     </div>
   );
