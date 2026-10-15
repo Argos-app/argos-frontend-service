@@ -3,46 +3,44 @@ import { useAuth } from "@/context/AuthContext";
 import { getMyProfile } from "@/services/userProfileService";
 import type { UserProfile } from "@/types/user-profile.type";
 
-type ProfileState = { identity: string | null; attempt: number } & (
-  | { status: "loading"; profile: null; error: null }
-  | { status: "success"; profile: UserProfile; error: null }
-  | { status: "error"; profile: null; error: string }
-);
-
-function initialState(identity: string | null, attempt = 0): ProfileState {
-  return { identity, attempt, status: "loading", profile: null, error: null };
-}
-
 export function useUserProfile() {
   const { user, isAuthenticated } = useAuth();
-  const identity = isAuthenticated ? user?.uid ?? null : null;
-  const [state, setState] = useState<ProfileState>(() => initialState(identity));
-
-  if (state.identity !== identity) setState(initialState(identity));
-  const attempt = state.attempt;
+  const userId = isAuthenticated ? user?.uid : null;
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
-    if (identity === null) return;
+    if (!userId) {
+      setProfile(null);
+      setLoading(false);
+      setError(null);
+      return;
+    }
+
     const controller = new AbortController();
+    setLoading(true);
+    setError(null);
+
     getMyProfile(controller.signal)
-      .then((profile) => {
-        if (controller.signal.aborted) return;
-        setState((previous) => previous.identity === identity && previous.attempt === attempt
-          ? { identity, attempt, status: "success", profile, error: null }
-          : previous);
+      .then((result) => {
+        if (!controller.signal.aborted) setProfile(result);
       })
       .catch(() => {
-        if (controller.signal.aborted) return;
-        setState((previous) => previous.identity === identity && previous.attempt === attempt
-          ? { identity, attempt, status: "error", profile: null, error: "Não foi possível carregar seu perfil. Tente novamente." }
-          : previous);
+        if (!controller.signal.aborted) {
+          setProfile(null);
+          setError("Não foi possível carregar seu perfil. Tente novamente.");
+        }
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
       });
+
     return () => controller.abort();
-  }, [identity, attempt]);
+  }, [attempt, userId]);
 
-  function reload() {
-    setState((previous) => initialState(identity, previous.attempt + 1));
-  }
+  const reload = () => setAttempt((current) => current + 1);
 
-  return { profile: state.profile, loading: state.status === "loading", error: state.error, reload };
+  return { profile, loading, error, reload };
 }
