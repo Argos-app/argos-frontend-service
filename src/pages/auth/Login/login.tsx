@@ -8,11 +8,12 @@ import { useAuthActions } from "@/hooks/useAuthActions";
 
 export const Login = () => {
 	const [credentials, setCredentials] = useState({ email: "", password: "" });
+	const [rememberMe, setRememberMe] = useState(false);
 	const { handleSignIn, loading, error } = useAuthActions();
 
 	function onSubmit(e: React.FormEvent) {
 		e.preventDefault();
-		void handleSignIn(credentials.email, credentials.password);
+		void handleSignIn(credentials.email, credentials.password, rememberMe);
 	}
 
 	return (
@@ -82,7 +83,16 @@ export const Login = () => {
 						<KeyRound color="gray" size={18} />
 					</InputComponent>
 
-					<div className="w-full flex items-center justify-end mt-8 text-brand-forest">
+					<div className="w-full flex items-center justify-between mt-8 text-brand-forest">
+						<label className="flex items-center gap-2 text-sm" htmlFor="remember-access">
+							<input
+								id="remember-access"
+								type="checkbox"
+								checked={rememberMe}
+								onChange={(e) => setRememberMe(e.target.checked)}
+							/>
+							Lembrar acesso
+						</label>
 						<Link className="text-sm underline link-redirect" to="/forget-password">
 							Esqueceu a senha?
 						</Link>
