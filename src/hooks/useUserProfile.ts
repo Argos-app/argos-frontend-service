@@ -1,48 +1,45 @@
-import { useEffect, useState } from "react";
-import { useAuth } from "@/context/AuthContext";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { getMyProfile } from "@/services/userProfileService";
 import type { UserProfile } from "@/types/user-profile.type";
 
-function initialState(userId: string | null) {
-  return {
-    userId,
-    profile: null as UserProfile | null,
-    loading: userId !== null,
-    error: null as string | null,
-  };
+interface ProfileState {
+  profile: UserProfile | null;
+  loading: boolean;
+  error: string | null;
 }
 
+const initialState: ProfileState = { profile: null, loading: true, error: null };
+
 export function useUserProfile() {
-  const { user, isAuthenticated } = useAuth();
-  const userId = isAuthenticated ? user?.uid ?? null : null;
-  const [state, setState] = useState(() => initialState(userId));
-  const [attempt, setAttempt] = useState(0);
+  const [state, setState] = useState(initialState);
+  const controller = useRef<AbortController | null>(null);
 
-  if (state.userId !== userId) setState(initialState(userId));
+  const loadProfile = useCallback(() => {
+    controller.current?.abort();
+    const request = new AbortController();
+    controller.current = request;
 
-  useEffect(() => {
-    if (!userId) return;
-
-    const controller = new AbortController();
-
-    getMyProfile(controller.signal)
-      .then((result) => {
-        if (!controller.signal.aborted) {
-          setState({ userId, profile: result, loading: false, error: null });
+    getMyProfile(request.signal)
+      .then((profile) => {
+        if (!request.signal.aborted) {
+          setState({ profile, loading: false, error: null });
         }
       })
       .catch(() => {
-        if (!controller.signal.aborted) {
-          setState({ userId, profile: null, loading: false, error: "Não foi possível carregar seu perfil. Tente novamente." });
+        if (!request.signal.aborted) {
+          setState({ profile: null, loading: false, error: "Não foi possível carregar seu perfil. Tente novamente." });
         }
       });
+  }, []);
 
-    return () => controller.abort();
-  }, [attempt, userId]);
+  useEffect(() => {
+    loadProfile();
+    return () => controller.current?.abort();
+  }, [loadProfile]);
 
   function reload() {
-    setState(initialState(userId));
-    setAttempt((current) => current + 1);
+    setState(initialState);
+    loadProfile();
   }
 
   return { profile: state.profile, loading: state.loading, error: state.error, reload };
