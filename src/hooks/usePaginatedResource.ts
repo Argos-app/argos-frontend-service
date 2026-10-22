@@ -82,7 +82,5 @@ export function usePaginatedResource<T>(loadPage: PageLoader<T>, errorMessage: s
     reload,
     totalElements: state.meta?.totalElements ?? 0,
     totalPages: state.meta?.totalPages ?? 0,
-    first: state.meta?.first ?? true,
-    last: state.meta?.last ?? true,
   };
 }
