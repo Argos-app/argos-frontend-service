@@ -10,7 +10,6 @@ import {
   type User,
 } from "firebase/auth";
 import type { SignInResponse } from "@/types/sign-in-response.type";
-import { serviceRequest } from "@/services/serviceRequest";
 
 export async function signInWithEmail(email: string, password: string, rememberMe: boolean): Promise<SignInResponse> {
   await setPersistence(auth, rememberMe ? browserLocalPersistence : browserSessionPersistence);
@@ -31,5 +30,5 @@ export async function logout(): Promise<void> {
 }
 
 export async function resetPassword(email: string): Promise<void> {
-  return serviceRequest(() => sendPasswordResetEmail(auth, email), "Não foi possível enviar o e-mail de redefinição.");
+  await sendPasswordResetEmail(auth, email);
 }

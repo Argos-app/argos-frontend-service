@@ -1,44 +1,24 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { resetPassword } from "@/services/authService";
-import { validatePasswordReset } from "@/utils/validation";
-
-type ResetState =
-  | { status: "idle" | "loading" | "success"; error: null; emailError: null }
-  | { status: "error"; error: string; emailError: null }
-  | { status: "error"; error: null; emailError: string };
-
-const initialState: ResetState = { status: "idle", error: null, emailError: null };
 
 export function usePasswordReset() {
-  const [state, setState] = useState<ResetState>(initialState);
-  const pending = useRef(false);
+  const [loading, setLoading] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function submit(email: string) {
-    if (pending.current) return;
-
-    const validation = validatePasswordReset({ email });
-    if (!validation.success) {
-      setState({ status: "error", error: null, emailError: validation.errors.email ?? "Informe um e-mail válido." });
-      return;
-    }
-
-    pending.current = true;
-    setState({ status: "loading", error: null, emailError: null });
+    setLoading(true);
+    setSent(false);
+    setError(null);
     try {
-      await resetPassword(validation.data.email);
-      setState({ status: "success", error: null, emailError: null });
+      await resetPassword(email);
+      setSent(true);
     } catch {
-      setState({ status: "error", error: "Não foi possível enviar o link. Tente novamente mais tarde.", emailError: null });
+      setError("Não foi possível enviar o link. Tente novamente mais tarde.");
     } finally {
-      pending.current = false;
+      setLoading(false);
     }
   }
 
-  return {
-    submit,
-    loading: state.status === "loading",
-    sent: state.status === "success",
-    error: state.error,
-    emailError: state.emailError,
-  };
+  return { submit, loading, sent, error };
 }

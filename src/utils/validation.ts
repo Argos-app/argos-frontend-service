@@ -1,5 +1,5 @@
 import { cleanCNPJ, isValidCNPJ, isValidCPF } from "cnpj-cpf-validator";
-import type { CreateUserPayload, PasswordResetPayload, UpdateUserAccessPayload, UpdateUserPayload, UpdateUserStatusPayload } from "@/types";
+import type { CreateUserPayload, UpdateUserAccessPayload, UpdateUserPayload, UpdateUserStatusPayload } from "@/types";
 import type { PropertyPayload } from "@/types";
 
 export type ValidationResult<T> =
@@ -12,14 +12,6 @@ function isValidEmail(email: string): boolean {
 
 function isValidId(id: string): boolean {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
-}
-
-export function validatePasswordReset(values: PasswordResetPayload): ValidationResult<PasswordResetPayload> {
-  const data = { email: values.email?.trim().toLowerCase() ?? "" };
-  if (!isValidEmail(data.email) || data.email.length > 120) {
-    return { success: false, errors: { email: "Informe um e-mail válido com até 120 caracteres." } };
-  }
-  return { success: true, data };
 }
 
 function validateUserFields<T extends { name: string; email: string; cpf: string; permissionId: string; propertyId: string }>(
