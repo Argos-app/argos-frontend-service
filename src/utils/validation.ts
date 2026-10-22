@@ -1,5 +1,5 @@
 import { cleanCNPJ, isValidCNPJ, isValidCPF } from "cnpj-cpf-validator";
-import type { CreateUserPayload, PasswordResetPayload, SignInCredentials, UpdateUserAccessPayload, UpdateUserPayload, UpdateUserStatusPayload } from "@/types";
+import type { CreateUserPayload, PasswordResetPayload, UpdateUserAccessPayload, UpdateUserPayload, UpdateUserStatusPayload } from "@/types";
 import type { PropertyPayload } from "@/types";
 
 export type ValidationResult<T> =
@@ -20,17 +20,6 @@ export function validatePasswordReset(values: PasswordResetPayload): ValidationR
     return { success: false, errors: { email: "Informe um e-mail válido com até 120 caracteres." } };
   }
   return { success: true, data };
-}
-
-export function validateSignIn(values: SignInCredentials): ValidationResult<SignInCredentials> {
-  const email = validatePasswordReset(values);
-  const errors: Partial<Record<keyof SignInCredentials, string>> = email.success ? {} : { ...email.errors };
-  // Login accepts existing passwords; creation rules do not apply to legacy accounts.
-  if (!values.password || values.password.length > 128) {
-    errors.password = "Informe a senha com até 128 caracteres.";
-  }
-  if (Object.keys(errors).length > 0 || !email.success) return { success: false, errors };
-  return { success: true, data: { email: email.data.email, password: values.password } };
 }
 
 function validateUserFields<T extends { name: string; email: string; cpf: string; permissionId: string; propertyId: string }>(

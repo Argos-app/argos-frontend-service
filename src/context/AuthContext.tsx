@@ -1,56 +1,39 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-import { onAuthStateChanged, type User } from 'firebase/auth';
+import { createContext, useContext, useState, type ReactNode } from 'react';
 import { auth } from '@/lib/firebase';
-import { sessionStorage } from '@/lib/sessionStorage';
+import { api } from '@/lib/httpClient';
+import { logout as logoutRequest, signInWithEmail } from '@/services/authService';
 import type { AuthContextType } from '@/context/types/auth-context.type';
+import type { SignInResponse } from '@/types/sign-in-response.type';
 
-const AuthContext = createContext<AuthContextType>({
-  user: null,
-  loading: true,
-  isAuthenticated: false,
-});
+const AuthContext = createContext<AuthContextType | null>(null);
 
 interface AuthProviderProps {
   children: ReactNode;
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const [state, setState] = useState<{ user: User | null; loading: boolean; hasBackendSession: boolean }>(() => ({
-    user: null,
-    loading: true,
-    hasBackendSession: Boolean(sessionStorage.getToken()),
-  }));
+  const [profile, setProfile] = useState<SignInResponse | null>(null);
 
-  useEffect(() => {
-    const refreshSession = () => {
-      const hasBackendSession = Boolean(sessionStorage.getToken());
-      setState((current) => current.hasBackendSession === hasBackendSession
-        ? current
-        : { ...current, hasBackendSession });
-    };
-    let previousUid: string | null | undefined;
-    window.addEventListener('argos:session-updated', refreshSession);
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      const uid = currentUser?.uid ?? null;
-      if (uid === null || (previousUid !== undefined && previousUid !== uid)) sessionStorage.clear();
-      previousUid = uid;
-      setState({ user: currentUser, loading: false, hasBackendSession: Boolean(sessionStorage.getToken()) });
-    });
+  async function signIn(email: string, password: string) {
+    const data = await signInWithEmail(email, password);
+    api.defaults.headers.common.Authorization = `Bearer ${data.bearerToken}`;
+    setProfile(data);
+  }
 
-    return () => {
-      unsubscribe();
-      window.removeEventListener('argos:session-updated', refreshSession);
-    };
-  }, []);
+  async function logout() {
+    await logoutRequest();
+    delete api.defaults.headers.common.Authorization;
+    setProfile(null);
+  }
 
   return (
-    <AuthContext.Provider value={{ user: state.user, loading: state.loading, isAuthenticated: state.hasBackendSession && state.user !== null }}>
-      {state.loading ? <main role="status" aria-live="polite">Verificando sessão...</main> : children}
+    <AuthContext.Provider value={{ user: profile ? auth.currentUser : null, profile, isAuthenticated: Boolean(profile?.bearerToken), signIn, logout }}>
+      {children}
     </AuthContext.Provider>
   );
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
 export function useAuth(): AuthContextType {
-  return useContext(AuthContext);
+  return useContext(AuthContext)!;
 }
