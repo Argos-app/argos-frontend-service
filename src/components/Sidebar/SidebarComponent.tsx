@@ -31,7 +31,9 @@ const menuGroups: MenuGroup[] = [
       { label: "Gerenciar Propriedades", to: "/gestao-propriedades" },
     ],
   },
-  { label: "Relatórios", icon: <ChartAreaIcon />, items: [{ label: "Histórico de Aplicações",to: "/historico-aplicacoes" }] },
+  { label: "Relatórios", icon: <ChartAreaIcon />, items: [
+    { label: "Relatórios de rebanho", to: "/relatorios-rebanho" },
+  ] },
 ];
 
 const menuActions: MenuAction[] = [
