@@ -1,5 +1,6 @@
 import { Plus } from "lucide-react";
 import { useState } from "react";
+import Pagination from "antd/es/pagination";
 import type { Property } from "@/types";
 import { ButtonComponent } from "@/components/Button";
 import { SearchComponent } from "@/components/Search/SearchComponent";
@@ -12,8 +13,6 @@ interface PropertiesPanelProps {
   page: number;
   totalPages: number;
   totalElements: number;
-  first: boolean;
-  last: boolean;
   onPageChange: (page: number) => void;
   onRetry: () => void;
   onAdd: () => void;
@@ -28,8 +27,6 @@ export function PropertiesPanel({
   page,
   totalPages,
   totalElements,
-  first,
-  last,
   onPageChange,
   onRetry,
   onAdd,
@@ -82,28 +79,20 @@ export function PropertiesPanel({
         onDeactivate={onDeactivate}
       />
 
-      <div className="flex shrink-0 items-center justify-between border-t border-brand-sand p-4">
-        <span className="text-sm font-normal text-brand-forest">
+      <div className="flex shrink-0 flex-col gap-3 border-t border-brand-sand p-4 sm:flex-row sm:items-center sm:justify-between">
+        <span className="text-sm font-normal text-brand-forest" aria-live="polite">
           Página {page + 1} de {Math.max(totalPages, 1)} ({totalElements} propriedades)
         </span>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            disabled={first || loading}
-            onClick={() => onPageChange(page - 1)}
-            className="rounded-md border border-brand-sand px-4 py-2 text-sm text-brand-forest hover:bg-brand-sand/40 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent"
-          >
-            Anterior
-          </button>
-          <button
-            type="button"
-            disabled={last || loading}
-            onClick={() => onPageChange(page + 1)}
-            className="rounded-md border border-brand-sand px-4 py-2 text-sm text-brand-forest hover:bg-brand-sand/40 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent"
-          >
-            Próximo
-          </button>
-        </div>
+        <nav aria-label="Paginação de propriedades">
+          <Pagination
+            current={page + 1}
+            pageSize={10}
+            total={totalElements}
+            showSizeChanger={false}
+            disabled={loading}
+            onChange={(nextPage) => onPageChange(nextPage - 1)}
+          />
+        </nav>
       </div>
     </main>
   );

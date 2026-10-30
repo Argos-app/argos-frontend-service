@@ -1,5 +1,6 @@
-import { sessionStorage } from "@/lib/sessionStorage";
+import { useAuth } from "@/context/AuthContext";
 
 export function useUser() {
-  return sessionStorage.getUser() ?? { userName: "", farmName: null };
+  const { profile } = useAuth();
+  return { userName: profile?.userName ?? "", farmName: profile?.farmName ?? null };
 }

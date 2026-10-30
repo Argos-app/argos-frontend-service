@@ -1,6 +1,7 @@
 import { App, Switch } from "antd";
 import { useState } from "react";
 import type { UserAccess } from "@/types";
+import axios from "axios";
 
 interface ToggleUserStatusButtonProps {
   user: UserAccess;
@@ -16,8 +17,16 @@ export function ToggleUserStatusButton({ user, onToggle }: ToggleUserStatusButto
     try {
       await onToggle(user, active);
       message.success(active ? "Usuário ativado com sucesso." : "Usuário desativado com sucesso.");
-    } catch {
-      message.error("Não foi possível atualizar o status. Tente novamente.");
+    } catch (error: unknown) {
+      let errorMessage: string = "Não foi possível atualizar o status. Tente novamente.";
+      if (axios.isAxiosError<{ message?: unknown }>(error) && error.response?.status === 409) {
+        const errorMessageResponse = error.response.data?.message;
+        if (typeof errorMessageResponse === "string" && errorMessageResponse.trim()) {
+          errorMessage = errorMessageResponse;
+        }
+      }
+
+      message.error(errorMessage);
     } finally {
       setPending(false);
     }

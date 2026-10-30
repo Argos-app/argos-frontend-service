@@ -1,48 +1,46 @@
-import { useEffect, useState } from "react";
-import { useAuth } from "@/context/AuthContext";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { getMyProfile } from "@/services/userProfileService";
 import type { UserProfile } from "@/types/user-profile.type";
 
-type ProfileState = { identity: string | null; attempt: number } & (
-  | { status: "loading"; profile: null; error: null }
-  | { status: "success"; profile: UserProfile; error: null }
-  | { status: "error"; profile: null; error: string }
-);
-
-function initialState(identity: string | null, attempt = 0): ProfileState {
-  return { identity, attempt, status: "loading", profile: null, error: null };
+interface ProfileState {
+  profile: UserProfile | null;
+  loading: boolean;
+  error: string | null;
 }
 
+const initialState: ProfileState = { profile: null, loading: true, error: null };
+
 export function useUserProfile() {
-  const { user, isAuthenticated } = useAuth();
-  const identity = isAuthenticated ? user?.uid ?? null : null;
-  const [state, setState] = useState<ProfileState>(() => initialState(identity));
+  const [state, setState] = useState(initialState);
+  const controller = useRef<AbortController | null>(null);
 
-  if (state.identity !== identity) setState(initialState(identity));
-  const attempt = state.attempt;
+  const loadProfile = useCallback(() => {
+    controller.current?.abort();
+    const request = new AbortController();
+    controller.current = request;
 
-  useEffect(() => {
-    if (identity === null) return;
-    const controller = new AbortController();
-    getMyProfile(controller.signal)
+    getMyProfile(request.signal)
       .then((profile) => {
-        if (controller.signal.aborted) return;
-        setState((previous) => previous.identity === identity && previous.attempt === attempt
-          ? { identity, attempt, status: "success", profile, error: null }
-          : previous);
+        if (!request.signal.aborted) {
+          setState({ profile, loading: false, error: null });
+        }
       })
       .catch(() => {
-        if (controller.signal.aborted) return;
-        setState((previous) => previous.identity === identity && previous.attempt === attempt
-          ? { identity, attempt, status: "error", profile: null, error: "Não foi possível carregar seu perfil. Tente novamente." }
-          : previous);
+        if (!request.signal.aborted) {
+          setState({ profile: null, loading: false, error: "Não foi possível carregar seu perfil. Tente novamente." });
+        }
       });
-    return () => controller.abort();
-  }, [identity, attempt]);
+  }, []);
+
+  useEffect(() => {
+    loadProfile();
+    return () => controller.current?.abort();
+  }, [loadProfile]);
 
   function reload() {
-    setState((previous) => initialState(identity, previous.attempt + 1));
+    setState(initialState);
+    loadProfile();
   }
 
-  return { profile: state.profile, loading: state.status === "loading", error: state.error, reload };
+  return { profile: state.profile, loading: state.loading, error: state.error, reload };
 }

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Pagination from "antd/es/pagination";
 import type { UserAccess } from "@/types";
 import { SearchComponent } from "@/components/Search/SearchComponent";
 import { AccessTable } from "@/components/Table/AccessTable";
@@ -10,15 +11,13 @@ interface AccessPanelProps {
   page: number;
   totalPages: number;
   totalElements: number;
-  first: boolean;
-  last: boolean;
   onPageChange: (page: number) => void;
   onRetry: () => void;
   onEdit: (user: UserAccess) => void;
   onToggleStatus: (user: UserAccess, active: boolean) => Promise<void>;
 }
 
-export function AccessPanel({ accesses, loading, error, page, totalPages, totalElements, first, last, onPageChange, onRetry, onEdit, onToggleStatus }: AccessPanelProps) {
+export function AccessPanel({ accesses, loading, error, page, totalPages, totalElements, onPageChange, onRetry, onEdit, onToggleStatus }: AccessPanelProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const query = searchQuery.trim().toLocaleLowerCase();
   const filtered = accesses.filter((user) => user.name.toLocaleLowerCase().includes(query) || user.email.toLocaleLowerCase().includes(query) || user.permissionName.toLocaleLowerCase().includes(query));
@@ -29,12 +28,18 @@ export function AccessPanel({ accesses, loading, error, page, totalPages, totalE
         <SearchComponent searchQuery={searchQuery} setSearchQuery={setSearchQuery} placeholder="Pesquisar nesta página" aria-label="Pesquisar nesta página" className="md:w-72" />
       </div>
       <AccessTable accesses={filtered} loading={loading} error={error} onRetry={onRetry} onEdit={onEdit} onToggleStatus={onToggleStatus} />
-      <div className="flex shrink-0 items-center justify-between border-t border-brand-sand p-4">
-        <span className="text-sm text-brand-forest">Página {page + 1} de {Math.max(totalPages, 1)} ({totalElements} usuários)</span>
-        <div className="flex gap-2">
-          <button type="button" disabled={first || loading} onClick={() => onPageChange(page - 1)} className="rounded-md border border-brand-sand px-4 py-2 text-sm text-brand-forest hover:bg-brand-sand/40 disabled:opacity-50">Anterior</button>
-          <button type="button" disabled={last || loading} onClick={() => onPageChange(page + 1)} className="rounded-md border border-brand-sand px-4 py-2 text-sm text-brand-forest hover:bg-brand-sand/40 disabled:opacity-50">Próximo</button>
-        </div>
+      <div className="flex shrink-0 flex-col gap-3 border-t border-brand-sand p-4 sm:flex-row sm:items-center sm:justify-between">
+        <span className="text-sm text-brand-forest" aria-live="polite">Página {page + 1} de {Math.max(totalPages, 1)} ({totalElements} usuários)</span>
+        <nav aria-label="Paginação de acessos">
+          <Pagination
+            current={page + 1}
+            pageSize={10}
+            total={totalElements}
+            showSizeChanger={false}
+            disabled={loading}
+            onChange={(nextPage) => onPageChange(nextPage - 1)}
+          />
+        </nav>
       </div>
     </main>
   );

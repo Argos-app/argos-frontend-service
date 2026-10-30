@@ -16,8 +16,6 @@ createRoot(document.getElementById("root")!).render(
           colorTextSecondary: "#06412F",
           colorBgElevated: "#F4F1EB",
           colorBorder: "#808080",
-          colorError: "#000000",
-          colorWarning: "#62BB4D",
           borderRadius: 12,
         },
       }}

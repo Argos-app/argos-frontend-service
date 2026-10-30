@@ -2,7 +2,6 @@ import { lazy, Suspense } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 import { GuestRouteComponent } from "@/components/GuestRoute";
 import { PrivateRouteComponent } from "@/components/PrivateRoute";
-import { SessionExpiryNavigation } from "@/components/SessionExpiryNavigation";
 import { RouteLoading } from "@/components/RouteLoading";
 import { NotFound } from "@/pages/notFound";
 
@@ -13,11 +12,11 @@ const ManageProperties = lazy(() => import("@/pages/manageProperties/manage-prop
 const ManageUsers = lazy(() => import("@/pages/manageUsers/manage-users").then((module) => ({ default: module.ManageUsers })));
 const ManageAccess = lazy(() => import("@/pages/manageAccess/manage-access").then((module) => ({ default: module.ManageAccess })));
 const Profile = lazy(() => import("@/pages/profile/profile").then((module) => ({ default: module.Profile })));
+const HerdReports = lazy(() => import("@/pages/herdReports").then((module) => ({ default: module.HerdReports })));
 
 export function App() {
   return (
     <BrowserRouter>
-      <SessionExpiryNavigation />
       <a
         href="#main-content"
         className="argos-skip-link absolute left-2 top-2 z-[10000] -translate-y-20 rounded-md bg-white px-4 py-3 text-brand-ink focus:translate-y-0 focus:outline-none focus:ring-2 focus:ring-brand-ink"
@@ -41,6 +40,7 @@ export function App() {
             <Route path="/gestao-acessos" element={<ManageAccess />} />
             <Route path="/gestao-acessos/pagina/:page" element={<ManageAccess />} />
             <Route path="/gestao-propriedades" element={<ManageProperties />} />
+            <Route path="/relatorios-rebanho" element={<HerdReports />} />
           </Route>
 
           <Route path="*" element={<NotFound />} />

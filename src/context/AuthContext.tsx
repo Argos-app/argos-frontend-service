@@ -1,56 +1,67 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-import { onAuthStateChanged, type User } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
-import { sessionStorage } from '@/lib/sessionStorage';
+import { api } from '@/lib/httpClient';
+import { logout as logoutRequest, signInWithBackend, signInWithEmail } from '@/services/authService';
 import type { AuthContextType } from '@/context/types/auth-context.type';
+import type { SignInResponse } from '@/types/sign-in-response.type';
 
-const AuthContext = createContext<AuthContextType>({
-  user: null,
-  loading: true,
-  isAuthenticated: false,
-});
+const AuthContext = createContext<AuthContextType | null>(null);
 
 interface AuthProviderProps {
   children: ReactNode;
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const [state, setState] = useState<{ user: User | null; loading: boolean; hasBackendSession: boolean }>(() => ({
-    user: null,
-    loading: true,
-    hasBackendSession: Boolean(sessionStorage.getToken()),
-  }));
+  const [profile, setProfile] = useState<SignInResponse | null>(null);
+  const [initializing, setInitializing] = useState(true);
+  const [initializationError, setInitializationError] = useState<string | null>(null);
 
   useEffect(() => {
-    const refreshSession = () => {
-      const hasBackendSession = Boolean(sessionStorage.getToken());
-      setState((current) => current.hasBackendSession === hasBackendSession
-        ? current
-        : { ...current, hasBackendSession });
-    };
-    let previousUid: string | null | undefined;
-    window.addEventListener('argos:session-updated', refreshSession);
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      const uid = currentUser?.uid ?? null;
-      if (uid === null || (previousUid !== undefined && previousUid !== uid)) sessionStorage.clear();
-      previousUid = uid;
-      setState({ user: currentUser, loading: false, hasBackendSession: Boolean(sessionStorage.getToken()) });
-    });
+    let active = true;
 
-    return () => {
-      unsubscribe();
-      window.removeEventListener('argos:session-updated', refreshSession);
-    };
+    async function restoreAccess() {
+      try {
+        await auth.authStateReady();
+        if (!active || !auth.currentUser) return;
+        const data = await signInWithBackend(auth.currentUser);
+        if (!active) return;
+        api.defaults.headers.common.Authorization = `Bearer ${data.bearerToken}`;
+        setProfile(data);
+      } catch {
+        if (!active) return;
+        delete api.defaults.headers.common.Authorization;
+        setProfile(null);
+        setInitializationError('Não foi possível recuperar seu acesso. Faça login novamente.');
+      } finally {
+        if (active) setInitializing(false);
+      }
+    }
+
+    void restoreAccess();
+    return () => { active = false; };
   }, []);
 
+  async function signIn(email: string, password: string, rememberMe: boolean) {
+    setInitializationError(null);
+    const data = await signInWithEmail(email, password, rememberMe);
+    api.defaults.headers.common.Authorization = `Bearer ${data.bearerToken}`;
+    setProfile(data);
+  }
+
+  async function logout() {
+    await logoutRequest();
+    delete api.defaults.headers.common.Authorization;
+    setProfile(null);
+  }
+
   return (
-    <AuthContext.Provider value={{ user: state.user, loading: state.loading, isAuthenticated: state.hasBackendSession && state.user !== null }}>
-      {state.loading ? <main role="status" aria-live="polite">Verificando sessão...</main> : children}
+    <AuthContext.Provider value={{ user: profile ? auth.currentUser : null, profile, isAuthenticated: Boolean(profile?.bearerToken), initializationError, signIn, logout }}>
+      {initializing ? <main role="status" aria-live="polite">Verificando acesso...</main> : children}
     </AuthContext.Provider>
   );
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
 export function useAuth(): AuthContextType {
-  return useContext(AuthContext);
+  return useContext(AuthContext)!;
 }
