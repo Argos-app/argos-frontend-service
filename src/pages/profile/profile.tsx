@@ -7,7 +7,7 @@ import { AvatarComponent } from "@/components/Avatar";
 
 export function Profile() {
 	const { profile, loading, error, reload } = useUserProfile();
-	const { submit, loading: passwordLoading, sent, error: passwordError, emailError } = usePasswordReset();
+	const { submit, loading: passwordLoading, sent, error: passwordError } = usePasswordReset();
 
 	const cpf = profile?.cpf?.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, "$1.$2.$3-$4");
 
@@ -157,10 +157,11 @@ export function Profile() {
 								<ButtonComponent
 									type="button"
 									onClick={() => void submit(profile.email)}
-									aria-label="Enviar link de redefinação de senha"
+									aria-label="Enviar link de redefinição de senha"
+									disabled={passwordLoading}
 									className="px-4 py-3 mt-4 min-h-11 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-forest disabled:cursor-wait disabled:opacity-70"
 								>
-									{loading
+									{passwordLoading
 										? "Enviando link..."
 										: "Enviar link para alterar senha"}
 								</ButtonComponent>
@@ -173,12 +174,12 @@ export function Profile() {
 									{passwordLoading
 										? "Enviando link de redefinição..."
 										: sent
-											? "Link solicitado. Verifique sua caixa de entrada e a pasta de spam."
+											? "Solicitação concluída. Verifique sua caixa de entrada e a pasta de spam."
 											: ""}
 								</p>
-								{passwordError || emailError ? (
+								{passwordError ? (
 									<p role="alert" className="mt-2 text-brand-ink">
-										{error ?? emailError}
+										{passwordError}
 									</p>
 								) : null}
 							</section>
