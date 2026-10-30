@@ -116,9 +116,6 @@ export function AiUsagePanel({
 						<h2 className="text-xl font-semibold text-brand-ink">
 							Atividade por usuário
 						</h2>
-						<p className="mt-1 text-sm text-brand-forest">
-							Detalhamento dos dados disponíveis no Redis
-						</p>
 					</div>
 					<SearchComponent
 						searchQuery={query}
