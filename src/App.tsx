@@ -13,7 +13,7 @@ const ManageUsers = lazy(() => import("@/pages/manageUsers/manage-users").then((
 const ManageAccess = lazy(() => import("@/pages/manageAccess/manage-access").then((module) => ({ default: module.ManageAccess })));
 const Profile = lazy(() => import("@/pages/profile/profile").then((module) => ({ default: module.Profile })));
 const HerdReports = lazy(() => import("@/pages/herdReports").then((module) => ({ default: module.HerdReports })));
-const AiUsage = lazy(() => import("@/pages/aiUsage").then((module) => ({ default: module.AiUsage })));
+const AiUsage = lazy(() => import("@/pages/aiUsage/ai-usage").then((module) => ({ default: module.AiUsage })));
 
 export function App() {
   return (
