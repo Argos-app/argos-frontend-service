@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Activity, AlertTriangle, Coins, Users } from "lucide-react";
 import Drawer from "antd/es/drawer";
+import Alert from "antd/es/alert";
 import { AvatarComponent } from "@/components/Avatar";
 import { SearchComponent } from "@/components/Search/SearchComponent";
 import { DataTable, type Column } from "@/components/Table/DataTable";
@@ -37,13 +38,14 @@ export function AiUsagePanel({ users, loading, error, updatedAt, onRefresh }: {
         <div><p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-brand-forest">Relatórios / Uso de IA</p><h1 id="ai-usage-title" className="text-3xl font-semibold text-brand-ink">Uso de IA por usuários</h1><p className="mt-2 text-sm text-brand-forest">Acompanhe as requisições e o consumo de tokens por usuário.</p></div>
         <span className="text-xs text-brand-forest" aria-live="polite">{updatedAt ? `Atualizado às ${updatedAt.toLocaleTimeString("pt-BR")}` : "Aguardando atualização"}</span>
       </header>
+      {error && updatedAt && <div className="mt-5"><Alert type="warning" showIcon message="Dados desatualizados" description={`A última atualização falhou. Os totais exibidos são da consulta de ${updatedAt.toLocaleString("pt-BR")}.`} /></div>}
       <div className="mt-7 grid gap-3 md:grid-cols-2 xl:grid-cols-4">{cards.map(({ label, value, icon: Icon, detail }) => <section key={label} className="rounded-xl border border-brand-sand bg-white/50 p-5"><div className="flex items-center justify-between gap-3"><span className="text-sm text-brand-forest">{label}</span><span className="grid h-9 w-9 place-items-center rounded-lg bg-brand-sand/40 text-brand-forest"><Icon size={18} /></span></div><p className="mt-4 text-3xl font-semibold text-brand-ink">{updatedAt ? value : "—"}</p><p className="mt-1 text-xs text-brand-forest">{detail}</p></section>)}</div>
       <div className="mt-5 rounded-lg border border-brand-sand bg-white/40 px-4 py-3 text-sm text-brand-forest">Os dados são atualizados a cada 30 segundos. Os contadores expiram 24 horas após a última atividade e podem estar incompletos. O custo conhecido pode incluir estimativas e ser parcial. {updatedAt && totals.incomplete > 0 ? `${formatNumber(totals.incomplete)} chamada(s) ao modelo têm contagem de tokens incompleta.` : ""}</div>
       <div className="mt-8 flex flex-wrap items-end justify-between gap-4"><div><h2 className="text-xl font-semibold text-brand-ink">Atividade por usuário</h2><p className="mt-1 text-sm text-brand-forest">Detalhamento dos dados disponíveis no Redis</p></div><SearchComponent searchQuery={query} setSearchQuery={setQuery} placeholder="Pesquisar usuário" className="sm:w-72" /></div>
     </div>
     <DataTable columns={columns} data={filtered} rowKey="userId" loading={loading && !updatedAt} error={error} onRetry={onRefresh} loadingMessage="Carregando uso de IA..." emptyMessage={query ? "Nenhum usuário encontrado para a pesquisa." : "Nenhuma atividade de IA disponível."} className="px-0 text-sm" scrollAreaLabel="Atividade de IA por usuário" scrollAreaTabIndex={0} />
     <Drawer title="Detalhes de uso de IA" width={480} open={selectedId !== null} onClose={() => setSelectedId(null)} rootClassName="argos-user-drawer" destroyOnHidden>
-      {selected ? <div className="space-y-6 text-brand-forest"><div className="flex items-center gap-4"><AvatarComponent name={displayName(selected)} photoUrl={selected.photoUrl} className="h-14 w-14 text-base" /><div><h2 className="text-lg font-semibold text-brand-ink">{displayName(selected)}</h2><p className="text-sm">{selected.email || "E-mail não disponível"}</p></div></div><dl className="space-y-3 text-sm">{[
+      {selected ? <div className="space-y-6 text-brand-forest">{error && updatedAt && <Alert type="warning" showIcon message="Dados desatualizados" description="A última atualização falhou; estes detalhes são da última consulta bem-sucedida." />}<div className="flex items-center gap-4"><AvatarComponent name={displayName(selected)} photoUrl={selected.photoUrl} className="h-14 w-14 text-base" /><div><h2 className="text-lg font-semibold text-brand-ink">{displayName(selected)}</h2><p className="text-sm">{selected.email || "E-mail não disponível"}</p></div></div><dl className="space-y-3 text-sm">{[
         ["Requisições", formatNumber(selected.calls)],
         ["Chamadas ao modelo", formatNumber(selected.modelCalls)],
         ["Tokens conhecidos", formatNumber(selected.tokens)],

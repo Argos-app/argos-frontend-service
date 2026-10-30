@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { getAiUsage } from "@/services/aiUsageService";
+import { getAiUsage, InvalidAiUsageResponseError } from "@/services/aiUsageService";
 import type { AiUsageUser } from "@/types/ai-usage.type";
 
 const REFRESH_INTERVAL_MS = 30_000;
@@ -25,8 +25,8 @@ export function useAiUsage() {
           setUpdatedAt(new Date());
           setError(null);
         }
-      } catch {
-        if (!controller.signal.aborted) setError("Não foi possível atualizar o uso de IA. Tente novamente.");
+      } catch (cause) {
+        if (!controller.signal.aborted) setError(cause instanceof InvalidAiUsageResponseError ? cause.message : "Não foi possível atualizar o uso de IA. Tente novamente.");
       } finally {
         if (!controller.signal.aborted) {
           setLoading(false);
