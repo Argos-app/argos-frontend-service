@@ -1,4 +1,3 @@
-/** Contrato proposto para o endpoint Spring de uso de IA. */
 export interface AiUsageUser {
   userId: string;
   name: string | null;

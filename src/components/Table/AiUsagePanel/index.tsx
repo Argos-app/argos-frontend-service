@@ -82,9 +82,6 @@ export function AiUsagePanel({
 			<div className="p-4 md:p-6">
 				<header className="flex flex-wrap items-start justify-between gap-4">
 					<div>
-						<p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-brand-forest">
-							Relatórios / Uso de IA
-						</p>
 						<h1 id="ai-usage-title" className="text-3xl font-semibold text-brand-ink">
 							Uso de IA por usuários
 						</h1>
@@ -139,9 +136,14 @@ export function AiUsagePanel({
 				onSelect={(user) => setSelectedId(user.userId)}
 				isSearching={Boolean(query)}
 			/>
-			<nav aria-label="Paginação de uso de IA" className="flex justify-end border-t border-brand-sand p-4">
-				<Pagination current={currentPage} pageSize={PAGE_SIZE} total={filtered.length} showSizeChanger={false} disabled={loading || Boolean(error)} onChange={setPage} />
-			</nav>
+			<footer className="flex shrink-0 flex-col gap-3 border-t border-brand-sand p-4 sm:flex-row sm:items-center sm:justify-between">
+				<span className="text-sm text-brand-forest" aria-live="polite">
+					Página {currentPage} de {Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))} ({filtered.length} usuários)
+				</span>
+				<nav aria-label="Paginação de uso de IA">
+					<Pagination current={currentPage} pageSize={PAGE_SIZE} total={filtered.length} showSizeChanger={false} responsive showLessItems disabled={loading || Boolean(error)} onChange={setPage} />
+				</nav>
+			</footer>
 			<AiUsageDetailsDrawer
 				user={selected}
 				open={selectedId !== null}
