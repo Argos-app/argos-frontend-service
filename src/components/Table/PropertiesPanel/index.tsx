@@ -52,7 +52,7 @@ export function PropertiesPanel({
           <SearchComponent
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
-            placeholder={normalizedQuery ? "Pesquisar nesta página" : "Pesquisar propriedade"}
+            placeholder="Pesquisar propriedades"
             aria-label="Pesquisar propriedades nesta página"
             className="md:w-72"
           />
