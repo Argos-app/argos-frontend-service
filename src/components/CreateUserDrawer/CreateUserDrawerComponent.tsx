@@ -2,6 +2,7 @@ import { App, Alert, Button, Col, Drawer, Form, Input, Row, Select, Space } from
 import { useUserCreationOptions, useUserMutations } from "@/hooks/useUserManagement";
 import type { CreateUserPayload } from "@/types";
 import axios from "axios";
+import { cleanCPF, isValidCPF } from "cnpj-cpf-validator";
 
 interface CreateUserDrawerProps {
   open: boolean;
@@ -16,6 +17,8 @@ export function CreateUserDrawer({ open, onClose, onCreated }: CreateUserDrawerP
   const [form] = Form.useForm<CreateUserFormValues>();
   const { options, loading: loadingOptions, error: optionsError, retry } = useUserCreationOptions(open);
   const { pending: submitting, create } = useUserMutations();
+  const missingOptions = options.properties.length === 0 || options.permissions.length === 0;
+  const disabled = submitting || optionsError || loadingOptions || missingOptions;
 
   const handleClose = () => {
     if (submitting) return;
@@ -24,18 +27,18 @@ export function CreateUserDrawer({ open, onClose, onCreated }: CreateUserDrawerP
   };
 
   const handleSubmit = async (values: CreateUserFormValues) => {
-    let validation;
     try {
-      validation = await create(values);
+      await create({
+        ...values,
+        name: values.name.trim(),
+        email: values.email.trim(),
+        cpf: cleanCPF(values.cpf),
+      });
     } catch (error: unknown) {
       const errorMessage = axios.isAxiosError<{ message?: string }>(error)
         ? error.response?.data?.message
         : undefined;
       message.error(errorMessage ?? "Não foi possível criar o usuário.");
-      return;
-    }
-    if (!validation.success) {
-      form.setFields(Object.entries(validation.errors).map(([name, errors]) => ({ name: name as keyof CreateUserFormValues, errors: errors ? [errors] : [] })));
       return;
     }
     message.success("Usuário criado com sucesso.");
@@ -57,7 +60,7 @@ export function CreateUserDrawer({ open, onClose, onCreated }: CreateUserDrawerP
           <Button onClick={handleClose} disabled={submitting}>
             Cancelar
           </Button>
-          <Button type="primary" htmlType="submit" form="argos-create-user-form" loading={submitting}>
+          <Button type="primary" htmlType="submit" form="argos-create-user-form" loading={submitting} disabled={disabled}>
             Criar usuário
           </Button>
         </Space>
@@ -72,12 +75,12 @@ export function CreateUserDrawer({ open, onClose, onCreated }: CreateUserDrawerP
           action={<Button size="small" onClick={retry}>Tentar novamente</Button>}
         />
       )}
-      {!optionsError && (options.properties.length === 0 || options.permissions.length === 0) && !loadingOptions && (
+      {!optionsError && missingOptions && !loadingOptions && (
         <Alert
           className="mb-5"
           type="warning"
           showIcon
-          message="Cadastre ao menos uma fazenda e uma permissão ativa antes de criar um usuário."
+          message="Não há fazendas ou permissões disponíveis para cadastrar um usuário."
         />
       )}
 
@@ -87,16 +90,16 @@ export function CreateUserDrawer({ open, onClose, onCreated }: CreateUserDrawerP
         layout="vertical"
         requiredMark={false}
         onFinish={handleSubmit}
-        disabled={submitting || optionsError || loadingOptions}
+        disabled={disabled}
       >
         <Row gutter={16}>
           <Col span={24}>
-            <Form.Item name="name" label="Nome" rules={[{ required: true, whitespace: true, message: "Informe o nome." }, { max: 120, message: "O nome deve ter até 120 caracteres." }]}>
+            <Form.Item name="name" label="Nome" rules={[{ required: true, whitespace: true, message: "Informe o nome." }]}>
               <Input placeholder="Nome completo" autoComplete="name" />
             </Form.Item>
           </Col>
           <Col span={24}>
-            <Form.Item name="email" label="E-mail" rules={[{ required: true, message: "Informe o e-mail." }, { type: "email", message: "Informe um e-mail válido." }, { max: 120, message: "O e-mail deve ter até 120 caracteres." }]}>
+            <Form.Item name="email" label="E-mail" rules={[{ required: true, whitespace: true, message: "Informe o e-mail." }, { type: "email", transform: (value: string) => value?.trim(), message: "Informe um e-mail válido." }]}>
               <Input placeholder="nome@exemplo.com" autoComplete="email" />
             </Form.Item>
           </Col>
@@ -105,21 +108,23 @@ export function CreateUserDrawer({ open, onClose, onCreated }: CreateUserDrawerP
               name="cpf"
               label="CPF"
               rules={[
-                { required: true, message: "Informe o CPF." },
+                { required: true, whitespace: true, message: "Informe o CPF." },
                 {
                   validator: async (_, value: string | undefined) => {
-                    if (!value || /^\d{11}$/.test(value.replace(/\D/g, ""))) return;
+                    const cpf = value?.trim();
+                    if (!cpf) return;
+                    if (isValidCPF(cpf)) return;
                     throw new Error("Informe um CPF válido com 11 dígitos.");
                   },
                 },
               ]}
             >
-              <Input placeholder="000.000.000-00" maxLength={14} inputMode="numeric" autoComplete="off" />
+              <Input placeholder="000.000.000-00" inputMode="numeric" autoComplete="off" />
             </Form.Item>
           </Col>
           <Col xs={24} md={12}>
-            <Form.Item name="password" label="Senha inicial" rules={[{ required: true, message: "Informe a senha inicial." }, { min: 8, message: "A senha deve ter pelo menos 8 caracteres." }, { max: 128, message: "A senha deve ter até 128 caracteres." }]}>
-              <Input.Password placeholder="Mínimo de 8 caracteres" autoComplete="new-password" />
+            <Form.Item name="password" label="Senha inicial" rules={[{ required: true, message: "Informe a senha inicial." }]}>
+              <Input.Password placeholder="Informe a senha inicial" autoComplete="new-password" />
             </Form.Item>
           </Col>
           <Col span={24}>

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   createUser as createUserRequest,
   deleteUser as deleteUserRequest,
@@ -7,69 +7,71 @@ import {
 } from "@/services/userService";
 import { getPermissionOptions, updateUserAccess as updateUserAccessRequest, updateUserStatus as updateUserStatusRequest } from "@/services/userAccessService";
 import type { CreateUserPayload, UpdateUserAccessPayload, UpdateUserPayload, UpdateUserStatusPayload, UserCreationOptions, UserOption } from "@/types";
-import { validateCreateUser, validateUpdateUser, validateUpdateUserAccess, validateUpdateUserStatus } from "@/utils/validation";
+import { validateUpdateUser, validateUpdateUserAccess, validateUpdateUserStatus } from "@/utils/validation";
 
 const EMPTY_OPTIONS: UserCreationOptions = { properties: [], permissions: [] };
+const INITIAL_OPTIONS_STATE = { options: EMPTY_OPTIONS, loading: true, error: false };
 
 export function useUserCreationOptions(open: boolean) {
-  const [state, setState] = useState({
-    options: EMPTY_OPTIONS,
-    attempt: 0,
-    completedAttempt: -1,
-    errorAttempt: -1,
-  });
+  const [state, setState] = useState(INITIAL_OPTIONS_STATE);
+  const controller = useRef<AbortController | null>(null);
 
-  useEffect(() => {
-    if (!open || state.completedAttempt === state.attempt) return;
-    const controller = new AbortController();
-    const attempt = state.attempt;
-    getUserCreationOptions(controller.signal)
+  if (!open && state !== INITIAL_OPTIONS_STATE) setState(INITIAL_OPTIONS_STATE);
+
+  const loadOptions = useCallback(() => {
+    if (!open) return;
+    controller.current?.abort();
+    const request = new AbortController();
+    controller.current = request;
+    getUserCreationOptions(request.signal)
       .then((options) => {
-        if (!controller.signal.aborted) {
-          setState((current) => ({ ...current, options, completedAttempt: attempt, errorAttempt: -1 }));
+        if (!request.signal.aborted) {
+          setState({ options, loading: false, error: false });
         }
       })
       .catch(() => {
-        if (!controller.signal.aborted) {
-          setState((current) => ({ ...current, completedAttempt: attempt, errorAttempt: attempt }));
+        if (!request.signal.aborted) {
+          setState({ options: EMPTY_OPTIONS, loading: false, error: true });
         }
       });
-    return () => controller.abort();
-  }, [open, state.attempt, state.completedAttempt]);
+  }, [open]);
 
-  const retry = useCallback(() => setState((current) => ({ ...current, attempt: current.attempt + 1 })), []);
-  return {
-    options: state.options,
-    loading: open && state.completedAttempt !== state.attempt,
-    error: state.errorAttempt === state.attempt,
-    retry,
-  };
+  useEffect(() => {
+    loadOptions();
+    return () => controller.current?.abort();
+  }, [loadOptions]);
+
+  function retry() {
+    setState(INITIAL_OPTIONS_STATE);
+    loadOptions();
+  }
+
+  return { options: state.options, loading: open && state.loading, error: state.error, retry };
 }
 
 export function useUserMutations() {
   const [pending, setPending] = useState(false);
 
-  const run = useCallback(async <T,>(operation: () => Promise<T>): Promise<T> => {
+  const create = useCallback(async (payload: CreateUserPayload) => {
     setPending(true);
     try {
-      return await operation();
+      return await createUserRequest(payload);
     } finally {
       setPending(false);
     }
   }, []);
 
-  const create = useCallback(async (payload: CreateUserPayload) => {
-    const validation = validateCreateUser(payload);
-    if (!validation.success) return validation;
-    await run(() => createUserRequest(validation.data));
-    return validation;
-  }, [run]);
   const update = useCallback(async (userId: string, payload: UpdateUserPayload) => {
     const validation = validateUpdateUser(payload);
     if (!validation.success) return validation;
-    await run(() => updateUserRequest(userId, validation.data));
-    return validation;
-  }, [run]);
+    setPending(true);
+    try {
+      await updateUserRequest(userId, validation.data);
+      return validation;
+    } finally {
+      setPending(false);
+    }
+  }, []);
   const remove = useCallback((userId: string) => deleteUserRequest(userId), []);
   return { pending, create, update, remove };
 }

@@ -3,6 +3,7 @@ import axios from "axios";
 import { useEffect } from "react";
 import { useUserCreationOptions, useUserMutations } from "@/hooks/useUserManagement";
 import type { UpdateUserPayload, User } from "@/types";
+import { cleanCPF, isValidCPF } from "cnpj-cpf-validator";
 
 interface EditUserDrawerProps {
   user: User | null;
@@ -42,7 +43,7 @@ export function EditUserDrawer({ user, open, onClose, onUpdated }: EditUserDrawe
     if (!user) return;
     let validation;
     try {
-      validation = await update(user.userId, values);
+      validation = await update(user.userId, { ...values, cpf: cleanCPF(values.cpf) });
     } catch (error: unknown) {
       const errorMessage = axios.isAxiosError<{ message?: string }>(error)
         ? error.response?.data?.message
@@ -138,16 +139,17 @@ export function EditUserDrawer({ user, open, onClose, onUpdated }: EditUserDrawe
               name="cpf"
               label="CPF"
               rules={[
-                { required: true, message: "Informe o CPF." },
+                { required: true, whitespace: true, message: "Informe o CPF." },
                 {
                   validator: async (_, value: string | undefined) => {
-                    if (!value || /^\d{11}$/.test(value.replace(/\D/g, ""))) return;
+                    const cpf = value?.trim();
+                    if (!cpf || isValidCPF(cpf)) return;
                     throw new Error("Informe um CPF válido com 11 dígitos.");
                   },
                 },
               ]}
             >
-              <Input placeholder="000.000.000-00" maxLength={14} inputMode="numeric" autoComplete="off" />
+              <Input placeholder="000.000.000-00" inputMode="numeric" autoComplete="off" />
             </Form.Item>
           </Col>
           <Col span={24}>

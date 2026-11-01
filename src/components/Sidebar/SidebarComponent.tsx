@@ -26,7 +26,7 @@ const menuGroups: MenuGroup[] = [
     label: "Gestão Executiva",
     icon: <BoxesIcon />,
     items: [
-      { label: "Gerenciar acessos", to: "/gestao-acessos" },
+      { label: "Gerenciar Acessos", to: "/gestao-acessos" },
       { label: "Gerenciar Usuários", to: "/gestao-usuarios" },
       { label: "Gerenciar Propriedades", to: "/gestao-propriedades" },
     ],

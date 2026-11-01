@@ -3,10 +3,8 @@ import type { CreateUserPayload, CreatedUser, PageResponse, UpdateUserPayload, U
 import { serviceRequest } from "@/services/serviceRequest";
 
 export async function getUsers(page = 0, size = 10, signal?: AbortSignal): Promise<PageResponse<User>> {
-  return serviceRequest(async () => {
-    const { data } = await api.get<PageResponse<User>>("/users", { params: { page, size }, signal });
-    return data;
-  }, "Não foi possível consultar os usuários.");
+  const { data } = await api.get<PageResponse<User>>("/users", { params: { page, size }, signal });
+  return data;
 }
 
 export async function deleteUser(userId: string): Promise<void> {
@@ -14,17 +12,13 @@ export async function deleteUser(userId: string): Promise<void> {
 }
 
 export async function getUserCreationOptions(signal?: AbortSignal): Promise<UserCreationOptions> {
-  return serviceRequest(async () => {
-    const { data } = await api.get<UserCreationOptions>("/users/options", { signal });
-    return data;
-  }, "Não foi possível carregar as opções de cadastro.");
+  const { data } = await api.get<UserCreationOptions>("/users/options", { signal });
+  return data;
 }
 
 export async function createUser(payload: CreateUserPayload): Promise<CreatedUser> {
-  return serviceRequest(async () => {
-    const { data } = await api.post<CreatedUser>("/users", payload);
-    return data;
-  }, "Não foi possível criar o usuário.");
+  const { data } = await api.post<CreatedUser>("/users", payload);
+  return data;
 }
 
 export async function updateUser(userId: string, payload: UpdateUserPayload): Promise<void> {

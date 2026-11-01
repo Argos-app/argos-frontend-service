@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { useAuth } from "@/context/AuthContext";
-import axios from "axios";
+import { getSignInErrorMessage } from "@/utils/authError";
 
 export function useAuthActions() {
   const [loading, setLoading] = useState(false);
@@ -16,10 +16,7 @@ export function useAuthActions() {
       await signIn(email, password, rememberMe);
       navigate("/home");
     } catch (err: unknown) {
-      const backendMessage = axios.isAxiosError<{ message?: string }>(err)
-        ? err.response?.data?.message
-        : undefined;
-      setError(backendMessage ?? (err instanceof Error ? err.message : "Não foi possível realizar o login."));
+      setError(getSignInErrorMessage(err));
     } finally {
       setLoading(false);
     }
