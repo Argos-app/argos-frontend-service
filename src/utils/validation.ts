@@ -1,5 +1,5 @@
-import { cleanCNPJ, isValidCNPJ, isValidCPF } from "cnpj-cpf-validator";
-import type { CreateUserPayload, UpdateUserAccessPayload, UpdateUserPayload, UpdateUserStatusPayload } from "@/types";
+import { cleanCNPJ, cleanCPF, isValidCNPJ, isValidCPF } from "cnpj-cpf-validator";
+import type { UpdateUserAccessPayload, UpdateUserPayload, UpdateUserStatusPayload } from "@/types";
 import type { PropertyPayload } from "@/types";
 
 export type ValidationResult<T> =
@@ -21,7 +21,7 @@ function validateUserFields<T extends { name: string; email: string; cpf: string
     ...values,
     name: values.name?.trim() ?? "",
     email: values.email?.trim().toLowerCase() ?? "",
-    cpf: values.cpf?.replace(/\D/g, "") ?? "",
+    cpf: cleanCPF(values.cpf ?? ""),
     permissionId: values.permissionId?.trim() ?? "",
     propertyId: values.propertyId?.trim() ?? "",
   };
@@ -29,28 +29,11 @@ function validateUserFields<T extends { name: string; email: string; cpf: string
 
   if (!data.name || data.name.length > 120) errors.name = "O nome é obrigatório e deve ter até 120 caracteres.";
   if (!isValidEmail(data.email) || data.email.length > 120) errors.email = "Informe um e-mail válido com até 120 caracteres.";
-  if (!isValidCPF(data.cpf)) errors.cpf = "Informe um CPF válido com 11 dígitos.";
+  if (!isValidCPF(values.cpf ?? "")) errors.cpf = "Informe um CPF válido com 11 dígitos.";
   if (!isValidId(data.permissionId)) errors.permissionId = "Selecione uma permissão.";
   if (!isValidId(data.propertyId)) errors.propertyId = "Selecione uma fazenda.";
 
   return Object.keys(errors).length > 0 ? { success: false, errors } : { success: true, data };
-}
-
-export function validateCreateUser(values: CreateUserPayload): ValidationResult<CreateUserPayload> {
-  const common = validateUserFields(values);
-  if (!common.success) {
-    const errors = { ...common.errors };
-    if (!values.password || values.password.length < 8 || values.password.length > 128) {
-      errors.password = "A senha deve ter entre 8 e 128 caracteres.";
-    }
-    return { success: false, errors };
-  }
-  const errors: Partial<Record<keyof CreateUserPayload, string>> = {};
-  if (!values.password || values.password.length < 8 || values.password.length > 128) {
-    errors.password = "A senha deve ter entre 8 e 128 caracteres.";
-  }
-  if (Object.keys(errors).length > 0) return { success: false, errors };
-  return { success: true, data: { ...common.data, password: values.password } };
 }
 
 export function validateUpdateUser(values: UpdateUserPayload): ValidationResult<UpdateUserPayload> {
