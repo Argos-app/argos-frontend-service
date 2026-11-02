@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ButtonComponent } from "@/components/Button";
 import { InputComponent } from "@/components/Input";
 import Logo from "@/assets/logo_main.svg";
+import Banner from "@/assets/image-banner-agro.jpg";
 import { KeyRound, Mail } from "lucide-react";
 import { Link } from "react-router";
 import { useAuthActions } from "@/hooks/useAuthActions";
@@ -14,7 +15,10 @@ export const Login = () => {
 	async function onSubmit(e: React.FormEvent) {
 		e.preventDefault();
 		const result = await handleSignIn(credentials.email, credentials.password, rememberMe);
-		if (result && !result.success) document.getElementById(result.errors.email ? "login-email" : "login-password")?.focus();
+		if (result && !result.success)
+			document
+				.getElementById(result.errors.email ? "login-email" : "login-password")
+				?.focus();
 	}
 
 	return (
@@ -22,7 +26,7 @@ export const Login = () => {
 			<div className="relative w-1/2 hidden md:block shrink-0">
 				<img
 					className="absolute inset-0 w-full h-full object-cover object-left"
-					src="https://portaldbo.com.br/wp-content/uploads/2026/06/pecuarista_gado_seca_celular-na-mao-e1781625578676.jpg"
+					src={Banner}
 					alt="Pecuarista de gado com celular na mão"
 				/>
 			</div>
@@ -38,7 +42,9 @@ export const Login = () => {
 					<img className="w-100 max-w-full h-42" src={Logo} alt="Argos" />
 
 					<header>
-						<h1 className="text-3xl sm:text-4xl text-center text-brand-ink font-medium">Área administrativa</h1>
+						<h1 className="text-3xl sm:text-4xl text-center text-brand-ink font-medium">
+							Área administrativa
+						</h1>
 					</header>
 					<div className="flex items-center gap-4 w-full my-5">
 						<div aria-hidden="true" className="flex-1 h-px bg-brand-sand"></div>
@@ -49,7 +55,11 @@ export const Login = () => {
 					</div>
 
 					{error && (
-						<p id="login-error" role="alert" className="w-full text-sm text-brand-ink text-center">
+						<p
+							id="login-error"
+							role="alert"
+							className="w-full text-sm text-brand-ink text-center"
+						>
 							{error}
 						</p>
 					)}
@@ -72,7 +82,15 @@ export const Login = () => {
 					>
 						<Mail aria-hidden="true" className="shrink-0" color="gray" size={18} />
 					</InputComponent>
-					{fieldErrors.email && <p id="login-email-error" role="alert" className="mt-2 w-full text-sm text-brand-forest">{fieldErrors.email}</p>}
+					{fieldErrors.email && (
+						<p
+							id="login-email-error"
+							role="alert"
+							className="mt-2 w-full text-sm text-brand-forest"
+						>
+							{fieldErrors.email}
+						</p>
+					)}
 					<InputComponent
 						id="login-password"
 						aria-invalid={Boolean(fieldErrors.password)}
@@ -90,7 +108,15 @@ export const Login = () => {
 					>
 						<KeyRound aria-hidden="true" className="shrink-0" color="gray" size={18} />
 					</InputComponent>
-					{fieldErrors.password && <p id="login-password-error" role="alert" className="mt-2 w-full text-sm text-brand-forest">{fieldErrors.password}</p>}
+					{fieldErrors.password && (
+						<p
+							id="login-password-error"
+							role="alert"
+							className="mt-2 w-full text-sm text-brand-forest"
+						>
+							{fieldErrors.password}
+						</p>
+					)}
 
 					<div className="w-full flex flex-wrap gap-3 items-center justify-between mt-8 text-brand-forest">
 						<label
