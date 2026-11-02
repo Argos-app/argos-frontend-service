@@ -1,4 +1,5 @@
 export * from "@/components/Avatar";
+export * from "@/components/BigNumberCard";
 export * from "@/components/DeleteButton";
 export * from "@/components/CreateUserDrawer";
 export * from "@/components/EditUserDrawer";

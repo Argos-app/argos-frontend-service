@@ -8,6 +8,7 @@ import Logo  from "@/assets/logo_main.svg";
 import { Link, NavLink } from "react-router";
 import { useAuthActions } from "@/hooks/useAuthActions";
 import { SearchComponent } from "@/components/Search/SearchComponent";
+import { readInterfacePreferences, saveInterfacePreferences } from "@/lib/interfacePreferences";
 
 type MenuGroup = {
   label: string;
@@ -33,6 +34,7 @@ const menuGroups: MenuGroup[] = [
   },
   { label: "Relatórios", icon: <ChartAreaIcon />, items: [
     { label: "Relatórios de rebanho", to: "/relatorios-rebanho" },
+    { label: "Uso de IA", to: "/uso-ia" },
   ] },
 ];
 
@@ -58,10 +60,17 @@ function useSidebarFilter(query: string) {
 }
 
 export default function Sidebar() {
-  const [collapsed, setCollapsed] = useState(() => window.matchMedia("(max-width: 640px)").matches);
+  const [collapsed, setCollapsed] = useState(() => readInterfacePreferences()?.sidebarRecolhida
+    ?? window.matchMedia("(max-width: 640px)").matches);
   const [searchQuery, setSearchQuery] = useState("");
   const { groups, actions, isFiltering } = useSidebarFilter(collapsed ? "" : searchQuery);
   const { handleLogout, loading, error } = useAuthActions();
+
+  function toggleSidebar() {
+    const nextCollapsed = !collapsed;
+    setCollapsed(nextCollapsed);
+    saveInterfacePreferences(nextCollapsed);
+  }
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(max-width: 640px)");
@@ -74,12 +83,12 @@ export default function Sidebar() {
   return (
     <aside
       className={clsx(
-        "relative flex h-screen min-h-screen flex-col rounded-xl bg-brand-cream bg-clip-border p-4 text-brand-forest shadow-xl shadow-brand-ink/5 transition-[width] duration-200",
-        collapsed ? "w-22" : "w-full max-w-[20rem]",
+        "relative flex h-screen shrink-0 flex-col overflow-y-auto rounded-xl bg-brand-cream bg-clip-border p-4 text-brand-forest shadow-xl shadow-brand-ink/5 transition-[width] duration-200",
+        collapsed ? "w-22" : "w-full max-w-[calc(100%_-_2rem)] sm:max-w-80",
       )}
     >
       <div className={clsx("mb-2 flex items-center", collapsed ? "justify-center" : "justify-between gap-4 p-4")}>
-        <Link to="/home" aria-label="Página inicial do Argos">
+        <Link to="/home" aria-label="Página inicial do Argos" className="min-w-0">
           <img
             src={Logo}
             alt="Argos"
@@ -88,11 +97,11 @@ export default function Sidebar() {
         </Link>
         <button
           type="button"
-          onClick={() => setCollapsed((current) => !current)}
+          onClick={toggleSidebar}
           aria-label={collapsed ? "Expandir menu lateral" : "Recolher menu lateral"}
           className="grid h-10 w-10 shrink-0 place-items-center rounded-lg text-brand-forest transition-colors hover:bg-brand-sand/50 focus:bg-brand-sand/50 focus:outline-none focus:ring-2 focus:ring-brand-forest"
         >
-          {collapsed ? <PanelLeftOpenIcon /> : <PanelLeftCloseIcon />}
+          {collapsed ? <PanelLeftOpenIcon aria-hidden="true" /> : <PanelLeftCloseIcon aria-hidden="true" />}
         </button>
       </div>
 
@@ -102,7 +111,7 @@ export default function Sidebar() {
       </div>
       )}
 
-      <nav aria-label="Navegação principal" className={clsx("flex flex-col gap-1 p-2 text-base font-normal text-brand-forest", collapsed ? "min-w-0" : "min-w-60")}>
+      <nav aria-label="Navegação principal" className="flex min-w-0 flex-col gap-1 p-2 text-base font-normal text-brand-forest">
         {groups.map((group) => (
           <CollapsibleItem
             key={`${group.label}:${isFiltering}`}

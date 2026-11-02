@@ -1,73 +1,63 @@
 import { useNavigate, useParams } from "react-router";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { getUsers } from "@/services/userService";
-import type { PageResponse, User } from "@/types";
+import type { User } from "@/types";
+import { usePaginatedResource } from "@/hooks/usePaginatedResource";
 import { useUserMutations } from "@/hooks/useUserManagement";
 
-interface UsersResult {
-  requestedPage: number;
-  response: PageResponse<User> | null;
-  error: string | null;
-}
-
 export function useUsers() {
-  const { page: routePage } = useParams<{ page?: string }>();
-  const navigate = useNavigate();
-  const page = Number(routePage ?? 1) - 1;
-  const [result, setResult] = useState<UsersResult | null>(null);
-  const controller = useRef<AbortController | null>(null);
+	const { page: routePage } = useParams<{ page?: string }>();
+	const navigate = useNavigate();
+	const lifecycle = useRef<object | null>(null);
+	useEffect(() => {
+		lifecycle.current = {};
+		return () => { lifecycle.current = null; };
+	}, [routePage]);
+	const validRoutePage =
+		routePage === undefined ||
+		(/^[1-9]\d*$/.test(routePage) && Number.isSafeInteger(Number(routePage)));
+	const parsedRoutePage = validRoutePage && routePage !== undefined ? Number(routePage) - 1 : 0;
 
-  if (result && result.requestedPage !== page) setResult(null);
+	const loadPage = useCallback(
+		(page: number, size: number, signal: AbortSignal) => getUsers(page, size, signal),
+		[],
+	);
+	const resource = usePaginatedResource<User>(
+		loadPage,
+		"Não foi possível carregar os usuários.",
+		parsedRoutePage,
+	);
+	const { page, setPage: setResourcePage, reload } = resource;
+	useEffect(() => {
+		if (!validRoutePage) {
+			navigate("/gestao-usuarios", { replace: true });
+			return;
+		}
+		setResourcePage(parsedRoutePage);
+	}, [navigate, parsedRoutePage, setResourcePage, validRoutePage]);
 
-  const loadPage = useCallback(() => {
-    controller.current?.abort();
-    const request = new AbortController();
-    controller.current = request;
+	const setPage = useCallback(
+		(nextPage: number) => {
+			setResourcePage(nextPage);
+			navigate(
+				nextPage === 0 ? "/gestao-usuarios" : `/gestao-usuarios/pagina/${nextPage + 1}`,
+			);
+		},
+		[navigate, setResourcePage],
+	);
 
-    getUsers(page, 10, request.signal)
-      .then((response) => {
-        if (!request.signal.aborted) setResult({ requestedPage: page, response, error: null });
-      })
-      .catch(() => {
-        if (!request.signal.aborted) {
-          setResult({ requestedPage: page, response: null, error: "Não foi possível carregar os usuários." });
-        }
-      });
-  }, [page]);
+	const { remove: removeRequest } = useUserMutations();
+	const remove = useCallback(
+		async (user: User) => {
+			const owner = lifecycle.current;
+			if (!owner) return;
+			await removeRequest(user.userId);
+			if (lifecycle.current !== owner) return;
+			if (resource.data.length === 1 && page > 0) setPage(page - 1);
+			else reload();
+		},
+		[removeRequest, resource.data.length, page, setPage, reload],
+	);
 
-  useEffect(() => {
-    loadPage();
-    return () => controller.current?.abort();
-  }, [loadPage]);
-
-  function setPage(nextPage: number) {
-    navigate(nextPage === 0 ? "/gestao-usuarios" : `/gestao-usuarios/pagina/${nextPage + 1}`);
-  }
-
-  function reload() {
-    setResult(null);
-    loadPage();
-  }
-
-  const currentResult = result?.requestedPage === page ? result : null;
-  const users = currentResult?.response?.data ?? [];
-
-  const { remove: removeRequest } = useUserMutations();
-  async function remove(user: User) {
-    await removeRequest(user.userId);
-    if (users.length === 1 && page > 0) setPage(page - 1);
-    else reload();
-  }
-
-  return {
-    users,
-    loading: currentResult === null,
-    error: currentResult?.error ?? null,
-    page,
-    totalPages: currentResult?.response?.totalPages ?? 0,
-    totalElements: currentResult?.response?.totalElements ?? 0,
-    setPage,
-    reload,
-    remove,
-  };
+	return { ...resource, users: resource.data, setPage, remove };
 }

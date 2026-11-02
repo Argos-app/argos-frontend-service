@@ -57,7 +57,7 @@ export function HerdReportsTable({ reports, loading, error, onRetry, downloading
       onRetry={onRetry}
       loadingMessage="Carregando relatórios de rebanho..."
       emptyMessage="Nenhum relatório de rebanho encontrado."
-      className="min-h-0 flex-1 overflow-auto"
+      className="min-h-40 flex-1 overflow-auto"
       scrollAreaTabIndex={0}
       scrollAreaLabel="Relatórios de rebanho. Use as setas para navegar horizontalmente."
     />

@@ -13,6 +13,7 @@ const ManageUsers = lazy(() => import("@/pages/manageUsers/manage-users").then((
 const ManageAccess = lazy(() => import("@/pages/manageAccess/manage-access").then((module) => ({ default: module.ManageAccess })));
 const Profile = lazy(() => import("@/pages/profile/profile").then((module) => ({ default: module.Profile })));
 const HerdReports = lazy(() => import("@/pages/herdReports").then((module) => ({ default: module.HerdReports })));
+const AiUsage = lazy(() => import("@/pages/aiUsage/ai-usage").then((module) => ({ default: module.AiUsage })));
 
 export function App() {
   return (
@@ -41,6 +42,7 @@ export function App() {
             <Route path="/gestao-acessos/pagina/:page" element={<ManageAccess />} />
             <Route path="/gestao-propriedades" element={<ManageProperties />} />
             <Route path="/relatorios-rebanho" element={<HerdReports />} />
+            <Route path="/uso-ia" element={<AiUsage />} />
           </Route>
 
           <Route path="*" element={<NotFound />} />

@@ -30,7 +30,7 @@ export const InputComponent = ({
 				type={type === "password" && showPassword ? "text" : type}
 				placeholder={placeholder}
 				className={cn(
-					"bg-transparent text-brand-ink placeholder-brand-forest outline-none focus-visible:outline-none! text-sm w-full h-full",
+					"min-w-0 bg-transparent text-brand-ink placeholder-brand-forest outline-none focus-visible:outline-none! text-sm w-full h-full",
 					className,
 				)}
 				value={value}

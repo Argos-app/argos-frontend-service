@@ -7,7 +7,7 @@ import {
 } from "@/services/userService";
 import { getPermissionOptions, updateUserAccess as updateUserAccessRequest, updateUserStatus as updateUserStatusRequest } from "@/services/userAccessService";
 import type { CreateUserPayload, UpdateUserAccessPayload, UpdateUserPayload, UpdateUserStatusPayload, UserCreationOptions, UserOption } from "@/types";
-import { validateUpdateUser, validateUpdateUserAccess, validateUpdateUserStatus } from "@/utils/validation";
+import { validateCreateUser, validateUpdateUser, validateUpdateUserAccess, validateUpdateUserStatus } from "@/utils/validation";
 
 const EMPTY_OPTIONS: UserCreationOptions = { properties: [], permissions: [] };
 const INITIAL_OPTIONS_STATE = { options: EMPTY_OPTIONS, loading: true, error: false };
@@ -53,9 +53,12 @@ export function useUserMutations() {
   const [pending, setPending] = useState(false);
 
   const create = useCallback(async (payload: CreateUserPayload) => {
+    const validation = validateCreateUser(payload);
+    if (!validation.success) return validation;
     setPending(true);
     try {
-      return await createUserRequest(payload);
+      await createUserRequest(validation.data);
+      return validation;
     } finally {
       setPending(false);
     }

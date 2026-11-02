@@ -22,10 +22,10 @@ export function AccessPanel({ accesses, loading, error, page, totalPages, totalE
   const query = searchQuery.trim().toLocaleLowerCase();
   const filtered = accesses.filter((user) => user.name.toLocaleLowerCase().includes(query) || user.email.toLocaleLowerCase().includes(query) || user.permissionName.toLocaleLowerCase().includes(query));
   return (
-    <main id="main-content" tabIndex={-1} aria-labelledby="access-page-title" className="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-lg border border-brand-sand bg-brand-cream shadow-sm">
+    <main id="main-content" tabIndex={-1} aria-labelledby="access-page-title" className="flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-y-auto rounded-lg border border-brand-sand bg-brand-cream shadow-sm">
       <div className="shrink-0 p-4">
         <header className="mb-8"><h1 id="access-page-title" className="text-3xl font-semibold text-brand-ink">Gerenciar acessos</h1><p className="mt-1 text-sm text-brand-forest">Consulte e edite a permissão de cada usuário.</p></header>
-        <SearchComponent searchQuery={searchQuery} setSearchQuery={setSearchQuery} placeholder="Pesquisar usuário" aria-label="Pesquisar usuário" className="md:w-72" />
+        <SearchComponent searchQuery={searchQuery} setSearchQuery={setSearchQuery} placeholder="Pesquisar" aria-label="Pesquisar nesta página" className="md:w-72" />
       </div>
       <AccessTable accesses={filtered} loading={loading} error={error} onRetry={onRetry} onEdit={onEdit} onToggleStatus={onToggleStatus} />
       <div className="flex shrink-0 flex-col gap-3 border-t border-brand-sand p-4 sm:flex-row sm:items-center sm:justify-between">
@@ -36,6 +36,8 @@ export function AccessPanel({ accesses, loading, error, page, totalPages, totalE
             pageSize={10}
             total={totalElements}
             showSizeChanger={false}
+            responsive
+            showLessItems
             disabled={loading}
             onChange={(nextPage) => onPageChange(nextPage - 1)}
           />
