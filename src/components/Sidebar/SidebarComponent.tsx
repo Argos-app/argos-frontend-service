@@ -33,6 +33,7 @@ const menuGroups: MenuGroup[] = [
   },
   { label: "Relatórios", icon: <ChartAreaIcon />, items: [
     { label: "Relatórios de rebanho", to: "/relatorios-rebanho" },
+    { label: "Uso de IA", to: "/uso-ia" },
   ] },
 ];
 
