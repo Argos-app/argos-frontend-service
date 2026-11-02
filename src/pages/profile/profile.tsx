@@ -7,7 +7,8 @@ import { AvatarComponent } from "@/components/Avatar";
 
 export function Profile() {
 	const { profile, loading, error, reload } = useUserProfile();
-	const { submit, loading: passwordLoading, sent, error: passwordError } = usePasswordReset();
+	const { submit, loading: passwordLoading, sent, error: passwordError, fieldErrors } = usePasswordReset();
+	const passwordMessage = passwordError ?? fieldErrors.email;
 
 	const cpf = profile?.cpf?.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, "$1.$2.$3-$4");
 
@@ -44,10 +45,10 @@ export function Profile() {
 										Tentar novamente
 									</button>
 								}
-								description={error}
+								description={<p role="alert">{error}</p>}
 								styles={{
 									description: {
-										color: "var(--text-brand-forest)",
+										color: "var(--color-brand-forest)",
 									},
 									image: { filter: "grayscale(100%)" },
 								}}
@@ -67,7 +68,10 @@ export function Profile() {
 										photoUrl={profile.photoUrl}
 										className="h-16 w-16 text-lg"
 									/>
-									<h2 id="profile-personal-heading" className="text-xl font-semibold">
+									<h2
+										id="profile-personal-heading"
+										className="text-xl font-semibold"
+									>
 										Dados pessoais
 									</h2>
 								</div>
@@ -158,6 +162,7 @@ export function Profile() {
 									type="button"
 									onClick={() => void submit(profile.email)}
 									aria-label="Enviar link de redefinição de senha"
+									aria-describedby={passwordMessage ? "profile-password-error" : undefined}
 									disabled={passwordLoading}
 									className="px-4 py-3 mt-4 min-h-11 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-forest disabled:cursor-wait disabled:opacity-70"
 								>
@@ -177,13 +182,12 @@ export function Profile() {
 											? "Solicitação concluída. Verifique sua caixa de entrada e a pasta de spam."
 											: ""}
 								</p>
-								{passwordError ? (
-									<p role="alert" className="mt-2 text-brand-ink">
-										{passwordError}
+								{passwordMessage ? (
+									<p id="profile-password-error" role="alert" className="mt-2 text-brand-ink">
+										{passwordMessage}
 									</p>
 								) : null}
 							</section>
-
 						</div>
 					) : null}
 				</div>
