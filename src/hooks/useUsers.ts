@@ -2,8 +2,8 @@ import { useNavigate, useParams } from "react-router";
 import { useCallback, useEffect, useRef } from "react";
 import { getUsers } from "@/services/userService";
 import type { User } from "@/types";
-import { useUserMutations } from "@/hooks/useUserManagement";
 import { usePaginatedResource } from "@/hooks/usePaginatedResource";
+import { useUserMutations } from "@/hooks/useUserManagement";
 
 export function useUsers() {
 	const { page: routePage } = useParams<{ page?: string }>();

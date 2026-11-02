@@ -1,4 +1,4 @@
-import { cleanCNPJ, isValidCNPJ, isValidCPF } from "cnpj-cpf-validator";
+import { cleanCNPJ, cleanCPF, isValidCNPJ, isValidCPF } from "cnpj-cpf-validator";
 import type {
 	CreateUserPayload,
 	UpdateUserAccessPayload,
@@ -50,7 +50,7 @@ function validateUserFields<
 		...values,
 		name: values.name?.trim() ?? "",
 		email: values.email?.trim().toLowerCase() ?? "",
-		cpf: values.cpf?.replace(/\D/g, "") ?? "",
+		cpf: cleanCPF(values.cpf ?? ""),
 		permissionId: values.permissionId?.trim() ?? "",
 		propertyId: values.propertyId?.trim() ?? "",
 	};
@@ -62,7 +62,7 @@ function validateUserFields<
 	if (!isValidEmail(data.email) || data.email.length > 120)
 		errors.email = "Informe um e-mail válido com até 120 caracteres.";
 
-	if (!isValidCPF(data.cpf)) errors.cpf = "Informe um CPF válido com 11 dígitos.";
+	if (!isValidCPF(values.cpf ?? "")) errors.cpf = "Informe um CPF válido com 11 dígitos.";
 
 	if (!isValidId(data.permissionId)) errors.permissionId = "Selecione uma permissão.";
 

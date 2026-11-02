@@ -123,7 +123,7 @@ export function CreateUserDrawer({ open, onClose, onCreated }: CreateUserDrawerP
 				layout="vertical"
 				requiredMark={false}
 				onFinish={handleSubmit}
-				disabled={submitting || optionsError || loadingOptions}
+				disabled={submitting || optionsError || loadingOptions || options.properties.length === 0 || options.permissions.length === 0}
 			>
 				<FormErrors />
 				<Row gutter={16}>

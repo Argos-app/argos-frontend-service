@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port 4200",
-    "test": "node --experimental-strip-types --test tests/validation.unit.test.ts tests/serviceRequest.unit.test.ts tests/interfacePreferences.unit.test.ts && vitest run",
+    "test": "node --experimental-strip-types --test tests/authError.test.ts tests/validation.unit.test.ts tests/serviceRequest.unit.test.ts tests/interfacePreferences.unit.test.ts && vitest run",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"

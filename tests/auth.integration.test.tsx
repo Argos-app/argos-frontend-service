@@ -190,7 +190,7 @@ test.each(["", "   ", null, { detail: "técnico" }])(
 		await change("login-email", "pessoa@example.com");
 		await change("login-password", "x");
 		await submit();
-		expect(document.body.textContent).toContain("Confira suas credenciais");
+		expect(document.body.textContent).toContain("Tente novamente mais tarde");
 	},
 );
 
@@ -210,7 +210,7 @@ test("recuperação inválida bloqueia envio e recebe foco; válida normaliza e 
 	expect(document.body.textContent).toContain("Solicitação concluída");
 });
 
-test("falha do Firebase no login apresenta fallback sem autenticar", async () => {
+test("credenciais inválidas do Firebase são informadas sem autenticar", async () => {
 	mocks.signInWithEmail.mockRejectedValueOnce(
 		new FirebaseError("auth/invalid-credential", "detalhes internos"),
 	);
@@ -218,7 +218,7 @@ test("falha do Firebase no login apresenta fallback sem autenticar", async () =>
 	await change("login-email", "pessoa@example.com");
 	await change("login-password", "x");
 	await submit();
-	expect(document.body.textContent).toContain("Confira suas credenciais");
+	expect(document.body.textContent).toContain("Credenciais inválidas");
 	expect(document.body.textContent).not.toContain("detalhes internos");
 	expect(document.getElementById("session")?.textContent).toBe("false");
 });

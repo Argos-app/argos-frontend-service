@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { useAuth } from "@/context/AuthContext";
-import axios from "axios";
+import { getSignInErrorMessage } from "@/utils/authError";
 import { useLifetime } from "@/hooks/useLifetime";
 import { validateLogin } from "@/utils/validation";
 import type { LoginValues } from "@/types/auth.type";
@@ -36,14 +36,7 @@ export function useAuthActions() {
 			navigate("/home");
 		} catch (err: unknown) {
 			if (lifetime.current !== owner) return;
-			const backendMessage = axios.isAxiosError<{ message?: unknown }>(err)
-				? err.response?.data?.message
-				: undefined;
-			setState({ status: "error", fieldErrors: {}, error:
-				typeof backendMessage === "string" && backendMessage.trim()
-					? backendMessage
-					: "Não foi possível realizar o login. Confira suas credenciais e tente novamente.",
-			});
+			setState({ status: "error", fieldErrors: {}, error: getSignInErrorMessage(err) });
 		} finally {
 			pending.current = false;
 		}
