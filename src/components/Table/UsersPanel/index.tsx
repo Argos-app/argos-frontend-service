@@ -43,8 +43,6 @@ export function UsersPanel({
       row.properties.some((farm) => farm.name.toLowerCase().includes(normalizedQuery)),
   );
 
-  const isSearching = normalizedQuery.length > 0;
-
   return (
     <main id="main-content" tabIndex={-1} aria-labelledby="users-page-title" className="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-lg border border-brand-sand bg-brand-cream shadow-sm">
       <div className="shrink-0 rounded-none p-4">
@@ -59,7 +57,7 @@ export function UsersPanel({
           <SearchComponent
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
-            placeholder={isSearching ? "Pesquisar nesta página" : "Pesquisar usuário"}
+            placeholder="Pesquisar usuário"
             className="md:w-72"
           />
           <div className="flex w-full flex-col items-center gap-2 md:w-auto md:flex-row">
@@ -82,7 +80,7 @@ export function UsersPanel({
 
       <div className="flex shrink-0 flex-col gap-3 border-t border-brand-sand p-4 sm:flex-row sm:items-center sm:justify-between">
         <span className="text-sm font-normal text-brand-forest" aria-live="polite">
-          Página {page + 1} de {Math.max(totalPages, 1)} ({totalElements} usuários)
+          {loading ? "Carregando usuários..." : error ? `Página ${page + 1}` : `Página ${page + 1} de ${Math.max(totalPages, 1)} (${totalElements} usuários)`}
         </span>
         <nav aria-label="Paginação de usuários">
           <Pagination

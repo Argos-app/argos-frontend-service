@@ -1,6 +1,6 @@
 import { App, Alert, Button, Col, Drawer, Form, Input, InputNumber, Row, Select, Space } from "antd";
 import axios from "axios";
-import { isValidCNPJ } from "cnpj-cpf-validator";
+import { cleanCNPJ, isValidCNPJ } from "cnpj-cpf-validator";
 import { useEffect, useMemo } from "react";
 import { usePropertyAdministrators, usePropertyMutations } from "@/hooks/usePropertyManagement";
 import type { Property, PropertyFormValues } from "@/types";
@@ -54,7 +54,10 @@ export function PropertyFormDrawer({ property, open, onClose, onSaved }: Propert
   const handleSubmit = async (values: PropertyFormValues) => {
     let validation;
     try {
-      validation = await save(property, values);
+      validation = await save(property, {
+        ...values,
+        cnpj: cleanCNPJ(values.cnpj ?? ""),
+      });
     } catch (error: unknown) {
       const errorMessage = axios.isAxiosError<{ message?: string }>(error)
         ? error.response?.data?.message
