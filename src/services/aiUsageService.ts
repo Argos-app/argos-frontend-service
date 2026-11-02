@@ -1,6 +1,12 @@
 import { api } from "@/lib/api";
 import { serviceRequest } from "@/services/serviceRequest";
-import type { AiUsageUser } from "@/types";
+import type { AiUsageUser, PageResponse } from "@/types";
+
+type AiUsageUserResponse = Omit<AiUsageUser, "knownCostCalls" | "unknownCostCalls" | "costUsd"> & {
+	known_cost_calls: number;
+	unknown_cost_calls: number;
+	cost_usd: number;
+};
 
 export class InvalidAiUsageResponseError extends Error {
 	constructor() {
@@ -11,41 +17,56 @@ export class InvalidAiUsageResponseError extends Error {
 	}
 }
 
-function isAiUsageUser(value: unknown): value is AiUsageUser {
+const count = (value: unknown): value is number =>
+	typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
+
+function isAiUsageUser(value: unknown): value is AiUsageUserResponse {
 	if (!value || typeof value !== "object") return false;
 	const row = value as Record<string, unknown>;
-	const nullableString = (field: unknown) => field === null || typeof field === "string";
-	const count = (field: unknown) =>
-		typeof field === "number" && Number.isSafeInteger(field) && field >= 0;
 	return (
 		typeof row.userId === "string" &&
 		row.userId.trim().length > 0 &&
-		nullableString(row.name) &&
-		nullableString(row.email) &&
-		nullableString(row.photoUrl) &&
+		typeof row.name === "string" &&
+		typeof row.email === "string" &&
+		typeof row.photoUrl === "string" &&
 		count(row.calls) &&
 		count(row.tokens) &&
 		count(row.modelCalls) &&
 		count(row.unknownTokenCalls) &&
-		count(row.knownCostCalls) &&
-		count(row.unknownCostCalls) &&
-		typeof row.costUsd === "string" &&
-		/^\d+(?:\.\d+)?$/.test(row.costUsd) &&
-		Number.isFinite(Number(row.costUsd))
+		count(row.known_cost_calls) &&
+		count(row.unknown_cost_calls) &&
+		typeof row.cost_usd === "number" &&
+		Number.isFinite(row.cost_usd) &&
+		row.cost_usd >= 0
 	);
 }
 
-export async function getAiUsage(signal?: AbortSignal): Promise<AiUsageUser[]> {
+function isAiUsagePage(value: unknown): value is PageResponse<AiUsageUserResponse> {
+	if (!value || typeof value !== "object") return false;
+	const page = value as Record<string, unknown>;
+	return Array.isArray(page.data) && page.data.every(isAiUsageUser) &&
+		count(page.page) && count(page.size) && page.size > 0 &&
+		count(page.totalElements) && count(page.totalPages) &&
+		typeof page.first === "boolean" && typeof page.last === "boolean" &&
+		page.data.length <= page.size &&
+		new Set(page.data.map((user) => user.userId)).size === page.data.length;
+}
+
+export async function getAiUsage(page = 0, size = 10, signal?: AbortSignal): Promise<PageResponse<AiUsageUser>> {
 	const data = await serviceRequest(async () => {
-		const response = await api.get<unknown>("/ai-usage/users", { signal });
+		const response = await api.get<unknown>("/users/ai-usage", { params: { page, size }, signal });
 		return response.data;
 	}, "Não foi possível consultar o uso de IA.");
-	if (
-		!Array.isArray(data) ||
-		!data.every(isAiUsageUser) ||
-		new Set(data.map((user) => user.userId)).size !== data.length
-	) {
+	if (!isAiUsagePage(data) || data.page !== page || data.size !== size) {
 		throw new InvalidAiUsageResponseError();
 	}
-	return data;
+	return {
+		...data,
+		data: data.data.map(({ known_cost_calls, unknown_cost_calls, cost_usd, ...user }) => ({
+			...user,
+			knownCostCalls: known_cost_calls,
+			unknownCostCalls: unknown_cost_calls,
+			costUsd: cost_usd,
+		})),
+	};
 }
