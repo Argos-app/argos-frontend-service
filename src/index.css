@@ -59,44 +59,6 @@ a.sidebar-menu-link[aria-current="page"]:focus-visible {
   background-color: #d0c6b2;
 }
 
-.argos-delete-popconfirm .ant-popover-inner {
-  border: 1px solid #d0c6b2;
-  border-radius: 12px;
-  background: #f4f1eb;
-  box-shadow: 0 12px 32px rgb(0 0 0 / 0.16);
-}
-
-.argos-delete-popconfirm .ant-popconfirm-title {
-  color: #000000;
-}
-
-.argos-delete-popconfirm .ant-popconfirm-description {
-  color: #06412f;
-}
-
-.argos-delete-popconfirm .ant-popconfirm-buttons .ant-btn-default {
-  border-color: #d0c6b2;
-  color: #06412f;
-  background: #f4f1eb;
-}
-
-.argos-delete-popconfirm .ant-popconfirm-buttons .ant-btn-default:hover {
-  border-color: #06412f;
-  color: #06412f;
-}
-
-.argos-delete-popconfirm .ant-popconfirm-buttons .ant-btn-primary {
-  border-color: #06412f;
-  color: #f4f1eb;
-  background: #06412f;
-  box-shadow: none;
-}
-
-.argos-delete-popconfirm .ant-popconfirm-buttons .ant-btn-primary:hover {
-  color: #f4f1eb;
-  background: #06342a;
-}
-
 .argos-user-drawer .ant-drawer-content {
   border-left: 1px solid #d0c6b2;
   background: #f4f1eb;
@@ -118,4 +80,21 @@ a.sidebar-menu-link[aria-current="page"]:focus-visible {
 .argos-user-drawer .ant-select-dropdown {
   border: 1px solid #d0c6b2;
   background: #f4f1eb;
+}
+
+@media (max-width: 640px) {
+  .ant-drawer-header {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .ant-drawer-header-title {
+    flex-basis: 100%;
+    min-width: 0;
+  }
+
+  .ant-drawer-extra {
+    width: 100%;
+    margin-inline-start: 0;
+  }
 }

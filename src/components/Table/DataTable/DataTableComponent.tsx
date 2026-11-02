@@ -50,16 +50,14 @@ export function DataTable<T>({
 	};
 
 	const renderBody = () => {
-		if (loading) {
+		if (loading && data.length === 0) {
 			return (
 				<tr>
 					<td
 						colSpan={columns.length}
-						role="status"
-						aria-live="polite"
 						className="p-4 text-center text-sm text-brand-forest"
 					>
-						{loadingMessage}
+						<span role="status" aria-live="polite">{loadingMessage}</span>
 					</td>
 				</tr>
 			);
@@ -69,9 +67,9 @@ export function DataTable<T>({
 			return (
 				<tr>
 					<td colSpan={columns.length} className="p-4 text-center">
-						{onRetry && (
-							<Empty
+						<Empty
 								children={
+									onRetry && (
 									<button
 										type="button"
 										onClick={onRetry}
@@ -79,18 +77,14 @@ export function DataTable<T>({
 									>
 										Tentar novamente
 									</button>
+									)
 								}
-								description={error}
-                styles={
-                  {
-                    description: {
-                      color: 'var(--text-brand-forest)'
-                    },
-                    image: { filter: 'grayscale(100%)' },
-                  }
-								}
-							/>
-						)}
+								description={<p role="alert">{error}</p>}
+								styles={{
+									description: { color: "var(--color-brand-forest)" },
+									image: { filter: "grayscale(100%)" },
+								}}
+						/>
 					</td>
 				</tr>
 			);
@@ -143,12 +137,16 @@ export function DataTable<T>({
 			tabIndex={scrollAreaTabIndex}
 			className={cn("overflow-x-auto", className)}
 		>
+			{loading && data.length > 0 && (
+				<p role="status" aria-live="polite" className="p-4 text-sm text-brand-forest">{loadingMessage}</p>
+			)}
 			<table aria-busy={loading} className="w-full min-w-max table-auto text-left">
 				<thead>
 					<tr>
 						{columns.map((col) => (
 							<th
 								key={col.key}
+								scope="col"
 								className="border-y border-brand-sand bg-brand-sand/30 p-4"
 								style={{ width: col.width }}
 							>

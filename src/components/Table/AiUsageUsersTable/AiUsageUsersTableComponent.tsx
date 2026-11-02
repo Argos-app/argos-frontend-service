@@ -76,7 +76,7 @@ export function AiUsageUsersTable({ users, loading, error, onRetry, onSelect, is
       onRetry={onRetry}
       loadingMessage="Carregando uso de IA..."
       emptyMessage={isSearching ? "Nenhum usuário encontrado nesta página para a pesquisa." : "Nenhum usuário disponível nesta página."}
-      className="px-0 text-sm"
+      className="min-h-40 flex-1 px-0 text-sm"
       scrollAreaLabel="Atividade de IA por usuário"
       scrollAreaTabIndex={0}
     />

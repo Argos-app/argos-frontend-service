@@ -1,6 +1,8 @@
+import { FormErrors } from "@/components/FormErrors";
 import { Alert, App, Button, Drawer, Form, Select, Space, Typography } from "antd";
+import { fixSelectRequiredAria } from "@/lib/selectAccessibility";
 import axios from "axios";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import type { UserAccess } from "@/types";
 import { usePermissionOptions, useUserAccessMutation } from "@/hooks/useUserManagement";
 
@@ -20,11 +22,16 @@ export function EditAccessDrawer({ user, open, onClose, onUpdated }: EditAccessD
 	const [form] = Form.useForm<FormValues>();
 	const { options, loading: loadingOptions, error, retry } = usePermissionOptions(open);
 	const { pending, updateAccess } = useUserAccessMutation();
+	const lifecycle = useRef<object | null>(null);
 
 	useEffect(() => {
 		if (!open || !user) return;
+		lifecycle.current = {};
 		form.resetFields();
 		form.setFieldsValue({ permissionId: user.permissionId });
+		return () => {
+			lifecycle.current = null;
+		};
 	}, [form, open, user]);
 
 	const close = () => {
@@ -34,9 +41,11 @@ export function EditAccessDrawer({ user, open, onClose, onUpdated }: EditAccessD
 	};
 
 	const submit = async ({ permissionId }: FormValues) => {
-		if (!user || permissionId === user.permissionId) return;
+		const owner = lifecycle.current;
+		if (!user || !owner || pending || permissionId === user.permissionId) return;
 		try {
 			const result = await updateAccess(user.userId, { permissionId });
+			if (lifecycle.current !== owner) return;
 			if (!result.success) {
 				const permissionError = result.errors.permissionId;
 				if (permissionError)
@@ -47,6 +56,7 @@ export function EditAccessDrawer({ user, open, onClose, onUpdated }: EditAccessD
 			form.resetFields();
 			onUpdated();
 		} catch (cause: unknown) {
+			if (lifecycle.current !== owner) return;
 			const errorMessage = axios.isAxiosError<{ message?: string }>(cause)
 				? cause.response?.data?.message
 				: undefined;
@@ -73,7 +83,7 @@ export function EditAccessDrawer({ user, open, onClose, onUpdated }: EditAccessD
 			destroyOnHidden
 			styles={{ body: { paddingBottom: 24 } }}
 			extra={
-				<Space>
+				<Space wrap>
 					<Button onClick={close} disabled={pending}>
 						Cancelar
 					</Button>
@@ -122,17 +132,21 @@ export function EditAccessDrawer({ user, open, onClose, onUpdated }: EditAccessD
 			<Form
 				id="argos-edit-access-form"
 				form={form}
+				scrollToFirstError={{ focus: true }}
 				layout="vertical"
 				requiredMark={false}
 				onFinish={submit}
 				disabled={pending || !user || error || loadingOptions}
 			>
+				<FormErrors />
 				<Form.Item
 					name="permissionId"
 					label="Acesso"
 					rules={[{ required: true, message: "Selecione uma permissão." }]}
 				>
 					<Select
+						ref={fixSelectRequiredAria}
+						virtual={false}
 						placeholder="Selecione uma permissão"
 						loading={loadingOptions}
 						options={permissionOptions}

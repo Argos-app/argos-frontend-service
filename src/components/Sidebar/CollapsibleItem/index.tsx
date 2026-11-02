@@ -19,12 +19,12 @@ export function CollapsibleItem({ label, icon, items, collapsed }: CollapsibleIt
 
   return (
     <div className="relative block w-full">
-      <button type="button" onClick={() => !collapsed && setOpen((current) => !current)} aria-expanded={collapsed ? undefined : open} aria-controls={collapsed ? undefined : submenuId} className={clsx(menuItemClass(collapsed), !collapsed && "justify-between")} aria-label={collapsed ? label : undefined}>
-        <span className={clsx("grid place-items-center", !collapsed && "mr-4")}>{icon}</span>
+      <button type="button" disabled={collapsed} onClick={() => setOpen((current) => !current)} aria-expanded={!collapsed && open} aria-controls={submenuId} className={clsx(menuItemClass(collapsed), !collapsed && "justify-between")} aria-label={collapsed ? `${label}: expanda o menu lateral para acessar` : undefined}>
+        <span aria-hidden="true" className={clsx("grid place-items-center", !collapsed && "mr-4")}>{icon}</span>
         {!collapsed && (
           <>
             <span className="mr-auto text-base font-normal leading-relaxed text-brand-ink">{label}</span>
-            <span className="ml-4">
+            <span aria-hidden="true" className="ml-4">
               <ChevronDownIcon className={clsx("transition-transform", open && "rotate-180")} />
             </span>
           </>
@@ -32,7 +32,7 @@ export function CollapsibleItem({ label, icon, items, collapsed }: CollapsibleIt
       </button>
 
       <div id={submenuId} hidden={collapsed || !open} className="overflow-hidden py-1">
-          <nav aria-label={label} className="flex min-w-60 flex-col gap-1">
+          <nav aria-label={label} className="flex min-w-0 flex-col gap-1">
             {items.map((item) => {
               const isActive = Boolean(item.to) && (location.pathname === item.to || location.pathname.startsWith(`${item.to}/`));
               const className = clsx(

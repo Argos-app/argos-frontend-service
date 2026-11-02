@@ -1,83 +1,154 @@
 import { cleanCNPJ, cleanCPF, isValidCNPJ, isValidCPF } from "cnpj-cpf-validator";
-import type { UpdateUserAccessPayload, UpdateUserPayload, UpdateUserStatusPayload } from "@/types";
+import type {
+	CreateUserPayload,
+	UpdateUserAccessPayload,
+	UpdateUserPayload,
+	UpdateUserStatusPayload,
+} from "@/types";
 import type { PropertyPayload } from "@/types";
+import type { LoginValues, PasswordResetValues } from "@/types/auth.type";
 
 export type ValidationResult<T> =
-  | { success: true; data: T }
-  | { success: false; errors: Partial<Record<keyof T, string>> };
+	{ success: true; data: T } | { success: false; errors: Partial<Record<keyof T, string>> };
 
 function isValidEmail(email: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+	return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+export function validatePasswordReset(values: PasswordResetValues): ValidationResult<PasswordResetValues> {
+  const email = typeof values.email === "string" ? values.email.trim().toLowerCase() : "";
+  if (!email) return { success: false, errors: { email: "Informe o e-mail." } };
+  if (email.length > 120) return { success: false, errors: { email: "O e-mail deve ter até 120 caracteres." } };
+  if (!isValidEmail(email)) return { success: false, errors: { email: "Informe um e-mail válido." } };
+  return { success: true, data: { email } };
+}
+
+export function validateLogin(values: LoginValues): ValidationResult<LoginValues> {
+  const email = validatePasswordReset(values);
+  const password = typeof values.password === "string" ? values.password : "";
+  const errors: Partial<Record<keyof LoginValues, string>> = email.success ? {} : { ...email.errors };
+  if (!password) errors.password = "Informe a senha.";
+  else if (password.length > 128) errors.password = "A senha deve ter até 128 caracteres.";
+  if (!email.success || Object.keys(errors).length) return { success: false, errors };
+  return { success: true, data: { email: email.data.email, password } };
 }
 
 function isValidId(id: string): boolean {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+	return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
 }
 
-function validateUserFields<T extends { name: string; email: string; cpf: string; permissionId: string; propertyId: string }>(
-  values: T,
-): ValidationResult<T> {
-  const data = {
-    ...values,
-    name: values.name?.trim() ?? "",
-    email: values.email?.trim().toLowerCase() ?? "",
-    cpf: cleanCPF(values.cpf ?? ""),
-    permissionId: values.permissionId?.trim() ?? "",
-    propertyId: values.propertyId?.trim() ?? "",
-  };
-  const errors: Partial<Record<keyof T, string>> = {};
+function validateUserFields<
+	T extends {
+		name: string;
+		email: string;
+		cpf: string;
+		permissionId: string;
+		propertyId: string;
+	},
+>(values: T): ValidationResult<T> {
+	const data = {
+		...values,
+		name: values.name?.trim() ?? "",
+		email: values.email?.trim().toLowerCase() ?? "",
+		cpf: cleanCPF(values.cpf ?? ""),
+		permissionId: values.permissionId?.trim() ?? "",
+		propertyId: values.propertyId?.trim() ?? "",
+	};
+	const errors: Partial<Record<keyof T, string>> = {};
 
-  if (!data.name || data.name.length > 120) errors.name = "O nome é obrigatório e deve ter até 120 caracteres.";
-  if (!isValidEmail(data.email) || data.email.length > 120) errors.email = "Informe um e-mail válido com até 120 caracteres.";
-  if (!isValidCPF(values.cpf ?? "")) errors.cpf = "Informe um CPF válido com 11 dígitos.";
-  if (!isValidId(data.permissionId)) errors.permissionId = "Selecione uma permissão.";
-  if (!isValidId(data.propertyId)) errors.propertyId = "Selecione uma fazenda.";
+	if (!data.name || data.name.length > 120)
+		errors.name = "O nome é obrigatório e deve ter até 120 caracteres.";
 
-  return Object.keys(errors).length > 0 ? { success: false, errors } : { success: true, data };
+	if (!isValidEmail(data.email) || data.email.length > 120)
+		errors.email = "Informe um e-mail válido com até 120 caracteres.";
+
+	if (!isValidCPF(values.cpf ?? "")) errors.cpf = "Informe um CPF válido com 11 dígitos.";
+
+	if (!isValidId(data.permissionId)) errors.permissionId = "Selecione uma permissão.";
+
+	if (!isValidId(data.propertyId)) errors.propertyId = "Selecione uma fazenda.";
+
+	return Object.keys(errors).length > 0 ? { success: false, errors } : { success: true, data };
+}
+
+export function validateCreateUser(values: CreateUserPayload): ValidationResult<CreateUserPayload> {
+	const common = validateUserFields(values);
+	if (!common.success) {
+		const errors = { ...common.errors };
+		if (!values.password || values.password.length < 8 || values.password.length > 128) {
+			errors.password = "A senha deve ter entre 8 e 128 caracteres.";
+		}
+		return { success: false, errors };
+	}
+	const errors: Partial<Record<keyof CreateUserPayload, string>> = {};
+	if (!values.password || values.password.length < 8 || values.password.length > 128) {
+		errors.password = "A senha deve ter entre 8 e 128 caracteres.";
+	}
+	if (Object.keys(errors).length > 0) return { success: false, errors };
+	return { success: true, data: { ...common.data, password: values.password } };
 }
 
 export function validateUpdateUser(values: UpdateUserPayload): ValidationResult<UpdateUserPayload> {
-  const currentPropertyId = values.currentPropertyId?.trim() ?? "";
-  const common = validateUserFields({ ...values, currentPropertyId });
-  const errors: Partial<Record<keyof UpdateUserPayload, string>> = common.success ? {} : { ...common.errors };
-  if (!isValidId(currentPropertyId)) errors.currentPropertyId = "Selecione um vínculo atual válido.";
-  if (Object.keys(errors).length > 0 || !common.success) return { success: false, errors };
-  return common;
+	const currentPropertyId = values.currentPropertyId?.trim() ?? "";
+	const common = validateUserFields({ ...values, currentPropertyId });
+	const errors: Partial<Record<keyof UpdateUserPayload, string>> = common.success
+		? {}
+		: { ...common.errors };
+	if (!isValidId(currentPropertyId))
+		errors.currentPropertyId = "Selecione um vínculo atual válido.";
+	if (Object.keys(errors).length > 0 || !common.success) return { success: false, errors };
+	return common;
 }
 
-export function validateUpdateUserAccess(values: UpdateUserAccessPayload): ValidationResult<UpdateUserAccessPayload> {
-  const data = { permissionId: values.permissionId?.trim() ?? "" };
-  const errors: Partial<Record<keyof UpdateUserAccessPayload, string>> = {};
-  if (!isValidId(data.permissionId)) errors.permissionId = "Selecione uma permissão.";
-  return Object.keys(errors).length > 0 ? { success: false, errors } : { success: true, data };
+export function validateUpdateUserAccess(
+	values: UpdateUserAccessPayload,
+): ValidationResult<UpdateUserAccessPayload> {
+	const data = { permissionId: values.permissionId?.trim() ?? "" };
+	const errors: Partial<Record<keyof UpdateUserAccessPayload, string>> = {};
+
+	if (!isValidId(data.permissionId)) errors.permissionId = "Selecione uma permissão.";
+
+	return Object.keys(errors).length > 0 ? { success: false, errors } : { success: true, data };
 }
 
-export function validateUpdateUserStatus(values: UpdateUserStatusPayload): ValidationResult<UpdateUserStatusPayload> {
-  if (typeof values.active !== "boolean") {
-    return { success: false, errors: { active: "Informe um status válido para o usuário." } };
-  }
-  return { success: true, data: { active: values.active } };
+export function validateUpdateUserStatus(
+	values: UpdateUserStatusPayload,
+): ValidationResult<UpdateUserStatusPayload> {
+	if (typeof values.active !== "boolean") {
+		return { success: false, errors: { active: "Informe um status válido para o usuário." } };
+	}
+	return { success: true, data: { active: values.active } };
 }
 
 export function validateProperty(values: PropertyPayload): ValidationResult<PropertyPayload> {
-  const data: PropertyPayload = {
-    ...values,
-    name: values.name?.trim() ?? "",
-    cnpj: values.cnpj ? cleanCNPJ(values.cnpj) || null : null,
-    address: values.address?.trim() ?? "",
-    city: values.city?.trim() ?? "",
-    state: values.state?.trim().toUpperCase() ?? "",
-    responsibleAdminId: values.responsibleAdminId?.trim() ?? "",
-    phone: values.phone?.trim() || null,
-  };
-  const errors: Partial<Record<keyof PropertyPayload, string>> = {};
-  if (!data.name || data.name.length > 120) errors.name = "O nome é obrigatório e deve ter até 120 caracteres.";
-  if (values.cnpj?.trim() && (!data.cnpj || !isValidCNPJ(data.cnpj))) errors.cnpj = "Informe um CNPJ válido.";
-  if (!data.address || data.address.length > 255) errors.address = "O endereço é obrigatório e deve ter até 255 caracteres.";
-  if (!data.city || data.city.length > 100) errors.city = "A cidade é obrigatória e deve ter até 100 caracteres.";
-  if (!/^[A-Z]{2}$/.test(data.state)) errors.state = "Informe uma UF válida.";
-  if (data.areaHectares != null && (!Number.isFinite(data.areaHectares) || data.areaHectares <= 0)) errors.areaHectares = "A área deve ser maior que zero.";
-  if (data.phone && data.phone.length > 20) errors.phone = "O telefone deve ter até 20 caracteres.";
-  if (!isValidId(data.responsibleAdminId)) errors.responsibleAdminId = "Selecione o administrador responsável.";
-  return Object.keys(errors).length > 0 ? { success: false, errors } : { success: true, data };
+	const data: PropertyPayload = {
+		...values,
+		name: values.name?.trim() ?? "",
+		cnpj: values.cnpj ? cleanCNPJ(values.cnpj) || null : null,
+		address: values.address?.trim() ?? "",
+		city: values.city?.trim() ?? "",
+		state: values.state?.trim().toUpperCase() ?? "",
+		responsibleAdminId: values.responsibleAdminId?.trim() ?? "",
+		phone: values.phone?.trim() || null,
+	};
+	const errors: Partial<Record<keyof PropertyPayload, string>> = {};
+	if (!data.name || data.name.length > 120)
+		errors.name = "O nome é obrigatório e deve ter até 120 caracteres.";
+	if (values.cnpj?.trim() && (!data.cnpj || !isValidCNPJ(data.cnpj)))
+		errors.cnpj = "Informe um CNPJ válido.";
+	if (!data.address || data.address.length > 255)
+		errors.address = "O endereço é obrigatório e deve ter até 255 caracteres.";
+	if (!data.city || data.city.length > 100)
+		errors.city = "A cidade é obrigatória e deve ter até 100 caracteres.";
+	if (!/^[A-Z]{2}$/.test(data.state)) errors.state = "Informe uma UF válida.";
+	if (
+		data.areaHectares != null &&
+		(!Number.isFinite(data.areaHectares) || data.areaHectares <= 0)
+	)
+		errors.areaHectares = "A área deve ser maior que zero.";
+	if (data.phone && data.phone.length > 20)
+		errors.phone = "O telefone deve ter até 20 caracteres.";
+	if (!isValidId(data.responsibleAdminId))
+		errors.responsibleAdminId = "Selecione o administrador responsável.";
+	return Object.keys(errors).length > 0 ? { success: false, errors } : { success: true, data };
 }
