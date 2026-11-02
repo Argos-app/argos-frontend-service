@@ -1,13 +1,13 @@
 export interface AiUsageUser {
   userId: string;
-  name: string | null;
-  email: string | null;
-  photoUrl: string | null;
+  name: string;
+  email: string;
+  photoUrl: string;
   calls: number;
   tokens: number;
   modelCalls: number;
   unknownTokenCalls: number;
-  costUsd: string;
+  costUsd: number;
   knownCostCalls: number;
   unknownCostCalls: number;
 }

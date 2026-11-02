@@ -57,8 +57,8 @@ export function AiUsageDetailsDrawer({ user: selected, open, stale, onClose }: A
 								],
 								[
 									"Custo conhecido (USD)",
-									selected.knownCostCalls
-										? formatCost(Number(selected.costUsd))
+									selected.knownCostCalls || selected.calls === 0
+										? formatCost(selected.costUsd)
 										: "Não disponível",
 								],
 								[

@@ -62,7 +62,7 @@ export function AiUsageUsersTable({ users, loading, error, onRetry, onSelect, is
 		{
 			key: "cost",
 			header: "Custo conhecido (USD)",
-			render: (user) => (user.knownCostCalls ? formatCost(Number(user.costUsd)) : "—"),
+			render: (user) => (user.knownCostCalls || user.calls === 0 ? formatCost(user.costUsd) : "—"),
 		},
 	];
 
@@ -75,7 +75,7 @@ export function AiUsageUsersTable({ users, loading, error, onRetry, onSelect, is
       error={error}
       onRetry={onRetry}
       loadingMessage="Carregando uso de IA..."
-      emptyMessage={isSearching ? "Nenhum usuário encontrado para a pesquisa." : "Nenhuma atividade de IA disponível."}
+      emptyMessage={isSearching ? "Nenhum usuário encontrado nesta página para a pesquisa." : "Nenhum usuário disponível nesta página."}
       className="px-0 text-sm"
       scrollAreaLabel="Atividade de IA por usuário"
       scrollAreaTabIndex={0}

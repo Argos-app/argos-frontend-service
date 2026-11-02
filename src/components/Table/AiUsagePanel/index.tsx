@@ -10,23 +10,30 @@ import type { AiUsageUser } from "@/types";
 import { formatNumber, formatCost } from "@/lib/aiUsageFormat";
 import { AiUsageUsersTable } from "@/components/Table/AiUsageUsersTable";
 
-const PAGE_SIZE = 10;
-
 export function AiUsagePanel({
 	users,
 	loading,
 	error,
 	updatedAt,
 	onRefresh,
+	page,
+	size,
+	totalPages,
+	totalElements,
+	onPageChange,
 }: {
 	users: AiUsageUser[];
 	loading: boolean;
 	error: string | null;
 	updatedAt: Date | null;
 	onRefresh: () => void;
+	page: number;
+	size: number;
+	totalPages: number;
+	totalElements: number;
+	onPageChange: (page: number) => void;
 }) {
 	const [query, setQuery] = useState("");
-	const [page, setPage] = useState(1);
 	const [selectedId, setSelectedId] = useState<string | null>(null);
 	const selected = users.find((user) => user.userId === selectedId) ?? null;
 	const filtered = users.filter((user) =>
@@ -34,13 +41,11 @@ export function AiUsagePanel({
 			.toLocaleLowerCase()
 			.includes(query.trim().toLocaleLowerCase()),
 	);
-	const currentPage = Math.min(page, Math.max(1, Math.ceil(filtered.length / PAGE_SIZE)));
-	const pageUsers = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 	const totals = users.reduce(
 		(sum, user) => ({
 			calls: sum.calls + user.calls,
 			tokens: sum.tokens + user.tokens,
-			cost: sum.cost + Number(user.costUsd),
+			cost: sum.cost + user.costUsd,
 			knownCost: sum.knownCost + user.knownCostCalls,
 			unknownCost: sum.unknownCost + user.unknownCostCalls,
 		}),
@@ -67,7 +72,7 @@ export function AiUsagePanel({
 		},
 		{
 			label: "Custo conhecido (USD)",
-			value: totals.knownCost ? formatCost(totals.cost) : "—",
+			value: totals.knownCost || totals.calls === 0 ? formatCost(totals.cost) : "—",
 			icon: Coins,
 			detail: `${formatNumber(totals.unknownCost)} chamada(s) sem custo conhecido`,
 		},
@@ -119,14 +124,15 @@ export function AiUsagePanel({
 					</div>
 					<SearchComponent
 						searchQuery={query}
-						setSearchQuery={(value) => { setQuery(value); setPage(1); }}
+						setSearchQuery={setQuery}
 						placeholder="Pesquisar usuário"
+						aria-label="Pesquisar"
 						className="sm:w-72"
 					/>
 				</div>
 			</div>
 			<AiUsageUsersTable
-				users={pageUsers}
+				users={filtered}
 				loading={loading && !updatedAt}
 				error={error}
 				onRetry={onRefresh}
@@ -135,10 +141,22 @@ export function AiUsagePanel({
 			/>
 			<footer className="flex shrink-0 flex-col gap-3 border-t border-brand-sand p-4 sm:flex-row sm:items-center sm:justify-between">
 				<span className="text-sm text-brand-forest" aria-live="polite">
-					Página {currentPage} de {Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))} ({filtered.length} usuários)
+					Página {page + 1} de {Math.max(1, totalPages)} ({totalElements} usuários)
 				</span>
 				<nav aria-label="Paginação de uso de IA">
-					<Pagination current={currentPage} pageSize={PAGE_SIZE} total={filtered.length} showSizeChanger={false} responsive showLessItems disabled={loading || Boolean(error)} onChange={setPage} />
+					<Pagination
+						current={page + 1}
+						pageSize={size}
+						total={totalElements}
+						showSizeChanger={false}
+						responsive
+						showLessItems
+						disabled={loading}
+						onChange={(nextPage) => {
+							setSelectedId(null);
+							onPageChange(nextPage - 1);
+						}}
+					/>
 				</nav>
 			</footer>
 			<AiUsageDetailsDrawer
