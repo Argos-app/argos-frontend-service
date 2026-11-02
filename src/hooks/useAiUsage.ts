@@ -5,45 +5,42 @@ import type { AiUsageUser, PageResponse } from "@/types";
 const REFRESH_INTERVAL_MS = 30_000;
 const PAGE_SIZE = 10;
 
+interface AiUsageState {
+	page: number;
+	attempt: number;
+	response: PageResponse<AiUsageUser> | null;
+	updatedAt: Date | null;
+	status: "loading" | "success" | "error";
+	error: string | null;
+}
+
 export function useAiUsage() {
-	const [page, setPageIndex] = useState(0);
-	const [response, setResponse] = useState<PageResponse<AiUsageUser> | null>(null);
-	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
-	const [updatedAt, setUpdatedAt] = useState<Date | null>(null);
-	const [attempt, setAttempt] = useState(0);
-	const reload = useCallback(() => setAttempt((current) => current + 1), []);
-	const setPage = useCallback((nextPage: number) => {
-		if (nextPage === page) return;
-		setPageIndex(nextPage);
-		setLoading(true);
-		setError(null);
-		setUpdatedAt(null);
-	}, [page]);
+	const [state, setState] = useState<AiUsageState>({ page: 0, attempt: 0, response: null, updatedAt: null, status: "loading", error: null });
+	const { page, attempt } = state;
+	const reload = useCallback(() => setState((current) => ({ ...current, attempt: current.attempt + 1, status: "loading", error: null })), []);
+	const setPage = useCallback((nextPage: number) => setState((current) => current.page === nextPage ? current : {
+		...current, page: nextPage, response: null, updatedAt: null, status: "loading", error: null,
+	}), []);
 
 	useEffect(() => {
 		const controller = new AbortController();
 		let timer: ReturnType<typeof setTimeout> | undefined;
 
 		async function load() {
-			setLoading(true);
+			setState((current) => current.page === page && current.attempt === attempt ? { ...current, status: "loading" } : current);
 			try {
 				const result = await getAiUsage(page, PAGE_SIZE, controller.signal);
 				if (!controller.signal.aborted) {
-					setResponse(result);
-					setUpdatedAt(new Date());
-					setError(null);
+					setState((current) => current.page === page && current.attempt === attempt ? {
+						...current, response: result, updatedAt: new Date(), status: "success", error: null,
+					} : current);
 				}
 			} catch (cause) {
-				if (!controller.signal.aborted)
-					setError(
-						cause instanceof InvalidAiUsageResponseError
-							? cause.message
-							: "Não foi possível atualizar o uso de IA. Tente novamente.",
-					);
+				if (!controller.signal.aborted) setState((current) => current.page === page && current.attempt === attempt ? {
+					...current, status: "error", error: cause instanceof InvalidAiUsageResponseError ? cause.message : "Não foi possível atualizar o uso de IA. Tente novamente.",
+				} : current);
 			} finally {
 				if (!controller.signal.aborted) {
-					setLoading(false);
 					timer = setTimeout(load, REFRESH_INTERVAL_MS);
 				}
 			}
@@ -56,15 +53,16 @@ export function useAiUsage() {
 		};
 	}, [attempt, page]);
 
+	const response = state.response?.page === page ? state.response : null;
 	return {
-		users: response?.page === page ? response.data : [],
+		users: response?.data ?? [],
 		page,
 		size: PAGE_SIZE,
 		totalElements: response?.totalElements ?? 0,
 		totalPages: response?.totalPages ?? 0,
-		loading,
-		error,
-		updatedAt: response?.page === page ? updatedAt : null,
+		loading: state.status === "loading",
+		error: state.error,
+		updatedAt: response ? state.updatedAt : null,
 		reload,
 		setPage,
 	};

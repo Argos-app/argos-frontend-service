@@ -19,7 +19,7 @@ export function BigNumberCard({ label, value, detail, icon }: BigNumberCardProps
 					{icon}
 				</span>
 			</div>
-			<p className="mt-4 text-3xl font-semibold text-brand-ink">{value}</p>
+			<h2 className="mt-4 break-all text-xl font-semibold text-brand-ink 2xl:text-3xl">{value}</h2>
 			<p className="mt-1 text-xs text-brand-forest">{detail}</p>
 		</section>
 	);

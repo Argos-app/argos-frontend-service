@@ -37,11 +37,11 @@ export function AiUsageDetailsDrawer({ user: selected, open, stale, onClose }: A
 								photoUrl={selected.photoUrl}
 								className="h-14 w-14 text-base"
 							/>
-							<div>
-								<h2 className="text-lg font-semibold text-brand-ink">
+							<div className="min-w-0">
+								<h2 className="wrap-break-word text-lg font-semibold text-brand-ink">
 									{displayName(selected)}
 								</h2>
-								<p className="text-sm">
+								<p className="break-all text-sm">
 									{selected.email || "E-mail não disponível"}
 								</p>
 							</div>
@@ -75,7 +75,7 @@ export function AiUsageDetailsDrawer({ user: selected, open, stale, onClose }: A
 									className="flex justify-between gap-4 border-b border-brand-sand/60 pb-3"
 								>
 									<dt>{label}</dt>
-									<dd className="text-right font-medium text-brand-ink">
+									<dd className="max-w-1/2 break-all text-right font-medium text-brand-ink">
 										{value}
 									</dd>
 								</div>

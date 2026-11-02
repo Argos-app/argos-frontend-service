@@ -50,7 +50,7 @@ export function UsersTable({ users, loading, error, onRetry, onEdit, onDelete }:
       render: (user) => (
         <span
           className={`inline-flex w-max items-center rounded-md px-3 py-1 text-xs font-medium ${
-            user.active ? "bg-brand-leaf/20 text-brand-forest" : "bg-brand-sand/50 text-brand-brown"
+            user.active ? "bg-brand-leaf/20 text-brand-forest" : "bg-brand-sand/50 text-brand-forest"
           }`}
         >
           {user.active ? "Ativo" : "Inativo"}
@@ -82,7 +82,7 @@ export function UsersTable({ users, loading, error, onRetry, onEdit, onDelete }:
             <button
               type="button"
               aria-label={`Remover acesso de ${user.name}`}
-              className="rounded-md p-2 text-brand-brown hover:bg-brand-sand/40 hover:text-brand-ink"
+              className="rounded-md p-2 text-brand-forest hover:bg-brand-sand/40 hover:text-brand-ink"
             >
               <Trash className="h-4 w-4" strokeWidth={2} />
             </button>
@@ -97,12 +97,14 @@ export function UsersTable({ users, loading, error, onRetry, onEdit, onDelete }:
       columns={columns}
       data={users}
       rowKey="userId"
+      scrollAreaTabIndex={0}
+      scrollAreaLabel="Lista de usuários"
       loading={loading}
       error={error}
       onRetry={onRetry}
       loadingMessage="Carregando usuários..."
       emptyMessage="Nenhum usuário encontrado."
-      className="min-h-0 flex-1 overflow-auto px-0"
+      className="min-h-40 flex-1 overflow-auto px-0"
     />
   );
 }

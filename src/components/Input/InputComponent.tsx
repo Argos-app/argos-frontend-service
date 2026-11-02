@@ -19,7 +19,7 @@ export const InputComponent = ({
 	...props
 }: InputProps) => {
 	return (
-		<div className="flex items-center mt-6 w-full bg-transparent border border-brand-forest/60 focus-within:border-brand-forest h-12 rounded-full overflow-hidden pl-6 gap-2">
+		<div className="flex items-center mt-6 w-full bg-transparent border border-brand-forest/60 focus-within:border-brand-forest focus-within:ring-2 focus-within:ring-brand-forest h-12 rounded-full overflow-hidden pl-6 gap-2">
 			<label className="sr-only" htmlFor={id}>{label}</label>
 			{children}
 			<input
@@ -27,7 +27,7 @@ export const InputComponent = ({
 				type={type}
 				placeholder={placeholder}
 				className={cn(
-					"bg-transparent text-brand-ink placeholder-brand-forest outline-none text-sm w-full h-full",
+					"min-w-0 bg-transparent text-brand-ink placeholder-brand-forest outline-none text-sm w-full h-full",
 					className,
 				)}
 				value={value}

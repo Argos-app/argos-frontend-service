@@ -10,6 +10,19 @@ import type { AiUsageUser } from "@/types";
 import { formatNumber, formatCost } from "@/lib/aiUsageFormat";
 import { AiUsageUsersTable } from "@/components/Table/AiUsageUsersTable";
 
+interface AiUsagePanelProps {
+	users: AiUsageUser[];
+	loading: boolean;
+	error: string | null;
+	updatedAt: Date | null;
+	onRefresh: () => void;
+	page: number;
+	size: number;
+	totalPages: number;
+	totalElements: number;
+	onPageChange: (page: number) => void;
+}
+
 export function AiUsagePanel({
 	users,
 	loading,
@@ -21,18 +34,7 @@ export function AiUsagePanel({
 	totalPages,
 	totalElements,
 	onPageChange,
-}: {
-	users: AiUsageUser[];
-	loading: boolean;
-	error: string | null;
-	updatedAt: Date | null;
-	onRefresh: () => void;
-	page: number;
-	size: number;
-	totalPages: number;
-	totalElements: number;
-	onPageChange: (page: number) => void;
-}) {
+}: AiUsagePanelProps) {
 	const [query, setQuery] = useState("");
 	const [selectedId, setSelectedId] = useState<string | null>(null);
 	const selected = users.find((user) => user.userId === selectedId) ?? null;

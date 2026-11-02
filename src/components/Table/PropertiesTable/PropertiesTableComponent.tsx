@@ -122,12 +122,14 @@ export function PropertiesTable({
       columns={columns}
       data={properties}
       rowKey="id"
+      scrollAreaTabIndex={0}
+      scrollAreaLabel="Lista de propriedades"
       loading={loading}
       error={error}
       onRetry={onRetry}
       loadingMessage="Carregando propriedades..."
       emptyMessage="Nenhuma propriedade ativa encontrada."
-      className="min-h-0 flex-1 overflow-auto px-0"
+      className="min-h-40 flex-1 overflow-auto px-0"
     />
   );
 }

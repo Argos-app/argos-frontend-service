@@ -46,7 +46,7 @@ export function UsersPanel({
   const isSearching = normalizedQuery.length > 0;
 
   return (
-    <main id="main-content" tabIndex={-1} aria-labelledby="users-page-title" className="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-lg border border-brand-sand bg-brand-cream shadow-sm">
+    <main id="main-content" tabIndex={-1} aria-labelledby="users-page-title" className="flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-y-auto rounded-lg border border-brand-sand bg-brand-cream shadow-sm">
       <div className="shrink-0 rounded-none p-4">
         <header className="mb-8 flex items-center justify-between gap-8">
           <div>
@@ -90,6 +90,8 @@ export function UsersPanel({
             pageSize={10}
             total={totalElements}
             showSizeChanger={false}
+            responsive
+            showLessItems
             disabled={loading}
             onChange={(nextPage) => onPageChange(nextPage - 1)}
           />
