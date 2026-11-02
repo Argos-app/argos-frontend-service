@@ -21,6 +21,7 @@ const mocks = vi.hoisted(() => ({
   reset: { submit: vi.fn(), loading: false, error: "Falha no envio", sent: false, fieldErrors: {} },
   profile: { profile: null, loading: false, error: "Falha ao consultar perfil", reload: vi.fn() },
 }));
+vi.mock("@/lib/firebase", () => ({ auth: {} }));
 vi.mock("@/hooks/useAuthActions", () => ({ useAuthActions: () => mocks.auth }));
 vi.mock("@/hooks/usePasswordReset", () => ({ usePasswordReset: () => mocks.reset }));
 vi.mock("@/hooks/useUserProfile", () => ({ useUserProfile: () => mocks.profile }));
